@@ -1,4 +1,4 @@
-﻿# Pizzapolis visual structure
+﻿# Sozzial visual structure
 
 This folder centralizes the visual system so future changes are easier.
 
