@@ -1,0 +1,19 @@
+{
+  "name": "Sozzial",
+  "short_name": "Sozzial",
+  "description": "Mapa social para pizza, planes, check-ins y rankings.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060606",
+  "theme_color": "#df5b43",
+  "icons": [
+    {
+      "src": "/sozzial-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
