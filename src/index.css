@@ -1,0 +1,21 @@
+﻿@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/components.css';
+@import './styles/map.css';
+@import './styles/screens.css';
+@import './styles/utilities.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+

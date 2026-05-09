@@ -1,0 +1,154 @@
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
+const LOCAL_CHECKINS = "sozzial_local_checkins";
+const LOCAL_ACTIVITY = "sozzial_local_activity";
+
+function readLocal(key) {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(key) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocal(key, value) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(key, JSON.stringify(value.slice(0, 100)));
+}
+
+export const PASSPORT_TASKS = [
+  { id: "first_checkin", label: "First check-in", description: "Mark that you are at a pizza spot.", target: 1, metric: "checkins" },
+  { id: "slice_hunter", label: "Slice hunter", description: "Check in at 5 different pizza spots.", target: 5, metric: "uniqueSpots" },
+  { id: "reviewer", label: "Reviewer", description: "Leave 3 public notes or reviews.", target: 3, metric: "comments" },
+  { id: "social_host", label: "Social host", description: "Create or join 2 pizza plans.", target: 2, metric: "plans" },
+];
+
+export async function createCheckIn({ userId, spotId, slicePrice, note }) {
+  const payload = {
+    user_id: userId || null,
+    spot_id: spotId,
+    slice_price: slicePrice ? Number(slicePrice) : null,
+    note: note || null,
+    created_at: new Date().toISOString(),
+  };
+
+  if (isSupabaseConfigured && supabase && userId) {
+    const { error } = await supabase.from("check_ins").insert(payload);
+    if (!error) {
+      await supabase.from("activity_events").insert({
+        user_id: userId,
+        event_type: "check_in",
+        entity_type: "spot",
+        entity_id: spotId,
+        metadata: { slice_price: payload.slice_price, note: payload.note },
+      });
+      return { persisted: true };
+    }
+  }
+
+  const nextCheckins = [payload, ...readLocal(LOCAL_CHECKINS)];
+  writeLocal(LOCAL_CHECKINS, nextCheckins);
+  writeLocal(LOCAL_ACTIVITY, [
+    { id: window.crypto?.randomUUID?.() || String(Date.now()), event_type: "check_in", metadata: payload, created_at: payload.created_at },
+    ...readLocal(LOCAL_ACTIVITY),
+  ]);
+  return { persisted: false };
+}
+
+export async function fetchPassportBundle(userId) {
+  if (!userId || !isSupabaseConfigured || !supabase) {
+    const checkins = readLocal(LOCAL_CHECKINS);
+    return {
+      checkins,
+      comments: [],
+      plans: [],
+      uniqueSpots: new Set(checkins.map((row) => row.spot_id)).size,
+    };
+  }
+
+  const [checkinsRes, commentsRes, ownedPlansRes, joinedPlansRes] = await Promise.all([
+    supabase.from("check_ins").select("id,spot_id,slice_price,note,created_at,spots(id,name,address)").eq("user_id", userId).order("created_at", { ascending: false }).limit(50),
+    supabase.from("spot_comments").select("id,spot_id,created_at,status").eq("user_id", userId).limit(50),
+    supabase.from("plans").select("id").eq("created_by", userId).limit(50),
+    supabase.from("plan_members").select("plan_id").eq("user_id", userId).eq("status", "joined").limit(50),
+  ]);
+
+  const checkins = checkinsRes.error ? [] : checkinsRes.data || [];
+  const comments = commentsRes.error ? [] : commentsRes.data || [];
+  const plans = [...(ownedPlansRes.error ? [] : ownedPlansRes.data || []), ...(joinedPlansRes.error ? [] : joinedPlansRes.data || [])];
+
+  return {
+    checkins,
+    comments,
+    plans,
+    uniqueSpots: new Set(checkins.map((row) => row.spot_id)).size,
+  };
+}
+
+export function progressForTask(task, bundle) {
+  const metrics = {
+    checkins: bundle.checkins?.length || 0,
+    uniqueSpots: bundle.uniqueSpots || 0,
+    comments: bundle.comments?.filter((row) => row.status !== "rejected").length || 0,
+    plans: bundle.plans?.length || 0,
+  };
+  return Math.min(metrics[task.metric] || 0, task.target);
+}
+
+export async function fetchWeeklyRankings() {
+  if (!isSupabaseConfigured || !supabase) return { users: [], spots: [] };
+  const since = new Date();
+  since.setDate(since.getDate() - 7);
+
+  const [checkinsRes, commentsRes, profilesRes, spotsRes] = await Promise.all([
+    supabase.from("check_ins").select("id,user_id,spot_id,slice_price,created_at").gte("created_at", since.toISOString()).limit(500),
+    supabase.from("spot_comments").select("id,user_id,spot_id,created_at,status").gte("created_at", since.toISOString()).limit(500),
+    supabase.from("profiles").select("id,username,avatar_url").limit(500),
+    supabase.from("spots").select("id,name,address,average_rating").limit(500),
+  ]);
+
+  const checkins = checkinsRes.error ? [] : checkinsRes.data || [];
+  const comments = commentsRes.error ? [] : commentsRes.data || [];
+  const profiles = new Map((profilesRes.error ? [] : profilesRes.data || []).map((profile) => [profile.id, profile]));
+  const spots = new Map((spotsRes.error ? [] : spotsRes.data || []).map((spot) => [spot.id, spot]));
+
+  const userScores = new Map();
+  checkins.forEach((row) => userScores.set(row.user_id, (userScores.get(row.user_id) || 0) + 3));
+  comments.forEach((row) => userScores.set(row.user_id, (userScores.get(row.user_id) || 0) + 2));
+
+  const spotScores = new Map();
+  checkins.forEach((row) => spotScores.set(row.spot_id, (spotScores.get(row.spot_id) || 0) + 2));
+  comments.forEach((row) => spotScores.set(row.spot_id, (spotScores.get(row.spot_id) || 0) + 1));
+
+  return {
+    users: [...userScores.entries()]
+      .filter(([id]) => id)
+      .map(([id, score]) => ({ id, score, profile: profiles.get(id) || null }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20),
+    spots: [...spotScores.entries()]
+      .filter(([id]) => id)
+      .map(([id, score]) => ({ id, score, spot: spots.get(id) || null }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20),
+  };
+}
+
+export async function fetchActivityFeed() {
+  if (!isSupabaseConfigured || !supabase) return readLocal(LOCAL_ACTIVITY);
+  const { data, error } = await supabase
+    .from("activity_events")
+    .select("id,user_id,event_type,entity_type,entity_id,metadata,created_at")
+    .order("created_at", { ascending: false })
+    .limit(60);
+  if (error) return readLocal(LOCAL_ACTIVITY);
+  const rows = data || [];
+  const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))];
+  const { data: profiles } = userIds.length
+    ? await supabase.from("profiles").select("id,username,avatar_url").in("id", userIds)
+    : { data: [] };
+  const profileMap = new Map((profiles || []).map((profile) => [profile.id, profile]));
+  return rows.map((row) => ({ ...row, profile: profileMap.get(row.user_id) || null }));
+}

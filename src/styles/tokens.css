@@ -1,0 +1,71 @@
+﻿@layer base {
+  :root {
+    color-scheme: light;
+
+    --background: 42 38% 96%;
+    --foreground: 0 0% 8%;
+    --card: 44 55% 98%;
+    --card-foreground: 0 0% 9%;
+    --popover: 44 55% 98%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 44 84% 52%;
+    --primary-foreground: 0 0% 8%;
+    --secondary: 45 26% 90%;
+    --secondary-foreground: 0 0% 12%;
+    --muted: 42 22% 91%;
+    --muted-foreground: 0 0% 34%;
+    --accent: 44 36% 92%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 6 74% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 32 22% 78%;
+    --input: 32 22% 78%;
+    --ring: 44 84% 52%;
+
+    --radius: 0.75rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
+    --radius-2xl: 1.75rem;
+
+    --surface-0: #f7f3eb;
+    --surface-1: rgba(250, 246, 239, 0.9);
+    --surface-2: #fffaf1;
+    --surface-3: #ede4d4;
+    --surface-elevated: rgba(255, 255, 255, 0.82);
+
+    --text-primary: #121212;
+    --text-secondary: #222222;
+    --text-muted: #605747;
+    --text-faint: #8b816f;
+
+    --accent-yellow: #ebb932;
+    --accent-yellow-strong: #d6a11e;
+    --accent-green: #2f8f46;
+    --accent-green-strong: #216b33;
+    --accent-red: #df5b43;
+    --accent-red-strong: #c84b35;
+    --accent-black: #111111;
+
+    --page-max-width: 1280px;
+    --header-height: 72px;
+    --mobile-nav-height: 82px;
+    --content-gutter: clamp(16px, 2.5vw, 24px);
+    --viewport-height: calc(100dvh - var(--header-height));
+    --viewport-height-mobile: calc(100dvh - var(--header-height) - var(--mobile-nav-height));
+    --viewport-height-no-header: 100dvh;
+
+    --shadow-soft: 0 12px 34px rgba(34, 25, 11, 0.08);
+    --shadow-card: 0 26px 68px rgba(34, 25, 11, 0.12);
+    --shadow-brand: 0 18px 38px rgba(235, 185, 50, 0.24);
+    --shadow-red: 0 18px 40px rgba(223, 91, 67, 0.2);
+
+    --transition-fast: 180ms ease;
+    --transition-base: 240ms ease;
+  }
+
+  html, body, #root {
+    min-height: 100%;
+    background: var(--surface-0);
+  }
+}
+

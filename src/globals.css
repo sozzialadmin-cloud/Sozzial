@@ -1,0 +1,7 @@
+﻿/*
+  Global styles now live in src/index.css and src/styles/*.
+  Keep this file only as a compatibility placeholder for older imports.
+*/
+
+@import './index.css';
+

@@ -1,0 +1,23 @@
+﻿@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .full-viewport {
+    min-height: 100dvh;
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
