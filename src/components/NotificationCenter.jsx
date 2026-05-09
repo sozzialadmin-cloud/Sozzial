@@ -6,7 +6,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { ZINDEX } from '@/lib/zindex';
 import { readAppSettings } from '@/lib/appSettings';
 
-const storageKeyFor = (userId) => `pizzapolis_notifications_state_${userId}`;
+const storageKeyFor = (userId) => `sozzial_notifications_state_${userId}`;
 
 function readNotificationState(userId) {
   if (typeof window === 'undefined' || !userId) return { dismissedIds: [], clearedAt: null, notifiedIds: [] };

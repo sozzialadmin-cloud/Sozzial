@@ -13,48 +13,7 @@ import PinPopup from "@/components/map/PinPopup";
 import { MAP_STYLES } from "@/lib/constants";
 import { toast } from "@/components/ui/use-toast";
 import { readSavedSpotIds, toggleSavedSpot } from "@/lib/user-actions";
-
-async function resolveSpotPhoto(value) {
-  if (!value) return null;
-  if (!isSupabaseConfigured || !supabase) return null;
-  if (String(value).startsWith("http")) return value;
-  const { data } = await supabase.storage.from("spot-photos").createSignedUrl(value, 60 * 60);
-  return data?.signedUrl || null;
-}
-
-function normalizeSpot(row) {
-  return {
-    ...row,
-    latitude: Number(row.lat ?? 0),
-    longitude: Number(row.lng ?? 0),
-    standard_slice_price: Number(row.slice_price ?? 0),
-    best_known_slice: row.best_slice ?? "",
-    average_rating: Number(row.average_rating ?? 0),
-    ratings_count: Number(row.ratings_count ?? 0),
-    neighborhood: row.address || "NYC",
-    borough: "",
-    description: row.quick_note || "",
-    quick_note: row.quick_note || "",
-  };
-}
-
-async function fetchPlaces() {
-  if (!isSupabaseConfigured || !supabase) return [];
-  const { data, error } = await supabase
-    .from("spots")
-    .select("id,name,address,lat,lng,slice_price,best_slice,quick_note,photo_url,status,created_by,average_rating,ratings_count")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  const rows = await Promise.all((data || []).map(async (row) => ({ ...row, photo_url: await resolveSpotPhoto(row.photo_url) })));
-  return rows.map(normalizeSpot);
-}
-
-async function fetchActivePlanCounts() {
-  if (!isSupabaseConfigured || !supabase) return [];
-  const { data, error } = await supabase.from("plans").select("id,spot_id").eq("status", "active");
-  if (error) throw error;
-  return data || [];
-}
+import { applySpotFilters, countPlansBySpot, fetchActivePlanCounts, fetchMapSpots } from "@/features/map/mapData";
 
 export default function Home() {
   const { user } = useAuth();
@@ -81,7 +40,7 @@ export default function Home() {
 
   const { data: places = [] } = useQuery({
     queryKey: ["places-supabase"],
-    queryFn: fetchPlaces,
+    queryFn: fetchMapSpots,
     enabled: Boolean(isSupabaseConfigured && supabase),
   });
 
@@ -95,56 +54,14 @@ export default function Home() {
     setSavedPlaceIds(readSavedSpotIds(user?.id));
   }, [user?.id]);
 
-  const hangoutsByPlace = useMemo(() => {
-    const map = {};
-    activePlans.forEach((plan) => {
-      if (!plan.spot_id) return;
-      map[plan.spot_id] = (map[plan.spot_id] || 0) + 1;
-    });
-    return map;
-  }, [activePlans]);
+  const hangoutsByPlace = useMemo(() => countPlansBySpot(activePlans), [activePlans]);
 
   const enrichedPlaces = useMemo(
     () => (places || []).map((place) => ({ ...place, active_hangouts_count: hangoutsByPlace[place.id] || 0 })),
     [places, hangoutsByPlace],
   );
 
-  const filteredPlaces = useMemo(() => {
-    let result = [...enrichedPlaces];
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name?.toLowerCase().includes(q) ||
-          p.address?.toLowerCase().includes(q) ||
-          p.best_known_slice?.toLowerCase().includes(q) ||
-          p.quick_note?.toLowerCase().includes(q),
-      );
-    }
-    if (filters.priceBands?.length) {
-      result = result.filter((p) => {
-        const price = Number(p.standard_slice_price || 0);
-        return filters.priceBands.some((band) => {
-          if (band === "budget") return price > 0 && price <= 3;
-          if (band === "mid") return price > 3 && price <= 5;
-          if (band === "premium") return price > 5;
-          return true;
-        });
-      });
-    }
-    if (Number(filters.minRating || 0) > 0) result = result.filter((p) => Number(p.average_rating || 0) >= Number(filters.minRating));
-    if (filters.withPhoto) result = result.filter((p) => Boolean(p.photo_url));
-    if (filters.withActivePlans) result = result.filter((p) => Number(p.active_hangouts_count || 0) > 0);
-    if (filters.withBestSlice) result = result.filter((p) => Boolean(String(p.best_known_slice || "").trim()));
-    if (filters.withNotes) result = result.filter((p) => Boolean(String(p.quick_note || "").trim()));
-    if (filters.sortBy === "rating") result.sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0));
-    if (filters.sortBy === "reviews") result.sort((a, b) => Number(b.ratings_count || 0) - Number(a.ratings_count || 0));
-    if (filters.sortBy === "active_plans") result.sort((a, b) => Number(b.active_hangouts_count || 0) - Number(a.active_hangouts_count || 0));
-    if (filters.sortBy === "price_low") result.sort((a, b) => Number(a.standard_slice_price || 0) - Number(b.standard_slice_price || 0));
-    if (filters.sortBy === "price_high") result.sort((a, b) => Number(b.standard_slice_price || 0) - Number(a.standard_slice_price || 0));
-    if (filters.sortBy === "name") result.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
-    return result;
-  }, [enrichedPlaces, filters]);
+  const filteredPlaces = useMemo(() => applySpotFilters(enrichedPlaces, filters), [enrichedPlaces, filters]);
 
   const handleAddPin = () => {
     if (!user) {

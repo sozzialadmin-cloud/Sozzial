@@ -1,10 +1,12 @@
-﻿export const APP_SETTINGS_KEY = 'pizzapolis_app_settings';
+export const APP_SETTINGS_KEY = 'sozzial_app_settings';
+
 export const defaultAppSettings = {
   notifications: { pushEnabled: false, messageAlerts: true, groupAlerts: true },
   language: 'English',
   privacy: { showProfile: true, showJoinedPlans: true, allowMessagesFromMembers: true },
   account: { rememberMe: true },
 };
+
 export function readAppSettings() {
   if (typeof window === 'undefined') return defaultAppSettings;
   try {
@@ -21,8 +23,8 @@ export function readAppSettings() {
     return defaultAppSettings;
   }
 }
+
 export function writeAppSettings(next) {
   if (typeof window !== 'undefined') localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(next));
   return next;
 }
-

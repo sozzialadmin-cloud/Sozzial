@@ -1,28 +1,12 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronRight, LogOut, Menu, Pizza } from 'lucide-react';
 import { createPageUrl } from '@/utils';
-import { Activity, ChevronRight, Flame, LogOut, Map, Menu, Pizza, PlusCircle, Shield, Trophy, User, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import NotificationCenter from '@/components/NotificationCenter';
 import { useAuth } from '@/lib/AuthContext';
-
-const publicNavItems = [
-  { label: 'Map', page: 'Home', icon: Map },
-  { label: 'Discover', page: 'Descubrir', icon: Flame },
-  { label: 'Rankings', page: 'Rankings', icon: Trophy },
-  { label: 'Feed', page: 'ActivityFeed', icon: Activity },
-];
-
-const privateNavItems = [
-  { label: 'Passport', page: 'Passport', icon: Trophy },
-  { label: 'Add plan', page: 'CrearQuedada', icon: PlusCircle, accent: true },
-  { label: 'Groups', page: 'MisMatches', icon: Users },
-  { label: 'Profile', page: 'Profile', icon: User },
-];
-
-const publicPages = new Set(['Landing', 'Home', 'Descubrir', 'Rankings', 'ActivityFeed']);
-const viewportPages = new Set(['Landing']);
+import { adminNavItem, desktopNavItems, mobileNavItems, PUBLIC_PAGE_NAMES, VIEWPORT_PAGE_NAMES } from '@/app/navigation';
 
 function Brand({ compact = false }) {
   return (
@@ -47,21 +31,23 @@ export default function Layout({ children, currentPageName }) {
 
   useEffect(() => {
     const handleChatState = (event) => setGroupChatOpen(Boolean(event?.detail?.open));
+    window.addEventListener('sozzial:group-chat-state', handleChatState);
     window.addEventListener('pizzapolis:group-chat-state', handleChatState);
-    return () => window.removeEventListener('pizzapolis:group-chat-state', handleChatState);
+    return () => {
+      window.removeEventListener('sozzial:group-chat-state', handleChatState);
+      window.removeEventListener('pizzapolis:group-chat-state', handleChatState);
+    };
   }, []);
 
   useEffect(() => {
     if (currentPageName !== 'MisMatches') setGroupChatOpen(false);
   }, [currentPageName]);
 
-  const navItems = [...publicNavItems, ...privateNavItems];
-  const menuItems =
-    role === 'admin' && isAuthenticated ? [...navItems, { label: 'Admin', page: 'Admin', icon: Shield }] : navItems;
+  const menuItems = role === 'admin' && isAuthenticated ? [...desktopNavItems, adminNavItem] : desktopNavItems;
   const hideHeader = currentPageName === 'Landing' || currentPageName === 'Descubrir';
   const hideBottomNav = currentPageName === 'Descubrir' || (currentPageName === 'MisMatches' && groupChatOpen);
   const navTarget = (page) =>
-    publicPages.has(page) || isAuthenticated ? createPageUrl(page) : `/auth?next=${encodeURIComponent(createPageUrl(page))}`;
+    PUBLIC_PAGE_NAMES.has(page) || isAuthenticated ? createPageUrl(page) : `/auth?next=${encodeURIComponent(createPageUrl(page))}`;
   const navClass = (active, accent = false) => {
     if (accent) return 'bg-[#de5a42] text-white shadow-[0_12px_32px_rgba(222,90,66,0.22)] hover:bg-[#c84b35]';
     return active
@@ -79,7 +65,7 @@ export default function Layout({ children, currentPageName }) {
             </Link>
 
             <div className="hidden items-center gap-2 md:flex">
-              {navItems.map((item) => {
+              {desktopNavItems.map((item) => {
                 const Icon = item.icon;
                 const active = currentPageName === item.page;
                 return (
@@ -154,21 +140,14 @@ export default function Layout({ children, currentPageName }) {
         </header>
       )}
 
-      <main className={`${hideHeader ? '' : `app-content ${viewportPages.has(currentPageName) ? 'app-content--viewport' : 'app-content--standard'} ${hideBottomNav ? 'app-content--flush' : ''}`}`}>
+      <main className={`${hideHeader ? '' : `app-content ${VIEWPORT_PAGE_NAMES.has(currentPageName) ? 'app-content--viewport' : 'app-content--standard'} ${hideBottomNav ? 'app-content--flush' : ''}`}`}>
         {children}
       </main>
 
       {!hideHeader && !hideBottomNav && (
         <nav className="mobile-tabbar">
           <div className="mobile-tabbar-grid">
-            {[
-              publicNavItems[0],
-              publicNavItems[1],
-              privateNavItems[0],
-              privateNavItems[1],
-              privateNavItems[2],
-              privateNavItems[3],
-            ].map((item) => {
+            {mobileNavItems.map((item) => {
               const Icon = item.icon;
               const active = currentPageName === item.page;
               return (
@@ -186,4 +165,3 @@ export default function Layout({ children, currentPageName }) {
     </div>
   );
 }
-

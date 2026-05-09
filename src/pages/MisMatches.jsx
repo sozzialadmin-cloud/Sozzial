@@ -217,8 +217,8 @@ export default function MisMatches() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    window.dispatchEvent(new CustomEvent('pizzapolis:group-chat-state', { detail: { open: Boolean(mobileChatOpen) } }));
-    return () => window.dispatchEvent(new CustomEvent('pizzapolis:group-chat-state', { detail: { open: false } }));
+    window.dispatchEvent(new CustomEvent('sozzial:group-chat-state', { detail: { open: Boolean(mobileChatOpen) } }));
+    return () => window.dispatchEvent(new CustomEvent('sozzial:group-chat-state', { detail: { open: false } }));
   }, [mobileChatOpen]);
 
   useEffect(() => {

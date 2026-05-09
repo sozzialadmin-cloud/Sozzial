@@ -209,8 +209,8 @@ function SwipeCard({ current, onSkip, onJoin }) {
   );
 }
 
-const STORAGE_DISMISSED = "pizzapolis_discover_dismissed";
-const STORAGE_JOINED = "pizzapolis_discover_joined_hidden";
+const STORAGE_DISMISSED = "sozzial_discover_dismissed";
+const STORAGE_JOINED = "sozzial_discover_joined_hidden";
 
 export default function Descubrir() {
   const navigate = useNavigate();
