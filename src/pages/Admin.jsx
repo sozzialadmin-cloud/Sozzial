@@ -555,7 +555,7 @@ export default function Admin() {
           label: 'Spot sin foto pero aprobado',
           entityTitle: spot.name,
           entityId: spot.id,
-          subtitle: 'EstÃ¡ visible al pÃºblico sin una foto principal.',
+          subtitle: 'Esta visible al publico sin una foto principal.',
           createdAt: spot.updated_at || spot.created_at,
         });
       }
@@ -606,7 +606,7 @@ export default function Admin() {
           label: 'Usuario reportado 3 veces',
           entityTitle: getPublicUsername(person),
           entityId: person.id,
-          subtitle: `Hay ${count} seÃ±ales de riesgo en su actividad reciente.`,
+          subtitle: `Hay ${count} senales de riesgo en su actividad reciente.`,
           createdAt: person.updated_at || person.created_at,
         });
       }
@@ -620,7 +620,7 @@ export default function Admin() {
         label: 'Spot duplicado probable',
         entityTitle: `${pair.a.name} / ${pair.b.name}`,
         entityId: pair.a.id,
-        subtitle: `Coincidencia por nombre/direcciÃ³n y ${pair.distance} m de distancia.`,
+        subtitle: `Coincidencia por nombre/direccion y ${pair.distance} m de distancia.`,
         createdAt: pair.a.updated_at || pair.a.created_at,
       });
     });
@@ -804,7 +804,7 @@ export default function Admin() {
         <div className="rounded-[28px] border border-black/10 bg-[#fffaf1] px-6 py-10 text-center shadow-[0_24px_60px_rgba(34,25,11,0.12)]">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111111] text-[#f0bf39]"><Shield className="h-6 w-6" /></div>
           <h1 className="text-2xl font-black text-[#111111]">Zona solo para administradores</h1>
-          <p className="mt-2 text-sm text-[#6d665b]">Necesitas un usuario con role = admin en profiles para entrar aquÃ­.</p>
+          <p className="mt-2 text-sm text-[#6d665b]">Necesitas un usuario con role = admin en profiles para entrar aqui.</p>
         </div>
       </div>
     );
@@ -828,18 +828,18 @@ export default function Admin() {
               </div>
               <h1 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] font-black leading-none tracking-[-0.06em]">Admin Sozzial</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6d665b]">
-                Dashboard pensado para resolver en segundos: spots pendientes, planes activos, seÃ±ales de riesgo, usuarios nuevos, mensajes conflictivos y contenido que necesita moderaciÃ³n.
+                Dashboard pensado para resolver en segundos: spots pendientes, planes activos, senales de riesgo, usuarios nuevos, mensajes conflictivos y contenido que necesita moderacion.
               </p>
             </div>
             <div className="grid gap-3 rounded-[28px] border border-black/10 bg-white px-5 py-4 shadow-[0_18px_40px_rgba(39,29,14,0.08)] sm:grid-cols-2">
               <div>
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">SesiÃ³n actual</div>
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Sesion actual</div>
                 <div className="mt-2 text-base font-bold text-[#111111]">{user?.email}</div>
                 <div className="mt-1 text-sm text-[#6d665b]">Rol: {role}</div>
               </div>
               <div>
                 <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Urgencia</div>
-                <div className="mt-2 text-base font-bold text-[#111111]">{overviewStats.urgentItems ? `${overviewStats.urgentItems} alertas crÃ­ticas` : 'Sin alertas crÃ­ticas'}</div>
+                <div className="mt-2 text-base font-bold text-[#111111]">{overviewStats.urgentItems ? `${overviewStats.urgentItems} alertas criticas` : 'Sin alertas criticas'}</div>
                 <div className="mt-1 text-sm text-[#6d665b]">Hoy: {overviewStats.newUsersToday} usuarios nuevos</div>
               </div>
             </div>
@@ -848,23 +848,23 @@ export default function Admin() {
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <StatCard label="Spots pendientes" value={overviewStats.pendingSpots} note="Esperando revision" icon={Pizza} accent="text-[#df5b43]" />
-          <StatCard label="Planes activos" value={overviewStats.activePlans} note="En curso o prÃ³ximos" icon={CalendarDays} accent="text-[#216b33]" />
+          <StatCard label="Planes activos" value={overviewStats.activePlans} note="En curso o proximos" icon={CalendarDays} accent="text-[#216b33]" />
           <StatCard label="Reportes abiertos" value={overviewStats.openReports} note={overviewStats.urgentItems ? `${overviewStats.urgentItems} urgentes` : 'Sin urgencias'} icon={ShieldAlert} accent="text-[#df5b43]" />
           <StatCard label="Usuarios nuevos" value={overviewStats.newUsersToday} note={`${overviewStats.newUsersWeek} esta semana`} icon={Users} accent="text-[#111111]" />
-          <StatCard label="Mensajes reportados" value={overviewStats.reportedMessages} note="SeÃ±ales automÃ¡ticas" icon={MessageSquare} accent="text-[#df5b43]" />
+          <StatCard label="Mensajes reportados" value={overviewStats.reportedMessages} note="Senales automaticas" icon={MessageSquare} accent="text-[#df5b43]" />
           <StatCard label="Fotos pendientes" value={overviewStats.pendingPhotos} note="Pendientes de aprobar" icon={Camera} accent="text-[#216b33]" />
         </div>
 
-        <div className="rounded-[30px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_20px_50px_rgba(34,25,11,0.10)]">
+        <div className="sticky top-[72px] z-20 rounded-[26px] border border-black/10 bg-[#fffaf1]/95 p-3 shadow-[0_20px_50px_rgba(34,25,11,0.10)] backdrop-blur sm:rounded-[30px] sm:p-4">
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-wrap gap-2">
+            <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => setActiveTab(id)}
                   className={cn(
-                    'inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-bold transition',
+                    'inline-flex h-11 shrink-0 items-center gap-2 rounded-2xl px-4 text-sm font-bold transition',
                     activeTab === id ? 'bg-[#141414] text-white shadow-[0_12px_32px_rgba(17,17,17,0.18)]' : 'bg-[#f0e8dc] text-[#5d574d] hover:bg-[#eadfcc]',
                   )}
                 >
@@ -879,7 +879,7 @@ export default function Admin() {
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar spot, usuario, plan, direcciÃ³n o mensaje"
+                  placeholder="Buscar spot, usuario, plan, direccion o mensaje"
                   className="h-11 w-full rounded-2xl border border-black/10 bg-white pl-11 pr-4 text-sm text-[#111111] outline-none transition focus:border-[#efbf3a]"
                 />
               </div>
@@ -899,15 +899,15 @@ export default function Admin() {
         {!isLoading && activeTab === 'overview' ? (
           <div className="space-y-5">
             <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
-              <ActionBlock icon={Pizza} title="Revisar spots pendientes" text={`${overviewStats.pendingSpots} pendientes de aprobaciÃ³n o rechazo.`} cta="Abrir spots" onClick={() => goTo('spots', { spotFilter: 'pending' })} />
+              <ActionBlock icon={Pizza} title="Revisar spots pendientes" text={`${overviewStats.pendingSpots} pendientes de aprobacion o rechazo.`} cta="Abrir spots" onClick={() => goTo('spots', { spotFilter: 'pending' })} />
               <ActionBlock icon={CalendarDays} title="Revisar planes recientes" text={`${overviewStats.activePlans} planes activos y ${plans.filter((row) => (toTs(row.created_at) || 0) >= todayStart).length} creados hoy.`} cta="Abrir planes" onClick={() => goTo('plans', { planFilter: 'today' })} />
-              <ActionBlock icon={ShieldAlert} title="Revisar reportes urgentes" text={`${overviewStats.urgentItems} seÃ±ales fuertes de riesgo ahora mismo.`} cta="Ir a reportes" onClick={() => goTo('reports')} />
-              <ActionBlock icon={AlertTriangle} title="Ver actividad sospechosa" text={`${suspiciousMessages.length + suspiciousPlans.length} textos marcados por heurÃ­stica.`} cta="Ir a chat" onClick={() => goTo('messages')} />
-              <ActionBlock icon={UserCog} title="Ir a usuarios" text={`${overviewStats.newUsersToday} altas hoy y ${overviewStats.newUsersWeek} en la Ãºltima semana.`} cta="Abrir usuarios" onClick={() => goTo('users', { userFilter: 'new' })} />
+              <ActionBlock icon={ShieldAlert} title="Revisar reportes urgentes" text={`${overviewStats.urgentItems} senales fuertes de riesgo ahora mismo.`} cta="Ir a reportes" onClick={() => goTo('reports')} />
+              <ActionBlock icon={AlertTriangle} title="Ver actividad sospechosa" text={`${suspiciousMessages.length + suspiciousPlans.length} textos marcados por heuristica.`} cta="Ir a chat" onClick={() => goTo('messages')} />
+              <ActionBlock icon={UserCog} title="Ir a usuarios" text={`${overviewStats.newUsersToday} altas hoy y ${overviewStats.newUsersWeek} en la ultima semana.`} cta="Abrir usuarios" onClick={() => goTo('users', { userFilter: 'new' })} />
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.2fr,0.8fr]">
-              <Shell title="Necesita atenciÃ³n ahora" subtitle="Lista real, no un dashboard vacÃ­o. Lo mÃ¡s delicado va arriba.">
+              <Shell title="Necesita atencion ahora" subtitle="Lista real, no un dashboard vacio. Lo mas delicado va arriba.">
                 {attentionQueue.length ? (
                   <div className="grid gap-3">
                     {attentionQueue.slice(0, 10).map((item) => (
@@ -922,7 +922,7 @@ export default function Admin() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState icon={CheckCircle2} title="Todo bajo control" text="Ahora mismo no hay alertas importantes. Puedes usar las acciones rÃ¡pidas o revisar contenido reciente." />
+                  <EmptyState icon={CheckCircle2} title="Todo bajo control" text="Ahora mismo no hay alertas importantes. Puedes usar las acciones rapidas o revisar contenido reciente." />
                 )}
               </Shell>
 
@@ -937,14 +937,14 @@ export default function Admin() {
                   </div>
                 </Shell>
 
-                <Shell title="DiagnÃ³stico de tablas" subtitle="El panel aguanta aunque algunas tablas aÃºn no existan.">
+                <Shell title="Diagnostico de tablas" subtitle="El panel aguanta aunque algunas tablas aun no existan.">
                   <div className="grid gap-3">
                     {diagnostics.map((item) => (
                       <div key={item.table} className="rounded-[20px] border border-black/8 bg-white px-4 py-3">
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <div className="text-sm font-black text-[#111111]">{item.table}</div>
-                            <div className="mt-1 text-xs text-[#6d665b]">{item.available ? 'Disponible en Supabase.' : 'AÃºn no existe o no es accesible.'}</div>
+                            <div className="mt-1 text-xs text-[#6d665b]">{item.available ? 'Disponible.' : 'Aun no existe o no es accesible.'}</div>
                           </div>
                           <StatusPill tone={item.available ? 'success' : 'warn'}>{item.available ? 'ok' : 'faltante'}</StatusPill>
                         </div>
@@ -1005,11 +1005,11 @@ export default function Admin() {
                   })}
                 </div>
               ) : (
-                <EmptyState icon={Pizza} title="No hay spots en este filtro" text="Prueba otro filtro o crea mÃ¡s contenido para empezar a moderar." />
+                <EmptyState icon={Pizza} title="No hay spots en este filtro" text="Prueba otro filtro o crea mas contenido para empezar a moderar." />
               )}
             </Shell>
 
-            <Shell title="Ficha del spot" subtitle="Foto grande, datos, histÃ³rico, ratings, planes vinculados y acciones rÃ¡pidas.">
+            <Shell title="Ficha del spot" subtitle="Foto grande, datos, historico, ratings, planes vinculados y acciones rapidas.">
               {selectedSpot ? (
                 <div className="space-y-5">
                   <div className="grid gap-4 lg:grid-cols-[1.05fr,0.95fr]">
@@ -1037,7 +1037,7 @@ export default function Admin() {
                         <DetailMetric label="Slice price" value={formatPrice(selectedSpot.slice_price)} />
                         <DetailMetric label="Best slice" value={selectedSpot.best_slice || '-'} />
                         <DetailMetric label="Rating medio" value={Number(selectedSpot.average_rating || 0).toFixed(1)} tone="success" />
-                        <DetailMetric label="NÂº valoraciones" value={selectedSpot.ratings_count || 0} />
+                        <DetailMetric label="No. valoraciones" value={selectedSpot.ratings_count || 0} />
                         <DetailMetric label="Lat / Lng" value={`${selectedSpot.lat ?? '-'} / ${selectedSpot.lng ?? '-'}`} />
                         <DetailMetric label="Flags" value={selectedSpot.reportCount || 0} tone={selectedSpot.reportCount ? 'danger' : 'neutral'} />
                       </div>
@@ -1047,8 +1047,8 @@ export default function Admin() {
                   <div className="grid gap-5 xl:grid-cols-[1.1fr,0.9fr]">
                     <div className="space-y-5">
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">DescripciÃ³n / quick note</div>
-                        <div className="mt-2 text-sm leading-7 text-[#5d574d]">{selectedSpot.quick_note || 'Sin nota rÃ¡pida.'}</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Descripcion / quick note</div>
+                        <div className="mt-2 text-sm leading-7 text-[#5d574d]">{selectedSpot.quick_note || 'Sin nota rapida.'}</div>
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
@@ -1063,7 +1063,7 @@ export default function Admin() {
                               <div className="font-black text-[#111111]">{Number(row.rating).toFixed(1)}</div>
                             </div>
                           ))}
-                          {!(ratingHistoryMap.get(selectedSpot.id) || []).length ? <div className="text-sm text-[#8a8174]">Sin historial de ratings todavÃ­a.</div> : null}
+                          {!(ratingHistoryMap.get(selectedSpot.id) || []).length ? <div className="text-sm text-[#8a8174]">Sin historial de ratings todavia.</div> : null}
                         </div>
                       </div>
 
@@ -1079,7 +1079,7 @@ export default function Admin() {
                               <div className="mt-1 text-sm text-[#6d665b]">{plan.plan_date} - {plan.plan_time} - {plan.status}</div>
                             </div>
                           ))}
-                          {!plans.some((plan) => plan.spot_id === selectedSpot.id) ? <div className="text-sm text-[#8a8174]">Este spot aÃºn no tiene planes asociados.</div> : null}
+                          {!plans.some((plan) => plan.spot_id === selectedSpot.id) ? <div className="text-sm text-[#8a8174]">Este spot aun no tiene planes asociados.</div> : null}
                         </div>
                       </div>
                     </div>
@@ -1102,29 +1102,29 @@ export default function Admin() {
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Checklist de aprobaciÃ³n</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Checklist de aprobacion</div>
                         <div className="mt-3 grid gap-2 text-sm text-[#5d574d]">
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Nombre valido</span><StatusPill tone={selectedSpot.name?.trim() ? 'success' : 'danger'}>{selectedSpot.name?.trim() ? 'ok' : 'falta'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>DirecciÃ³n no vacÃ­a</span><StatusPill tone={selectedSpot.address?.trim() ? 'success' : 'danger'}>{selectedSpot.address?.trim() ? 'ok' : 'falta'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Coordenadas vÃ¡lidas</span><StatusPill tone={typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'success' : 'danger'}>{typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'ok' : 'revisar'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Direccion no vacia</span><StatusPill tone={selectedSpot.address?.trim() ? 'success' : 'danger'}>{selectedSpot.address?.trim() ? 'ok' : 'falta'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Coordenadas validas</span><StatusPill tone={typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'success' : 'danger'}>{typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'ok' : 'revisar'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Precio razonable</span><StatusPill tone={selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'success' : 'warn'}>{selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'ok' : 'revisar'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Foto vÃ¡lida o fallback</span><StatusPill tone={selectedSpot.photo_url ? 'success' : 'warn'}>{selectedSpot.photo_url ? 'ok' : 'fallback'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Foto valida o fallback</span><StatusPill tone={selectedSpot.photo_url ? 'success' : 'warn'}>{selectedSpot.photo_url ? 'ok' : 'fallback'}</StatusPill></div>
                         </div>
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">HistÃ³rico rÃ¡pido</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Historico rapido</div>
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Creado: {formatDateTime(selectedSpot.created_at)}</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ãšltima ediciÃ³n: {formatDateTime(selectedSpot.updated_at)}</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ãšltima revision: {formatDateTime(selectedSpot.reviewed_at)}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ultima edicion: {formatDateTime(selectedSpot.updated_at)}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ultima revision: {formatDateTime(selectedSpot.reviewed_at)}</div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <EmptyState icon={Pizza} title="Selecciona un spot" text="La ficha detallada aparecerÃ¡ aquÃ­ cuando elijas un spot de la lista." />
+                <EmptyState icon={Pizza} title="Selecciona un spot" text="La ficha detallada aparecera aqui cuando elijas un spot de la lista." />
               )}
             </Shell>
           </div>
@@ -1163,7 +1163,7 @@ export default function Admin() {
                     );
                   })}
                 </div>
-              ) : <EmptyState icon={CalendarDays} title="No hay planes en este filtro" text="Cambia el filtro o crea actividad para ver resultados aquÃ­." />}
+              ) : <EmptyState icon={CalendarDays} title="No hay planes en este filtro" text="Cambia el filtro o crea actividad para ver resultados aqui." />}
             </Shell>
 
             <Shell title="Ficha del plan" subtitle="Info principal, chat, miembros, reportes y acciones de control.">
@@ -1202,7 +1202,7 @@ export default function Admin() {
                               </div>
                             );
                           })}
-                          {!members.some((row) => row.plan_id === selectedPlan.id) ? <div className="text-sm text-[#8a8174]">Sin miembros todavÃ­a.</div> : null}
+                          {!members.some((row) => row.plan_id === selectedPlan.id) ? <div className="text-sm text-[#8a8174]">Sin miembros todavia.</div> : null}
                         </div>
                       </div>
 
@@ -1238,34 +1238,34 @@ export default function Admin() {
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">DetecciÃ³n de problemas</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Deteccion de problemas</div>
                         <div className="mt-3 grid gap-2 text-sm text-[#5d574d]">
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Plan sin spot valido</span><StatusPill tone={selectedPlan.hasValidSpot ? 'success' : 'danger'}>{selectedPlan.hasValidSpot ? 'no' : 'sÃ­'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Fecha pasada pero sigue activo</span><StatusPill tone={selectedPlan.isPast && selectedPlan.status === 'active' ? 'danger' : 'success'}>{selectedPlan.isPast && selectedPlan.status === 'active' ? 'sÃ­' : 'no'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Mas miembros que plazas</span><StatusPill tone={selectedPlan.seatsOver ? 'danger' : 'success'}>{selectedPlan.seatsOver ? 'sÃ­' : 'no'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Plan sin spot valido</span><StatusPill tone={selectedPlan.hasValidSpot ? 'success' : 'danger'}>{selectedPlan.hasValidSpot ? 'no' : 'si'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Fecha pasada pero sigue activo</span><StatusPill tone={selectedPlan.isPast && selectedPlan.status === 'active' ? 'danger' : 'success'}>{selectedPlan.isPast && selectedPlan.status === 'active' ? 'si' : 'no'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Mas miembros que plazas</span><StatusPill tone={selectedPlan.seatsOver ? 'danger' : 'success'}>{selectedPlan.seatsOver ? 'si' : 'no'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Creador baneado / advertido</span><StatusPill tone={(userRows.find((row) => row.id === selectedPlan.created_by)?.state || 'active') !== 'active' ? 'warn' : 'success'}>{userRows.find((row) => row.id === selectedPlan.created_by)?.state || 'active'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Texto spam o abuso</span><StatusPill tone={selectedPlan.isSuspicious ? 'danger' : 'success'}>{selectedPlan.isSuspicious ? 'sÃ­' : 'no'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Texto spam o abuso</span><StatusPill tone={selectedPlan.isSuspicious ? 'danger' : 'success'}>{selectedPlan.isSuspicious ? 'si' : 'no'}</StatusPill></div>
                         </div>
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">HistÃ³rico</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Historico</div>
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Creado: {formatDateTime(selectedPlan.created_at)}</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ãšltima ediciÃ³n: {formatDateTime(selectedPlan.updated_at)}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ultima edicion: {formatDateTime(selectedPlan.updated_at)}</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Creador: {getPublicUsername(userMap.get(selectedPlan.created_by), '-')}</div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              ) : <EmptyState icon={CalendarDays} title="Selecciona un plan" text="La ficha detallada aparecerÃ¡ aquÃ­ cuando elijas un plan de la lista." />}
+              ) : <EmptyState icon={CalendarDays} title="Selecciona un plan" text="La ficha detallada aparecera aqui cuando elijas un plan de la lista." />}
             </Shell>
           </div>
         ) : null}
 
         {!isLoading && activeTab === 'reports' ? (
-          <Shell title="Reportes / moderaciÃ³n" subtitle="Mientras no exista una tabla formal de reportes, este inbox usa seÃ±ales reales del contenido para priorizar revision.">
+          <Shell title="Reportes / moderacion" subtitle="Mientras no exista una tabla formal de reportes, este inbox usa senales reales del contenido para priorizar revision.">
             {attentionQueue.length ? (
               <div className="grid gap-3">
                 {openReports.map((item) => (
@@ -1291,13 +1291,13 @@ export default function Admin() {
                   </div>
                 ))}
               </div>
-            ) : <EmptyState icon={ShieldAlert} title="Sin reportes abiertos" text="Cuando lleguen reportes reales o seÃ±ales automÃ¡ticas, aparecerÃ¡n aquÃ­ con prioridad y estado." />}
+            ) : <EmptyState icon={ShieldAlert} title="Sin reportes abiertos" text="Cuando lleguen reportes reales o senales automaticas, apareceran aqui con prioridad y estado." />}
           </Shell>
         ) : null}
 
         {!isLoading && activeTab === 'users' ? (
           <div className="grid gap-5 xl:grid-cols-[0.95fr,1.05fr]">
-            <Shell title="Usuarios" subtitle="Control bÃ¡sico, con foco en actividad, reportes y rol." actions={USER_FILTERS.map((filter) => <FilterChip key={filter.id} active={userFilter === filter.id} onClick={() => setUserFilter(filter.id)}>{filter.label}</FilterChip>)}>
+            <Shell title="Usuarios" subtitle="Control basico, con foco en actividad, reportes y rol." actions={USER_FILTERS.map((filter) => <FilterChip key={filter.id} active={userFilter === filter.id} onClick={() => setUserFilter(filter.id)}>{filter.label}</FilterChip>)}>
               {userRows.length ? (
                 <div className="grid max-h-[900px] gap-3 overflow-auto pr-1">
                   {userRows.map((person) => (
@@ -1327,7 +1327,7 @@ export default function Admin() {
                     </button>
                   ))}
                 </div>
-              ) : <EmptyState icon={Users} title="No hay usuarios en este filtro" text="Prueba otro filtro o espera a que entre mÃ¡s gente en la plataforma." />}
+              ) : <EmptyState icon={Users} title="No hay usuarios en este filtro" text="Prueba otro filtro o espera a que entre mas gente en la plataforma." />}
             </Shell>
 
             <Shell title="Ficha del usuario" subtitle="Actividad, reportes y acciones de seguridad.">
@@ -1361,7 +1361,7 @@ export default function Admin() {
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Actividad reciente</div>
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Alta: {formatDateTime(selectedUser.created_at)}</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ãšltima actualizaciÃ³n: {formatDateTime(selectedUser.updated_at)}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ultima actualizacion: {formatDateTime(selectedUser.updated_at)}</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Mensajes recientes: {userMessageCountMap.get(selectedUser.id) || 0}</div>
                         </div>
                       </div>
@@ -1405,7 +1405,7 @@ export default function Admin() {
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Seguridad</div>
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Acciones graves deben pedir confirmaciÃ³n adicional.</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Acciones graves deben pedir confirmacion adicional.</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Conviene guardar logs de cambios y trazabilidad.</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Evita acciones de 1 clic sobre baneos o borrados masivos.</div>
                         </div>
@@ -1413,13 +1413,13 @@ export default function Admin() {
                     </div>
                   </div>
                 </div>
-              ) : <EmptyState icon={Users} title="Selecciona un usuario" text="La ficha detallada aparecerÃ¡ aquÃ­ cuando elijas un perfil de la lista." />}
+              ) : <EmptyState icon={Users} title="Selecciona un usuario" text="La ficha detallada aparecera aqui cuando elijas un perfil de la lista." />}
             </Shell>
           </div>
         ) : null}
 
         {!isLoading && activeTab === 'messages' ? (
-          <Shell title="Chat / mensajes" subtitle="BÃºsqueda por texto, filtrado por plan, contexto del chat y moderaciÃ³n puntual.">
+          <Shell title="Chat / mensajes" subtitle="Busqueda por texto, filtrado por plan, contexto del chat y moderacion puntual.">
             {messages.length ? (
               <div className="grid gap-3">
                 {messages.filter((row) => includesSearch(row.content, planMap.get(row.plan_id)?.title, userMap.get(row.user_id)?.email)).slice(0, 100).map((row) => (
@@ -1435,19 +1435,19 @@ export default function Admin() {
                       </div>
                       <div className="flex flex-wrap gap-2 lg:justify-end">
                         <AdminActionButton variant="neutral" onClick={() => setSelectedPlanId(row.plan_id) || setActiveTab('plans')}><Eye className="mr-2 h-4 w-4" />Contexto</AdminActionButton>
-                        <AdminActionButton variant="warn" onClick={() => messageMutation.mutate({ id: row.id, payload: { content: '[mensaje eliminado por moderaciÃ³n]' } })}>Ocultar</AdminActionButton>
+                        <AdminActionButton variant="warn" onClick={() => messageMutation.mutate({ id: row.id, payload: { content: '[mensaje eliminado por moderacion]' } })}>Ocultar</AdminActionButton>
                         <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'messages', id: row.id })}>Eliminar</AdminActionButton>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : <EmptyState icon={MessageSquare} title="No hay mensajes" text="Cuando los grupos hablen, podrÃ¡s revisar aquÃ­ el contexto y moderar si hace falta." />}
+            ) : <EmptyState icon={MessageSquare} title="No hay mensajes" text="Cuando los grupos hablen, podras revisar aqui el contexto y moderar si hace falta." />}
           </Shell>
         ) : null}
 
         {!isLoading && activeTab === 'photos' ? (
-          <Shell title="Fotos / media" subtitle="Pendientes, rotas, huÃ©rfanas y fotos asociadas a spots problemÃ¡ticos.">
+          <Shell title="Fotos / media" subtitle="Pendientes, rotas, huerfanas y fotos asociadas a spots problematicos.">
             {photos.length ? (
               <div className="grid gap-3">
                 {photos.filter((row) => includesSearch(spotMap.get(row.spot_id)?.name, row.photo_url, row.status)).map((row) => {
@@ -1464,7 +1464,7 @@ export default function Admin() {
                           <div className="flex flex-wrap items-center gap-2">
                             <div className="text-base font-black text-[#111111]">{linkedSpot?.name || 'Spot no encontrado'}</div>
                             <StatusPill tone={row.status === 'approved' ? 'success' : row.status === 'hidden' ? 'dark' : 'warn'}>{row.status}</StatusPill>
-                            {isOrphan ? <StatusPill tone="danger">huÃ©rfana</StatusPill> : null}
+                            {isOrphan ? <StatusPill tone="danger">huerfana</StatusPill> : null}
                             {broken ? <StatusPill tone="warn">rota</StatusPill> : null}
                           </div>
                           <div className="mt-2 break-all text-sm text-[#6d665b]">{row.photo_url}</div>
@@ -1481,7 +1481,7 @@ export default function Admin() {
                   );
                 })}
               </div>
-            ) : <EmptyState icon={Camera} title="No hay fotos en la tabla media" text="Si todavÃ­a no has creado spot_photos, el admin seguirÃ¡ funcionando y aquÃ­ quedarÃ¡ el hueco preparado." />}
+            ) : <EmptyState icon={Camera} title="No hay fotos en la tabla media" text="Si todavia no has creado spot_photos, el admin seguira funcionando y aqui quedara el hueco preparado." />}
           </Shell>
         ) : null}
 
@@ -1529,31 +1529,31 @@ export default function Admin() {
         ) : null}
 
         {!isLoading && activeTab === 'settings' ? (
-          <Shell title="Ajustes / configuracion" subtitle="No enorme, pero sÃ­ Ãºtil para operar y moderar mejor.">
+          <Shell title="Ajustes / configuracion" subtitle="No enorme, pero si util para operar y moderar mejor.">
             <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">LÃ­mites de plazas</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Define mÃ¡ximos por plan, lÃ­mites blandos y cuÃ¡ndo marcar sobrecupo.</div>
+                <div className="text-lg font-black text-[#111111]">Limites de plazas</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Define maximos por plan, limites blandos y cuando marcar sobrecupo.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="text-lg font-black text-[#111111]">Estados permitidos</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">active, draft, cancelled, approved, hidden, rejected y cualquier flujo extra que aÃ±adas.</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">active, draft, cancelled, approved, hidden, rejected y cualquier flujo extra que anadas.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">Textos de moderaciÃ³n</div>
+                <div className="text-lg font-black text-[#111111]">Textos de moderacion</div>
                 <div className="mt-2 text-sm leading-7 text-[#6d665b]">Plantillas para avisos, rechazos de fotos, warnings y sanciones temporales.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="text-lg font-black text-[#111111]">Umbrales de sospecha</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">HeurÃ­sticas para spam, duplicados, actividad extraÃ±a o exceso de reportes.</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Heuristicas para spam, duplicados, actividad extrana o exceso de reportes.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="text-lg font-black text-[#111111]">Valores por defecto</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Precio, plazas, estados iniciales y visibilidad pÃºblica por tipo de contenido.</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Precio, plazas, estados iniciales y visibilidad publica por tipo de contenido.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="text-lg font-black text-[#111111]">Badges del producto</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">cheap, good value, overpriced o cualquier categorÃ­a visual que quieras usar en mapa y admin.</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">cheap, good value, overpriced o cualquier categoria visual que quieras usar en mapa y admin.</div>
               </div>
             </div>
           </Shell>
@@ -1573,6 +1573,7 @@ function MergeIcon() {
     </svg>
   );
 }
+
 
 
 

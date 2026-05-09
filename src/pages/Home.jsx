@@ -122,11 +122,11 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm font-black text-[#111111]">
-                        {!isSupabaseConfigured ? "Connect Supabase to load live spots" : "No spots match this view"}
+                        {!isSupabaseConfigured ? "Mapa en modo preparacion" : "No spots match this view"}
                       </p>
                       <p className="mt-1 text-xs leading-5 text-[#6f644f]">
                         {!isSupabaseConfigured
-                          ? "The app is ready, but it needs the project URL and key in Vercel to show real data."
+                          ? "La app esta lista. Conecta las claves privadas del proyecto para cargar datos reales."
                           : "Try fewer filters or add the first pizza spot for this area."}
                       </p>
                     </div>

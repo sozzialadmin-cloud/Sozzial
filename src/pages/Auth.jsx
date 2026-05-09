@@ -25,14 +25,28 @@ function validateForm(values, mode) {
   const errors = {}
   const email = cleanEmail(values.email)
   const password = String(values.password || '')
-  const username = String(values.username || '').trim()
+  const username = String(values.username || '').trim().replace(/^@+/, '')
 
-  if (mode === authModes.SIGN_UP && username.length < 2) errors.username = 'Choose a public username.'
-  if (!email) errors.email = 'Email is required.'
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email address.'
-  if (!password) errors.password = 'Password is required.'
-  else if (password.length < 6) errors.password = 'Password must have at least 6 characters.'
+  if (mode === authModes.SIGN_UP && username.length < 2) errors.username = 'Elige un nombre publico.'
+  else if (mode === authModes.SIGN_UP && !/^[a-zA-Z0-9._-]{2,30}$/.test(username)) errors.username = 'Usa letras, numeros, punto, guion o guion bajo.'
+  if (!email) errors.email = 'Escribe tu email.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Escribe un email valido.'
+  if (!password) errors.password = 'Escribe tu contrasena.'
+  else if (password.length < 6) errors.password = 'La contrasena debe tener al menos 6 caracteres.'
   return errors
+}
+
+function friendlyPageError(error) {
+  const raw = String(error?.message || error || '').trim()
+  const lower = raw.toLowerCase()
+  if (!raw) return 'No se pudo completar la accion.'
+  if (lower.includes('supabase') || lower.includes('environment') || lower.includes('fetch')) {
+    return 'El acceso todavia no esta conectado. Revisa la configuracion privada del proyecto.'
+  }
+  if (lower.includes('invalid login credentials')) return 'Email o contrasena incorrectos.'
+  if (lower.includes('email not confirmed')) return 'Confirma tu email desde el correo que te hemos enviado.'
+  if (lower.includes('already') || lower.includes('registered')) return 'Ya existe una cuenta con ese email. Prueba a iniciar sesion.'
+  return raw
 }
 
 function Field({ icon: Icon, error, rightSlot, className = '', ...props }) {
@@ -74,8 +88,8 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const nextUrl = searchParams.get('next') || '/home'
 
-  const title = mode === authModes.SIGN_IN ? 'Login to your account.' : 'Create your account.'
-  const subtitle = mode === authModes.SIGN_IN ? 'Come back in and pick up your plans.' : 'Your email stays private. Your username is public.'
+  const title = mode === authModes.SIGN_IN ? 'Entra en tu cuenta.' : 'Crea tu cuenta.'
+  const subtitle = mode === authModes.SIGN_IN ? 'Vuelve a tus planes, chats y sitios guardados.' : 'Tu email es privado. Tu nombre publico ayuda a otros a reconocerte.'
   const canSubmit = useMemo(() => Boolean(isSupabaseConfigured && !submitting), [isSupabaseConfigured, submitting])
 
   useEffect(() => {
@@ -124,7 +138,7 @@ export default function AuthPage() {
     setFormError('')
     if (Object.keys(nextErrors).length) return
     if (!isSupabaseConfigured) {
-      setFormError('Supabase is not configured. Add the environment variables in Vercel.')
+      setFormError('El acceso todavia no esta conectado. Revisa la configuracion privada del proyecto.')
       return
     }
 
@@ -141,7 +155,7 @@ export default function AuthPage() {
       const result = await signUp({
         email: cleanEmail(form.email),
         password: form.password,
-        fullName: form.username.trim(),
+        fullName: form.username.trim().replace(/^@+/, ''),
       })
       persistRememberChoice()
       if (result?.session?.user) {
@@ -149,11 +163,11 @@ export default function AuthPage() {
         navigate(nextUrl, { replace: true })
         return
       }
-      setSuccessMessage('Account created. Check your inbox to confirm your email, then login.')
-      toast.success('Account created. Check your email.')
+      setSuccessMessage('Cuenta creada. Revisa tu email para confirmarla y despues inicia sesion.')
+      toast.success('Cuenta creada. Revisa tu email.')
       setMode(authModes.SIGN_IN)
     } catch (error) {
-      const message = error?.message || 'Could not complete authentication.'
+      const message = friendlyPageError(error)
       setFormError(message)
       toast.error(message)
     } finally {
@@ -171,10 +185,10 @@ export default function AuthPage() {
     }
     try {
       await resetPassword(email)
-      setSuccessMessage('Password reset email sent.')
-      toast.success('Password reset email sent.')
+      setSuccessMessage('Te hemos enviado un email para cambiar la contrasena.')
+      toast.success('Email de recuperacion enviado.')
     } catch (error) {
-      const message = error?.message || 'Could not send the recovery email.'
+      const message = friendlyPageError(error)
       setFormError(message)
       toast.error(message)
     }
@@ -182,7 +196,7 @@ export default function AuthPage() {
 
   const handleGoogleSignIn = async () => {
     if (!isSupabaseConfigured) {
-      setFormError('Supabase is not configured. Add the environment variables in Vercel.')
+      setFormError('El acceso todavia no esta conectado. Revisa la configuracion privada del proyecto.')
       return
     }
     setSubmitting(true)
@@ -190,7 +204,7 @@ export default function AuthPage() {
     try {
       await signInWithProvider('google')
     } catch (error) {
-      const message = error?.message || 'Could not continue with Google.'
+      const message = friendlyPageError(error)
       setFormError(message)
       toast.error(message)
       setSubmitting(false)
@@ -206,12 +220,12 @@ export default function AuthPage() {
               <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0bf39] text-[#111111]"><Pizza className="h-7 w-7" /></div>
               <div className="text-[3rem] font-black leading-[0.92] tracking-tight">Pizza plans, not profile swipes.</div>
               <p className="mt-4 max-w-md text-base leading-7 text-white/70">
-                Explore the map as a guest. Sign in only when you want to join plans, create your own, rate a spot or chat with the group.
+                Explora el mapa como invitado. Entra solo cuando quieras unirte a planes, crear uno, valorar un sitio o hablar con el grupo.
               </p>
             </div>
 
             <div className="grid gap-3 text-sm">
-              {['Public map with real slice prices', 'Discover plans with smooth swipe actions', 'Join groups and organize in chat', 'Add your own pizza spots and help the map grow'].map((item) => (
+              {['Mapa publico con precios por slice', 'Descubre planes con gestos fluidos', 'Entra en grupos y organiza por chat', 'Anade sitios y ayuda a mejorar el mapa'].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white/85">
                   {item}
                 </div>
@@ -224,22 +238,22 @@ export default function AuthPage() {
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0bf39] text-[#111111]"><Pizza className="h-7 w-7" /></div>
               <div>
                 <div className="text-[2rem] font-black leading-none tracking-tight">Sozzial</div>
-                <div className="mt-1 text-sm text-[#6e6558]">Explore the map as a guest. Sign in to join plans, chat and create your own.</div>
+                <div className="mt-1 text-sm text-[#6e6558]">Explora como invitado. Entra para unirte a planes, chatear y crear los tuyos.</div>
               </div>
             </div>
 
             {!isSupabaseConfigured ? (
               <div className="mb-4 rounded-2xl border border-[#efc5bc] bg-[#fff0ea] p-3 text-sm text-[#b54834]">
-                Login is not connected yet. Add Supabase environment variables in Vercel.
+                El acceso todavia no esta conectado. Configura las claves privadas del proyecto antes de abrir registros reales.
               </div>
             ) : null}
 
             <div className="mb-5 flex rounded-2xl bg-[#eee3d2] p-1">
               <button type="button" onClick={() => setMode(authModes.SIGN_UP)} className={`h-11 flex-1 rounded-xl text-sm font-bold ${mode === authModes.SIGN_UP ? 'bg-white text-[#111] shadow-sm' : 'text-[#857b6b]'}`}>
-                Create account
+                Crear cuenta
               </button>
               <button type="button" onClick={() => setMode(authModes.SIGN_IN)} className={`h-11 flex-1 rounded-xl text-sm font-bold ${mode === authModes.SIGN_IN ? 'bg-white text-[#111] shadow-sm' : 'text-[#857b6b]'}`}>
-                Login
+                Entrar
               </button>
             </div>
 
@@ -250,12 +264,12 @@ export default function AuthPage() {
 
             <Button type="button" variant="outline" disabled={submitting || !isSupabaseConfigured} onClick={handleGoogleSignIn} className="mb-4 h-12 w-full rounded-2xl border-black/10 bg-white text-sm font-semibold text-[#111] hover:bg-[#fbfaf7]">
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Chrome className="mr-2 h-4 w-4" />}
-              Continue with Google
+              Continuar con Google
             </Button>
 
             <div className="mb-4 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-[#9a9182]">
               <div className="h-px flex-1 bg-black/10" />
-              <span>or use email</span>
+              <span>o usa email</span>
               <div className="h-px flex-1 bg-black/10" />
             </div>
 
@@ -263,7 +277,7 @@ export default function AuthPage() {
               {mode === authModes.SIGN_UP ? (
                 <Field
                   icon={User}
-                  placeholder="Username"
+                  placeholder="Nombre publico"
                   autoComplete="nickname"
                   value={form.username}
                   onChange={(event) => updateField('username', event.target.value)}
@@ -284,7 +298,7 @@ export default function AuthPage() {
               <Field
                 icon={Lock}
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
+                placeholder="Contrasena"
                 autoComplete={mode === authModes.SIGN_IN ? 'current-password' : 'new-password'}
                 value={form.password}
                 onChange={(event) => updateField('password', event.target.value)}
@@ -299,15 +313,15 @@ export default function AuthPage() {
               <div className="flex items-center justify-between gap-3 px-1 pt-1 text-xs text-[#8d8577]">
                 <label className="inline-flex items-center gap-2">
                   <Checkbox checked={form.rememberMe} onCheckedChange={(value) => updateField('rememberMe', Boolean(value))} />
-                  <span>Remember me</span>
+                  <span>Recordarme</span>
                 </label>
                 <button type="button" onClick={handleForgotPassword} className="font-medium hover:text-[#111]">
-                  Forgot password?
+                  Recuperar contrasena
                 </button>
               </div>
 
-              {authError?.message || formError ? (
-                <div className="rounded-2xl border border-[#efc5bc] bg-[#fff0ea] p-3 text-sm text-[#b54834]">{formError || authError.message}</div>
+              {(formError || (authError?.type !== 'config_missing' && authError?.message)) ? (
+                <div className="rounded-2xl border border-[#efc5bc] bg-[#fff0ea] p-3 text-sm text-[#b54834]">{formError || friendlyPageError(authError.message)}</div>
               ) : null}
               {successMessage ? (
                 <div className="rounded-2xl border border-[#d7e6d1] bg-[#eef7ec] p-3 text-sm text-[#216b33]">{successMessage}</div>
@@ -315,13 +329,13 @@ export default function AuthPage() {
 
               <Button type="submit" disabled={!canSubmit} className="h-12 w-full rounded-2xl border-0 bg-[#6d6cf7] text-base font-bold text-white hover:bg-[#5f5eee] disabled:opacity-55">
                 {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {mode === authModes.SIGN_IN ? 'Login' : 'Create account'}
+                {mode === authModes.SIGN_IN ? 'Entrar' : 'Crear cuenta'}
                 {!submitting ? <ArrowRight className="ml-2 h-4 w-4" /> : null}
               </Button>
             </form>
 
             <Link to="/home" className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-2xl border border-black/10 bg-[#f9f4eb] text-sm font-semibold text-[#111] hover:bg-[#fbfaf7]">
-              Continue as guest
+              Seguir como invitado
             </Link>
           </section>
         </div>

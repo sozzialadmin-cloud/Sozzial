@@ -135,8 +135,8 @@ export default function CrearQuedada() {
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
             <Pizza className="h-7 w-7" />
           </div>
-          <h1 className="mt-5 text-2xl font-black">Plans need Supabase</h1>
-          <p className="mt-3 text-sm leading-7 text-stone-400">Add the Supabase environment variables before creating plans.</p>
+          <h1 className="mt-5 text-2xl font-black">Los planes aun no estan conectados</h1>
+          <p className="mt-3 text-sm leading-7 text-stone-400">Configura las claves privadas del proyecto antes de crear planes reales.</p>
         </div>
       </div>
     );

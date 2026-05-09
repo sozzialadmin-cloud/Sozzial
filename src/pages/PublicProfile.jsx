@@ -28,6 +28,17 @@ async function fetchPublicProfile(userId) {
   ]);
   if (profileRes.error) throw profileRes.error;
   const profile = profileRes.data || null;
+  if (profile?.profile_visibility === 'private') {
+    return {
+      profile: null,
+      privateProfile: true,
+      favoriteSpot: null,
+      createdSpots: [],
+      plans: [],
+      ratings: [],
+      comments: [],
+    };
+  }
   const resolvedId = profile?.id || userId;
   const [plansRes2, ratingsRes2, commentsRes2] = profile
     ? await Promise.all([
@@ -77,6 +88,7 @@ export default function PublicProfile() {
   });
 
   const profile = data?.profile;
+  const isPrivate = data?.privateProfile;
   const displayName = getPublicUsername(profile, 'Pizza friend');
   const handle = displayName.toLowerCase().replace(/\s+/g, '_');
   const bestRating = useMemo(() => [...(data?.ratings || [])].sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))[0], [data?.ratings]);
@@ -90,7 +102,11 @@ export default function PublicProfile() {
         </Link>
 
         {isLoading ? <div className="rounded-[30px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">Loading profile...</div> : null}
-        {!isLoading && !profile ? <div className="rounded-[30px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">Profile not found.</div> : null}
+        {!isLoading && !profile ? (
+          <div className="rounded-[30px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">
+            {isPrivate ? 'Este perfil es privado.' : 'Profile not found.'}
+          </div>
+        ) : null}
 
         {profile ? (
           <div className="grid gap-5 lg:grid-cols-[0.9fr,1.1fr]">

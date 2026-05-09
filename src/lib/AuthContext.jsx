@@ -37,11 +37,39 @@ function friendlyAuthError(error) {
   const lower = raw.toLowerCase();
   if (lower.includes('invalid login credentials')) return 'Email o contrasena incorrectos.';
   if (lower.includes('email not confirmed')) return 'Tu email aun no esta confirmado. Revisa tu correo o pide un nuevo enlace.';
-  if (lower.includes('signup is disabled')) return 'El registro esta desactivado en Supabase Auth.';
+  if (lower.includes('signup is disabled')) return 'El registro esta desactivado en este momento.';
   if (lower.includes('user already registered') || lower.includes('already registered')) return 'Ya existe una cuenta con ese email. Inicia sesion.';
   if (lower.includes('rate limit')) return 'Demasiados intentos. Espera un minuto y prueba de nuevo.';
-  if (lower.includes('network') || lower.includes('failed to fetch')) return 'No se pudo conectar con Supabase. Revisa la URL y la clave publica.';
+  if (lower.includes('network') || lower.includes('failed to fetch')) return 'No se pudo conectar con el servicio de acceso. Revisa la configuracion privada.';
+  if (lower.includes('duplicate key') || lower.includes('unique')) return 'Ese nombre publico ya esta en uso. Prueba con otro.';
   return raw || 'No se pudo completar la autenticacion.';
+}
+
+function cleanUsername(value, fallback = 'Usuario') {
+  const base = String(value || fallback || 'Usuario')
+    .trim()
+    .replace(/^@+/, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '')
+    .slice(0, 24);
+  return base.length >= 2 ? base : `usuario_${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
+async function getAvailableUsername(preferred) {
+  const base = cleanUsername(preferred, 'Usuario');
+  if (!supabase) return base;
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username')
+      .ilike('username', base)
+      .limit(1);
+    if (error || !data?.length) return base;
+    return `${base.slice(0, 20)}_${Math.floor(1000 + Math.random() * 9000)}`;
+  } catch {
+    return base;
+  }
 }
 
 
@@ -84,7 +112,7 @@ async function fetchProfileByUserId(userId, fallbackUser = null) {
 async function ensureProfileForUser(sessionUser, cleanName = '') {
   if (!supabase || !sessionUser?.id) return getFallbackProfile(sessionUser);
   const fallback = getFallbackProfile(sessionUser);
-  const username = String(cleanName || fallback.username || '').trim() || 'Usuario';
+  const username = cleanUsername(cleanName || fallback.username, 'Usuario');
 
   const existing = await fetchProfileByUserId(sessionUser.id, sessionUser);
   if (existing?.id && existing.username) return existing;
@@ -287,7 +315,7 @@ export const AuthProvider = ({ children }) => {
   const signUp = async ({ email, password, fullName }) => {
     if (!supabase) throw new Error('Supabase no esta configurado.');
 
-    const cleanName = String(fullName || '').trim();
+    const cleanName = await getAvailableUsername(fullName);
     const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
     const redirectTo = `${baseUrl.replace(/\/$/, '')}/auth/confirm`;
 

@@ -4,11 +4,11 @@ This folder centralizes the visual system so future changes are easier.
 
 ## Files
 
-- `tokens.css` â†’ color tokens, surface tokens, spacing, shadows, radii, shared layout constants.
-- `base.css` â†’ resets, viewport fixes, scrollbar, typography baseline.
-- `components.css` â†’ reusable visual primitives (`app-card`, `app-surface`, `screen-shell`, `mobile-tabbar`, etc.).
-- `map.css` â†’ Leaflet overrides and marker styling.
-- `utilities.css` â†’ small utility helpers (`full-viewport`, `hide-scrollbar`, etc.).
+- `tokens.css` -> color tokens, surface tokens, spacing, shadows, radii, shared layout constants.
+- `base.css` -> resets, viewport fixes, scrollbar, typography baseline.
+- `components.css` -> reusable visual primitives (`app-card`, `app-surface`, `screen-shell`, `mobile-tabbar`, etc.).
+- `map.css` -> Leaflet overrides and marker styling.
+- `utilities.css` -> small utility helpers (`full-viewport`, `hide-scrollbar`, etc.).
 
 ## Rules for future changes
 
@@ -57,4 +57,5 @@ This folder centralizes the visual system so future changes are easier.
 - Server state should live in TanStack Query.
 - Temporary UI state should live in Zustand stores under `src/stores/`.
 - Forms should use React Hook Form + Zod validators from `src/lib/validators/`.
+
 

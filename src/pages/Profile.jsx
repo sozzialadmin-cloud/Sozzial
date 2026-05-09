@@ -121,7 +121,7 @@ export default function Profile() {
 
   const saveProfile = useMutation({
     mutationFn: async () => {
-      if (!isSupabaseConfigured || !supabase || !user?.id) throw new Error('Supabase is not configured.');
+      if (!isSupabaseConfigured || !supabase || !user?.id) throw new Error('El perfil aun no esta conectado.');
       const payload = {
         username: form.username.trim() || displayName,
         bio: form.bio.trim() || null,
@@ -146,7 +146,7 @@ export default function Profile() {
       queryClient.invalidateQueries({ queryKey: ['profile-bundle', user?.id] });
     },
     onError: (error) => {
-      toast.error(error?.message?.includes('column') ? 'Run the included profile SQL migration in Supabase first.' : error?.message || 'Could not update profile.');
+      toast.error(error?.message?.includes('column') ? 'Faltan columnas del perfil en la base de datos. Ejecuta el SQL incluido.' : error?.message || 'No se pudo actualizar el perfil.');
     },
   });
 
@@ -157,7 +157,7 @@ export default function Profile() {
     if (!file || !user?.id) return;
     setUploading(true);
     try {
-      if (!isSupabaseConfigured || !supabase) throw new Error('Profile storage is not configured yet.');
+      if (!isSupabaseConfigured || !supabase) throw new Error('La subida de fotos aun no esta conectada.');
       const ext = file.name.split('.').pop() || 'jpg';
       const filePath = `${user.id}/avatar-${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true, cacheControl: '3600' });
