@@ -318,7 +318,7 @@ export default function AddPinModal({ open, onClose, user }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[5000] flex items-end justify-center bg-black/75 p-0 backdrop-blur-md sm:items-center sm:p-4"
+        className="fixed inset-0 z-[5000] flex items-end justify-center bg-black/80 p-0 backdrop-blur-md sm:items-center sm:p-4"
         onClick={handleClose}
       >
         <motion.div
@@ -326,7 +326,7 @@ export default function AddPinModal({ open, onClose, user }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 60, scale: 0.98 }}
           transition={{ type: "spring", damping: 30, stiffness: 280 }}
-          className="flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-[30px] border border-white/10 bg-[#111] shadow-2xl shadow-black/80 sm:max-h-[92vh] sm:max-w-xl sm:rounded-[30px]"
+          className="flex h-[100dvh] w-full flex-col overflow-hidden bg-[#0f0f0f] shadow-2xl shadow-black/80 sm:h-auto sm:max-h-[92vh] sm:max-w-xl sm:rounded-[30px] sm:border sm:border-white/10"
           onClick={(event) => event.stopPropagation()}
         >
           {done ? (
@@ -353,7 +353,7 @@ export default function AddPinModal({ open, onClose, user }) {
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4 sm:px-6">
+              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4 pb-6 sm:px-6">
                 <section className="rounded-[26px] border border-white/10 bg-white/[0.03] p-4">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <Label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
@@ -461,7 +461,7 @@ export default function AddPinModal({ open, onClose, user }) {
                 {errorMessage ? <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">{errorMessage}</div> : null}
               </div>
 
-              <div className="shrink-0 border-t border-white/10 bg-[#111]/95 px-5 py-4 pb-[calc(var(--mobile-nav-height)+1rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:px-6 sm:pb-4">
+              <div className="shrink-0 border-t border-white/10 bg-[#111]/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:px-6 sm:pb-4">
                 <Button type="submit" disabled={!canSubmit} className="h-12 w-full rounded-2xl bg-[#df5b43] text-base font-black text-white shadow-[0_16px_34px_rgba(223,91,67,0.28)] hover:bg-red-500 disabled:opacity-45">
                   {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
                   Add spot

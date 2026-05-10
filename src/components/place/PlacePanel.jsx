@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, ChevronLeft, Coins, MessageCircle, Sparkles, ArrowUpRight, Plus, Star, Bookmark, Flag, ShieldCheck, UserRound, CalendarDays, Share2, Zap } from "lucide-react";
@@ -315,7 +315,7 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 30, stiffness: 300 }}
-          className="fixed top-14 right-0 bottom-[82px] w-full sm:bottom-0 sm:w-[470px] overflow-y-auto border-l border-white/5 bg-[#0d0d0d]"
+          className="fixed right-0 top-[var(--header-height)] bottom-[var(--mobile-nav-height)] w-full overflow-y-auto border-l border-white/5 bg-[#0d0d0d] sm:bottom-0 sm:w-[470px]"
           style={{ zIndex: ZINDEX.PLACE_PANEL }}
         >
           <div className="border-b border-white/5 bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.22),transparent_34%),linear-gradient(180deg,#131313_0%,#0d0d0d_100%)] px-5 pb-6 pt-5">
@@ -438,7 +438,7 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
             </div>
           </div>
 
-          <div className="px-5 py-5 pb-28 sm:pb-8">
+          <div className="min-h-[calc(100dvh-var(--header-height)-var(--mobile-nav-height)-56px)] bg-[#0d0d0d] px-5 py-5 pb-[calc(var(--mobile-nav-height)+1.25rem)] sm:min-h-0 sm:pb-8">
             {activeTab === "info" ? (
               <div className="space-y-5">
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
@@ -478,7 +478,14 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
                         </div>
                       ))}
                     </div>
-                  ) : <div className="mt-2 text-sm text-stone-400">No active plans for this spot yet.</div>}
+                  ) : (
+                    <>
+                      <div className="mt-2 text-sm text-stone-400">No active plans for this spot yet.</div>
+                      <Link to={`${createPageUrl('CrearQuedada')}?place=${place.id}`} className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-white hover:bg-white/[0.08]">
+                        <Plus className="mr-2 h-4 w-4" />Start the first plan
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             ) : null}

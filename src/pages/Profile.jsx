@@ -66,6 +66,9 @@ function ActivityItem({ title, meta, children }) {
 }
 
 export default function Profile() {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
   const { user, profile, role, refreshProfile, logout } = useAuth();
   const queryClient = useQueryClient();
   const [avatarPreview, setAvatarPreview] = useState('');

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CalendarDays, Heart, MapPin, MessageSquare, Pizza, Star, Trophy, UserCheck, UserPlus, Users } from 'lucide-react';
@@ -92,6 +92,9 @@ function FeedItem({ title, meta, children }) {
 
 export default function PublicProfile() {
   const { userId } = useParams();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [userId]);
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
@@ -141,10 +144,10 @@ export default function PublicProfile() {
         {profile ? (
           <div className="grid gap-5 lg:grid-cols-[0.92fr,1.08fr]">
             <section className="overflow-hidden rounded-[32px] border border-black/10 bg-[#fffaf1] shadow-[0_28px_70px_rgba(34,25,11,0.12)]">
-              <div className="relative bg-[#141414] px-5 pb-6 pt-5 text-white">
+              <div className="relative bg-[#141414] px-5 pb-7 pt-6 text-white">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(239,191,58,0.28),transparent_34%),radial-gradient(circle_at_15%_80%,rgba(223,91,67,0.26),transparent_30%)]" />
                 <div className="relative">
-                  <div className="grid h-24 w-24 place-items-center overflow-hidden rounded-[28px] border-2 border-white/18 bg-gradient-to-br from-[#efbf3a] to-[#df5b43] text-3xl font-black shadow-[0_18px_38px_rgba(0,0,0,0.24)]">
+                  <div className="grid h-28 w-28 place-items-center overflow-hidden rounded-[34px] border-2 border-white/20 bg-gradient-to-br from-[#efbf3a] to-[#df5b43] text-4xl font-black shadow-[0_18px_38px_rgba(0,0,0,0.24)]">
                     {profile.avatar_resolved ? <img src={profile.avatar_resolved} alt={displayName} className="h-full w-full object-cover" /> : getAvatarLetter(profile, '?')}
                   </div>
                   <h1 className="mt-5 break-words text-[clamp(2rem,10vw,3.25rem)] font-black leading-none tracking-[-0.07em]">{displayName}</h1>
@@ -169,15 +172,15 @@ export default function PublicProfile() {
                 </div>
               </div>
 
-              <div className="p-5">
+              <div className="p-5 sm:p-6">
                 <p className="rounded-[24px] border border-black/8 bg-white/65 p-4 text-sm leading-7 text-[#4f473d]">
                   {profile.bio || 'This person has not added a bio yet.'}
                 </p>
 
-                <div className="mt-4 grid gap-3">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <ProfileFact icon={Heart} title={profile.favorite_slice || 'Not set'} meta="Favorite slice">Personal pick</ProfileFact>
                   <ProfileFact icon={MapPin} title={data.favoriteSpot?.name || 'Not set'} meta="Favorite spot">{data.favoriteSpot?.address || 'No favorite place yet.'}</ProfileFact>
-                  <ProfileFact icon={Pizza} title={profile.pizza_style || 'Not set'} meta="Pizza style" />
+                  <div className="sm:col-span-2"><ProfileFact icon={Pizza} title={profile.pizza_style || 'Not set'} meta="Pizza style" /></div>
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
