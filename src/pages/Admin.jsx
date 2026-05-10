@@ -38,53 +38,53 @@ import { cn } from '@/lib/utils';
 import { getPublicUsername, getAvatarLetter } from '@/lib/display-name';
 
 const TABS = [
-  { id: 'overview', label: 'Resumen', icon: Sparkles },
+  { id: 'overview', label: 'Overview', icon: Sparkles },
   { id: 'spots', label: 'Spots', icon: Pizza },
-  { id: 'plans', label: 'Planes', icon: CalendarDays },
-  { id: 'reports', label: 'Reportes', icon: ShieldAlert },
+  { id: 'plans', label: 'Plans', icon: CalendarDays },
+  { id: 'reports', label: 'Reports', icon: ShieldAlert },
   { id: 'users', label: 'Users', icon: UserCog },
   { id: 'messages', label: 'Chat', icon: MessageSquare },
-  { id: 'photos', label: 'Fotos', icon: ImageIcon },
-  { id: 'operations', label: 'Operaciones', icon: Database },
-  { id: 'settings', label: 'Ajustes', icon: Settings2 },
+  { id: 'photos', label: 'Photos', icon: ImageIcon },
+  { id: 'operations', label: 'Operations', icon: Database },
+  { id: 'settings', label: 'Settings', icon: Settings2 },
 ];
 
 const SPOT_FILTERS = [
-  { id: 'all', label: 'Todos' },
-  { id: 'pending', label: 'Pendientes' },
-  { id: 'approved', label: 'Aprobados' },
-  { id: 'hidden', label: 'Ocultos' },
-  { id: 'rejected', label: 'Rechazados' },
+  { id: 'all', label: 'All' },
+  { id: 'pending', label: 'Pending' },
+  { id: 'approved', label: 'Approved' },
+  { id: 'hidden', label: 'Hidden' },
+  { id: 'rejected', label: 'Rejected' },
   { id: 'no-photo', label: 'No photo' },
-  { id: 'broken-photo', label: 'Foto rota' },
-  { id: 'duplicates', label: 'Duplicados probables' },
-  { id: 'low-quality', label: 'Pocos datos' },
-  { id: 'reported', label: 'Mas reportados' },
-  { id: 'top-rated', label: 'Mas valorados' },
-  { id: 'recent', label: 'Recientes' },
+  { id: 'broken-photo', label: 'Broken photo' },
+  { id: 'duplicates', label: 'Likely duplicates' },
+  { id: 'low-quality', label: 'Low data' },
+  { id: 'reported', label: 'Most reported' },
+  { id: 'top-rated', label: 'Top rated' },
+  { id: 'recent', label: 'Recent' },
 ];
 
 const PLAN_FILTERS = [
-  { id: 'all', label: 'Todos' },
-  { id: 'active', label: 'Activos' },
-  { id: 'past', label: 'Pasados' },
-  { id: 'full', label: 'Llenos' },
-  { id: 'empty', label: 'Vacios' },
-  { id: 'reported', label: 'Reportados' },
-  { id: 'today', label: 'Creados hoy' },
+  { id: 'all', label: 'All' },
+  { id: 'active', label: 'Active' },
+  { id: 'past', label: 'Past' },
+  { id: 'full', label: 'Full' },
+  { id: 'empty', label: 'Empty' },
+  { id: 'reported', label: 'Reported' },
+  { id: 'today', label: 'Created today' },
   { id: 'invalid-spot', label: 'Invalid spot' },
-  { id: 'suspicious', label: 'Sospechosos' },
-  { id: 'cancelled', label: 'Cancelados' },
+  { id: 'suspicious', label: 'Suspicious' },
+  { id: 'cancelled', label: 'Cancelled' },
 ];
 
 const USER_FILTERS = [
-  { id: 'all', label: 'Todos' },
+  { id: 'all', label: 'All' },
   { id: 'admin', label: 'Admin' },
-  { id: 'active', label: 'Activos' },
-  { id: 'new', label: 'Nuevos' },
-  { id: 'reported', label: 'Reportados' },
-  { id: 'warned', label: 'Advertidos' },
-  { id: 'banned', label: 'Baneados' },
+  { id: 'active', label: 'Active' },
+  { id: 'new', label: 'New' },
+  { id: 'reported', label: 'Reported' },
+  { id: 'warned', label: 'Warned' },
+  { id: 'banned', label: 'Banned' },
   { id: 'inactive', label: 'Inactive' },
 ];
 
@@ -366,7 +366,7 @@ function QueueItem({ title, subtitle, tone = 'warn', actionLabel, onAction }) {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <StatusPill tone={tone}>{tone === 'danger' ? 'urgente' : tone === 'warn' ? 'revisar' : 'info'}</StatusPill>
+            <StatusPill tone={tone}>{tone === 'danger' ? 'urgent' : tone === 'warn' ? 'review' : 'info'}</StatusPill>
             <div className="text-base font-black text-[#111111]">{title}</div>
           </div>
           <div className="mt-2 text-sm text-[#6d665b]">{subtitle}</div>
@@ -646,8 +646,8 @@ export default function Admin() {
         id: `${item.entity_type || 'item'}-${item.entity_id || index}`,
         type: item.entity_type || 'report',
         severity: item.priority === 'high' ? 'danger' : 'warn',
-        label: String(item.issue_type || 'revisar').replace(/_/g, ' '),
-        entityTitle: item.title || 'Elemento',
+        label: String(item.issue_type || 'review').replace(/_/g, ' '),
+        entityTitle: item.title || 'Item',
         entityId: item.entity_id || null,
         subtitle: item.subtitle || '',
         createdAt: item.created_at || null,
@@ -848,11 +848,11 @@ export default function Admin() {
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <StatCard label="Pending spots" value={overviewStats.pendingSpots} note="Waiting for review" icon={Pizza} accent="text-[#df5b43]" />
-          <StatCard label="Planes activos" value={overviewStats.activePlans} note="En curso o proximos" icon={CalendarDays} accent="text-[#216b33]" />
-          <StatCard label="Open reports" value={overviewStats.openReports} note={overviewStats.urgentItems ? `${overviewStats.urgentItems} urgentes` : 'No urgent items'} icon={ShieldAlert} accent="text-[#df5b43]" />
+          <StatCard label="Active plans" value={overviewStats.activePlans} note="Ongoing or upcoming" icon={CalendarDays} accent="text-[#216b33]" />
+          <StatCard label="Open reports" value={overviewStats.openReports} note={overviewStats.urgentItems ? `${overviewStats.urgentItems} urgent` : 'No urgent items'} icon={ShieldAlert} accent="text-[#df5b43]" />
           <StatCard label="New users" value={overviewStats.newUsersToday} note={`${overviewStats.newUsersWeek} this week`} icon={Users} accent="text-[#111111]" />
-          <StatCard label="Mensajes reportados" value={overviewStats.reportedMessages} note="Senales automaticas" icon={MessageSquare} accent="text-[#df5b43]" />
-          <StatCard label="Fotos pendientes" value={overviewStats.pendingPhotos} note="Pendientes de aprobar" icon={Camera} accent="text-[#216b33]" />
+          <StatCard label="Reported messages" value={overviewStats.reportedMessages} note="Automatic signals" icon={MessageSquare} accent="text-[#df5b43]" />
+          <StatCard label="Pending photos" value={overviewStats.pendingPhotos} note="Waiting for approval" icon={Camera} accent="text-[#216b33]" />
         </div>
 
         <div className="sticky top-[72px] z-20 rounded-[26px] border border-black/10 bg-[#fffaf1]/95 p-3 shadow-[0_20px_50px_rgba(34,25,11,0.10)] backdrop-blur sm:rounded-[30px] sm:p-4">
@@ -930,9 +930,9 @@ export default function Admin() {
                 <Shell title="Overall status" subtitle="Designed for a response in under 5 seconds.">
                   <div className="grid gap-3">
                     <DetailMetric label="Spots aprobados" value={approvedSpots.length} tone="success" />
-                    <DetailMetric label="Spots ocultos/rechazados" value={hiddenSpots.length + rejectedSpots.length} tone="warn" />
-                    <DetailMetric label="Comentarios pendientes" value={pendingComments.length} tone="neutral" />
-                    <DetailMetric label="Mensajes en grupos" value={messages.length} tone="neutral" />
+                    <DetailMetric label="Hidden/rejected spots" value={hiddenSpots.length + rejectedSpots.length} tone="warn" />
+                    <DetailMetric label="Pending comments" value={pendingComments.length} tone="neutral" />
+                    <DetailMetric label="Group messages" value={messages.length} tone="neutral" />
                     <DetailMetric label="Registered users" value={users.length} tone="neutral" />
                   </div>
                 </Shell>
@@ -946,7 +946,7 @@ export default function Admin() {
                             <div className="text-sm font-black text-[#111111]">{item.table}</div>
                             <div className="mt-1 text-xs text-[#6d665b]">{item.available ? 'Disponible.' : 'Aun no existe o no es accesible.'}</div>
                           </div>
-                          <StatusPill tone={item.available ? 'success' : 'warn'}>{item.available ? 'ok' : 'faltante'}</StatusPill>
+                          <StatusPill tone={item.available ? 'success' : 'warn'}>{item.available ? 'ok' : 'missing'}</StatusPill>
                         </div>
                       </div>
                     ))}
@@ -961,7 +961,7 @@ export default function Admin() {
           <div className="grid gap-5 xl:grid-cols-[0.95fr,1.05fr]">
             <Shell
               title="Spots"
-              subtitle="Aprueba, rechaza, oculta, detecta duplicados y revisa calidad de datos."
+              subtitle="Approve, reject, hide, detect duplicates and review data quality."
               actions={SPOT_FILTERS.map((filter) => (
                 <FilterChip key={filter.id} active={spotFilter === filter.id} onClick={() => setSpotFilter(filter.id)}>{filter.label}</FilterChip>
               ))}
@@ -1005,7 +1005,7 @@ export default function Admin() {
                   })}
                 </div>
               ) : (
-                <EmptyState icon={Pizza} title="No hay spots en este filtro" text="Prueba otro filtro o crea mas contenido para empezar a moderar." />
+                <EmptyState icon={Pizza} title="No spots in this filter" text="Try another filter or create more content to start moderating." />
               )}
             </Shell>
 
@@ -1069,7 +1069,7 @@ export default function Admin() {
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Planes activos vinculados</div>
+                          <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Linked active plans</div>
                           <StatusPill tone="neutral">{plans.filter((plan) => plan.spot_id === selectedSpot.id && plan.status === 'active').length}</StatusPill>
                         </div>
                         <div className="mt-3 space-y-2">
@@ -1104,11 +1104,11 @@ export default function Admin() {
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Approval checklist</div>
                         <div className="mt-3 grid gap-2 text-sm text-[#5d574d]">
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Valid name</span><StatusPill tone={selectedSpot.name?.trim() ? 'success' : 'danger'}>{selectedSpot.name?.trim() ? 'ok' : 'falta'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Address is not empty</span><StatusPill tone={selectedSpot.address?.trim() ? 'success' : 'danger'}>{selectedSpot.address?.trim() ? 'ok' : 'falta'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Coordenadas validas</span><StatusPill tone={typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'success' : 'danger'}>{typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'ok' : 'revisar'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Precio razonable</span><StatusPill tone={selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'success' : 'warn'}>{selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'ok' : 'revisar'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Foto valida o fallback</span><StatusPill tone={selectedSpot.photo_url ? 'success' : 'warn'}>{selectedSpot.photo_url ? 'ok' : 'fallback'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Valid name</span><StatusPill tone={selectedSpot.name?.trim() ? 'success' : 'danger'}>{selectedSpot.name?.trim() ? 'ok' : 'missing'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Address is not empty</span><StatusPill tone={selectedSpot.address?.trim() ? 'success' : 'danger'}>{selectedSpot.address?.trim() ? 'ok' : 'missing'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Valid coordinates</span><StatusPill tone={typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'success' : 'danger'}>{typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'ok' : 'review'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Reasonable price</span><StatusPill tone={selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'success' : 'warn'}>{selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'ok' : 'review'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Valid photo or fallback</span><StatusPill tone={selectedSpot.photo_url ? 'success' : 'warn'}>{selectedSpot.photo_url ? 'ok' : 'fallback'}</StatusPill></div>
                         </div>
                       </div>
 
@@ -1124,7 +1124,7 @@ export default function Admin() {
                   </div>
                 </div>
               ) : (
-                <EmptyState icon={Pizza} title="Selecciona un spot" text="La ficha detallada aparecera aqui cuando elijas un spot de la lista." />
+                <EmptyState icon={Pizza} title="Select a spot" text="The detailed card will appear here when you choose a spot from the list." />
               )}
             </Shell>
           </div>
@@ -1132,7 +1132,7 @@ export default function Admin() {
 
         {!isLoading && activeTab === 'plans' ? (
           <div className="grid gap-5 xl:grid-cols-[0.95fr,1.05fr]">
-            <Shell title="Planes" subtitle="Controla cupos, spam, grupos y consistencia del dato." actions={PLAN_FILTERS.map((filter) => <FilterChip key={filter.id} active={planFilter === filter.id} onClick={() => setPlanFilter(filter.id)}>{filter.label}</FilterChip>)}>
+            <Shell title="Plans" subtitle="Control capacity, spam, groups and data consistency." actions={PLAN_FILTERS.map((filter) => <FilterChip key={filter.id} active={planFilter === filter.id} onClick={() => setPlanFilter(filter.id)}>{filter.label}</FilterChip>)}>
               {planRows.length ? (
                 <div className="grid max-h-[900px] gap-3 overflow-auto pr-1">
                   {planRows.map((plan) => {
@@ -1259,7 +1259,7 @@ export default function Admin() {
                     </div>
                   </div>
                 </div>
-              ) : <EmptyState icon={CalendarDays} title="Selecciona un plan" text="La ficha detallada aparecera aqui cuando elijas un plan de la lista." />}
+              ) : <EmptyState icon={CalendarDays} title="Select a plan" text="The detailed card will appear here when you choose a plan from the list." />}
             </Shell>
           </div>
         ) : null}
@@ -1348,10 +1348,10 @@ export default function Admin() {
                       </div>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <DetailMetric label="Spots creados" value={selectedUser.spotsCount} />
-                      <DetailMetric label="Planes creados" value={selectedUser.plansCount} />
+                      <DetailMetric label="Created spots" value={selectedUser.spotsCount} />
+                      <DetailMetric label="Created plans" value={selectedUser.plansCount} />
                       <DetailMetric label="Joined groups" value={selectedUser.groupsJoined} />
-                      <DetailMetric label="Reportes recibidos" value={selectedUser.reportsCount} tone={selectedUser.reportsCount ? 'danger' : 'neutral'} />
+                      <DetailMetric label="Received reports" value={selectedUser.reportsCount} tone={selectedUser.reportsCount ? 'danger' : 'neutral'} />
                     </div>
                   </div>
 
@@ -1413,7 +1413,7 @@ export default function Admin() {
                     </div>
                   </div>
                 </div>
-              ) : <EmptyState icon={Users} title="Selecciona un usuario" text="La ficha detallada aparecera aqui cuando elijas un perfil de la lista." />}
+              ) : <EmptyState icon={Users} title="Select a user" text="The detailed card will appear here when you choose a profile from the list." />}
             </Shell>
           </div>
         ) : null}
@@ -1442,12 +1442,12 @@ export default function Admin() {
                   </div>
                 ))}
               </div>
-            ) : <EmptyState icon={MessageSquare} title="No hay mensajes" text="Cuando los grupos hablen, podras revisar aqui el contexto y moderar si hace falta." />}
+            ) : <EmptyState icon={MessageSquare} title="No messages yet" text="When groups start talking, you will be able to review context and moderate from here." />}
           </Shell>
         ) : null}
 
         {!isLoading && activeTab === 'photos' ? (
-          <Shell title="Fotos / media" subtitle="Pendientes, rotas, huerfanas y fotos asociadas a spots problematicos.">
+          <Shell title="Photos / media" subtitle="Pending, broken, orphaned and photos linked to problematic spots.">
             {photos.length ? (
               <div className="grid gap-3">
                 {photos.filter((row) => includesSearch(spotMap.get(row.spot_id)?.name, row.photo_url, row.status)).map((row) => {
@@ -1494,7 +1494,7 @@ export default function Admin() {
                 <>
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-users.csv', users)}><Download className="mr-2 h-4 w-4" />Users CSV</AdminActionButton>
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-spots.csv', spots)}><Download className="mr-2 h-4 w-4" />Spots CSV</AdminActionButton>
-                  <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-plans.csv', plans)}><Download className="mr-2 h-4 w-4" />Planes CSV</AdminActionButton>
+                  <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-plans.csv', plans)}><Download className="mr-2 h-4 w-4" />Plans CSV</AdminActionButton>
                 </>
               }
             >

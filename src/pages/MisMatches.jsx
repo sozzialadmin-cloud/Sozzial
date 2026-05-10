@@ -372,7 +372,7 @@ export default function MisMatches() {
               </div>
             </section>
           ) : (
-            <div className="hidden items-center justify-center bg-[#0b0b0b] text-stone-500 lg:flex">Selecciona un grupo</div>
+            <div className="hidden items-center justify-center bg-[#0b0b0b] text-stone-500 lg:flex">Select a group</div>
           )}
         </div>
       </div>

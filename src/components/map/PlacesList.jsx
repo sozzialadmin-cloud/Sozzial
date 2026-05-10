@@ -14,7 +14,7 @@ export default function PlacesList({ places, isLoading, onSelectPlace, selectedP
   if (places.length === 0) {
     return (
       <div className="flex items-center justify-center p-8 text-stone-500 text-sm">
-        No hay resultados
+        No results
       </div>
     );
   }

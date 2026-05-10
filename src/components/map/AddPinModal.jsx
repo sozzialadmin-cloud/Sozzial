@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
@@ -318,7 +319,7 @@ export default function AddPinModal({ open, onClose, user }) {
     onClose();
   }
 
-  return (
+  const modal = (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -479,4 +480,6 @@ export default function AddPinModal({ open, onClose, user }) {
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(modal, document.body);
 }

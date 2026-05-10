@@ -3,8 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
-import { getPublicUsername, getAvatarLetter } from "@/lib/display-name";
+import { getPublicUsername } from "@/lib/display-name";
 
 async function uploadSpotPhoto(file, userId) {
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
@@ -40,7 +41,9 @@ export default function PhotoGallery({ placeId, photos, user, onRequireAuth }) {
       });
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["spot-photos", placeId] });
-      alert("Photo sent for review.");
+      toast.success("Photo sent for review.");
+    } catch (error) {
+      toast.error(error?.message || "The photo could not be uploaded.");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";

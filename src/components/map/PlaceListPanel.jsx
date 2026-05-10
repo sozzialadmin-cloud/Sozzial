@@ -82,7 +82,7 @@ export default function PlaceListPanel({
                 <SortChip active={sortMode === "value"} onClick={() => onSortModeChange?.("value")}>Valor</SortChip>
                 <SortChip active={sortMode === "price"} onClick={() => onSortModeChange?.("price")}>Mas baratos</SortChip>
                 <SortChip active={sortMode === "rating"} onClick={() => onSortModeChange?.("rating")}>Top rated</SortChip>
-                <SortChip active={sortMode === "hangouts"} onClick={() => onSortModeChange?.("hangouts")}>Planes</SortChip>
+                <SortChip active={sortMode === "hangouts"} onClick={() => onSortModeChange?.("hangouts")}>Plans</SortChip>
               </div>
             </div>
 
