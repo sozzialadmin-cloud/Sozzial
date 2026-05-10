@@ -33,7 +33,7 @@ export default function AuthConfirm() {
       if (!supabase) {
         if (!active) return;
         setStatus('error');
-        setMessage('Supabase no esta configurado en esta build.');
+        setMessage('El acceso todavia no esta conectado en esta version.');
         return;
       }
 

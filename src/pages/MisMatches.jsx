@@ -81,7 +81,7 @@ async function fetchGroups(userId) {
       descripcion: plan.quick_note || "",
       status: plan.status,
       place: spotMap.get(plan.spot_id),
-      pizzeria_nombre: spotMap.get(plan.spot_id)?.name || "Pizza spot",
+      pizzeria_nombre: spotMap.get(plan.spot_id)?.name || "Pizzeria",
       host,
       participants: planMembers.map((m) => profileMap.get(m.user_id)).filter(Boolean),
       messageList: planMessages,
@@ -109,26 +109,26 @@ function GroupInfoSheet({ group, open, onClose }) {
         <div className="p-5">
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">When</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Cuando</div>
               <div className="mt-2 text-sm font-bold">{fmtDate(group.plan_date, group.plan_time)}</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">People</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Personas</div>
               <div className="mt-2 text-sm font-bold">{group.participants.length} / {group.max_participantes}</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Best slice</div>
-              <div className="mt-2 text-sm font-bold">{group.place?.best_slice || 'Optional'}</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Mejor slice</div>
+              <div className="mt-2 text-sm font-bold">{group.place?.best_slice || 'Opcional'}</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Address</div>
-              <div className="mt-2 line-clamp-2 text-sm font-bold">{group.place?.address || 'Open in maps'}</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Direccion</div>
+              <div className="mt-2 line-clamp-2 text-sm font-bold">{group.place?.address || 'Abrir en mapas'}</div>
             </div>
           </div>
 
           <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Quick note</div>
-            <div className="mt-2 text-sm leading-7 text-stone-300">{group.descripcion || 'Simple pizza plan. Good spot, clear time, easy join.'}</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">Nota rapida</div>
+            <div className="mt-2 text-sm leading-7 text-stone-300">{group.descripcion || 'Plan sencillo de pizza. Buen sitio, hora clara y facil apuntarse.'}</div>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
@@ -142,9 +142,9 @@ function GroupInfoSheet({ group, open, onClose }) {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <a href={mapUrl(group.place)} target="_blank" rel="noreferrer" className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-white">
-              <MapPin className="mr-2 h-4 w-4" />Open in Google Maps
+              <MapPin className="mr-2 h-4 w-4" />Abrir en Google Maps
             </a>
-            <button onClick={onClose} className="inline-flex h-12 items-center justify-center rounded-2xl bg-red-600 text-sm font-bold text-white">Back to chat</button>
+            <button onClick={onClose} className="inline-flex h-12 items-center justify-center rounded-2xl bg-red-600 text-sm font-bold text-white">Volver al chat</button>
           </div>
         </div>
       </div>
@@ -180,7 +180,7 @@ function GroupListItem({ group, active, onSelect }) {
           </div>
           <div className="mt-1 truncate text-xs text-stone-400">{group.pizzeria_nombre}</div>
           <div className="mt-2 flex items-center justify-between gap-3">
-            <div className="truncate text-sm text-stone-300">{group.lastMessage?.content || group.descripcion || "No messages yet"}</div>
+            <div className="truncate text-sm text-stone-300">{group.lastMessage?.content || group.descripcion || "Sin mensajes todavia"}</div>
           </div>
         </div>
       </div>
@@ -251,8 +251,8 @@ export default function MisMatches() {
 
   const sendMutation = useMutation({
     mutationFn: async (text) => {
-      if (!selected) throw new Error("No group selected");
-      if (!isSupabaseConfigured || !supabase) throw new Error("Chat service is not configured yet.");
+      if (!selected) throw new Error("No hay ningun grupo seleccionado.");
+      if (!isSupabaseConfigured || !supabase) throw new Error("El chat todavia no esta conectado.");
       const { error } = await supabase.from("messages").insert({
         plan_id: selected.id,
         user_id: user.id,
@@ -266,8 +266,8 @@ export default function MisMatches() {
     },
     onError: (error) => {
       toast({
-        title: "Could not send the message",
-        description: error?.message || "Check permissions or try again.",
+        title: "No se pudo enviar el mensaje",
+        description: error?.message || "Revisa permisos o intentalo de nuevo.",
         variant: "destructive",
       });
     },
@@ -278,7 +278,7 @@ export default function MisMatches() {
     sendMutation.mutate(messageText.trim());
   }
 
-  if (!user || isLoading) return <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-[#060606] text-white">Loading...</div>;
+  if (!user || isLoading) return <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-[#060606] text-white">Cargando...</div>;
 
   if (!groups.length) {
     return (
@@ -286,9 +286,9 @@ export default function MisMatches() {
         <div className="mx-auto flex h-full max-w-md items-center">
           <div className="w-full rounded-[30px] border border-white/10 bg-[#111] p-8 text-center">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-white/[0.04] text-[#efbf3a]"><MessageCircle className="h-10 w-10" /></div>
-          <h1 className="mt-6 text-3xl font-black text-white">You have not joined any groups yet</h1>
-          <p className="mt-3 text-sm leading-7 text-stone-400">When you like a plan in Discover or create one yourself, the group appears here automatically.</p>
-          <Link to={createPageUrl("Descubrir")} className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-2xl bg-red-600 text-sm font-bold text-white">Go to Discover</Link>
+          <h1 className="mt-6 text-3xl font-black text-white">Todavia no tienes grupos</h1>
+          <p className="mt-3 text-sm leading-7 text-stone-400">Cuando te apuntes a un plan en Descubrir o crees uno, el grupo aparecera aqui automaticamente.</p>
+          <Link to={createPageUrl("Descubrir")} className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-2xl bg-red-600 text-sm font-bold text-white">Ir a Descubrir</Link>
           </div>
         </div>
       </div>
@@ -303,14 +303,14 @@ export default function MisMatches() {
             <div className="border-b border-white/6 px-4 py-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h1 className="text-[2rem] font-black tracking-tight text-white">My groups</h1>
-                  <p className="mt-1 text-sm text-stone-400">Your real chats and pizza plans.</p>
+                  <h1 className="text-[2rem] font-black tracking-tight text-white">Mis grupos</h1>
+                  <p className="mt-1 text-sm text-stone-400">Tus chats reales y planes de pizza.</p>
                 </div>
                 <span className="inline-flex h-10 min-w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-sm font-bold text-white">{visible.length}</span>
               </div>
               <div className="mt-4 flex gap-2">
-                <button onClick={() => setTab("upcoming")} className={`rounded-full px-4 py-2 text-sm font-semibold ${tab === "upcoming" ? "bg-red-600 text-white" : "border border-white/10 bg-white/[0.04] text-stone-300"}`}>Upcoming</button>
-                <button onClick={() => setTab("history")} className={`rounded-full px-4 py-2 text-sm font-semibold ${tab === "history" ? "bg-red-600 text-white" : "border border-white/10 bg-white/[0.04] text-stone-300"}`}>History</button>
+                <button onClick={() => setTab("upcoming")} className={`rounded-full px-4 py-2 text-sm font-semibold ${tab === "upcoming" ? "bg-red-600 text-white" : "border border-white/10 bg-white/[0.04] text-stone-300"}`}>Proximos</button>
+                <button onClick={() => setTab("history")} className={`rounded-full px-4 py-2 text-sm font-semibold ${tab === "history" ? "bg-red-600 text-white" : "border border-white/10 bg-white/[0.04] text-stone-300"}`}>Historial</button>
               </div>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2 space-y-2">
@@ -336,7 +336,7 @@ export default function MisMatches() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-violet-500/20 px-3 py-1 text-[11px] font-bold text-violet-200">{fmtDate(selected.plan_date, selected.plan_time)}</span>
                   <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-bold text-emerald-200">{selected.participants.length} / {selected.max_participantes}</span>
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-bold text-stone-200">Slice plan</span>
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-bold text-stone-200">Plan de slice</span>
                   <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-bold text-stone-200">${Number(selected.place?.slice_price || 0).toFixed(2)}</span>
                 </div>
               </div>

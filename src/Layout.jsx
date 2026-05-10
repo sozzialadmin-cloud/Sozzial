@@ -17,7 +17,7 @@ function Brand({ compact = false }) {
       <div className="min-w-0">
         <div className={compact ? 'text-2xl font-black' : 'app-brand-title'}>Sozzial</div>
         <div className={compact ? 'text-[11px] uppercase tracking-[0.18em] text-[#8a8174]' : 'app-brand-subtitle'}>
-          {compact ? 'Pizza social app' : 'Real pizza, real plans'}
+          {compact ? 'App social de pizza' : 'Pizza real, planes reales'}
         </div>
       </div>
     </div>
@@ -113,14 +113,14 @@ export default function Layout({ children, currentPageName }) {
                     </div>
 
                     <div className="mt-8 rounded-[28px] border border-black/8 bg-[#f4ede2] p-5">
-                      <div className="text-base font-bold text-[#141414]">{isAuthenticated ? 'Your account' : 'Explore as a guest'}</div>
+                      <div className="text-base font-bold text-[#141414]">{isAuthenticated ? 'Tu cuenta' : 'Explora como invitado'}</div>
                       <div className="mt-2 text-sm leading-6 text-[#6d665b]">
-                        {user?.username || user?.full_name || 'Browse the map without signing in. Create plans, join groups and manage your profile once you log in.'}
+                        {user?.username || user?.full_name || 'Puedes ver el mapa sin entrar. Para crear planes, unirte a grupos y cuidar tu perfil, inicia sesion.'}
                       </div>
                       {isAuthenticated ? (
                         <Button onClick={logout} variant="outline" className="mt-4 h-12 w-full rounded-2xl border-black/10 bg-white text-[#141414] hover:bg-[#fffdf8]">
                           <LogOut className="mr-2 h-4 w-4" />
-                          Log out
+                          Salir
                         </Button>
                       ) : (
                         <Link
@@ -128,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
                           onClick={() => setMenuOpen(false)}
                           className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#df5b43] text-sm font-bold text-white hover:bg-[#c84b35]"
                         >
-                          Login / Create account
+                          Entrar / crear cuenta
                         </Link>
                       )}
                     </div>

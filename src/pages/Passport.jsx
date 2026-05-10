@@ -62,12 +62,12 @@ export default function Passport() {
     onSuccess: async (result) => {
       setNote("");
       setSlicePrice("");
-      toast.success(result.persisted ? "Check-in saved" : "Check-in saved on this device");
+      toast.success(result.persisted ? "Check-in guardado" : "Check-in guardado en este dispositivo");
       await queryClient.invalidateQueries({ queryKey: ["passport-bundle", user?.id] });
       await queryClient.invalidateQueries({ queryKey: ["activity-feed"] });
       await queryClient.invalidateQueries({ queryKey: ["weekly-rankings"] });
     },
-    onError: (error) => toast.error(error?.message || "Could not save check-in."),
+    onError: (error) => toast.error(error?.message || "No se pudo guardar el check-in."),
   });
 
   return (
@@ -75,16 +75,16 @@ export default function Passport() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-5">
           <div className="inline-flex rounded-full border border-[#efbf3a]/25 bg-[#efbf3a]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#efbf3a]">Sozzial Passport</div>
-          <h1 className="mt-3 text-[clamp(2rem,8vw,4rem)] font-black leading-none">Collect real pizza moments.</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-400">Check in, confirm prices, complete missions and make your profile worth visiting.</p>
+          <h1 className="mt-3 text-[clamp(2rem,8vw,4rem)] font-black leading-none">Colecciona momentos reales.</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-400">Haz check-in, confirma precios, completa misiones y haz que tu perfil merezca la visita.</p>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[0.9fr,1.1fr]">
           <section className="surface-card rounded-[28px] p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-xl font-black">Quick check-in</div>
-                <div className="mt-1 text-sm text-stone-500">Verify that a slice exists, today.</div>
+                <div className="text-xl font-black">Check-in rapido</div>
+                <div className="mt-1 text-sm text-stone-500">Confirma que ese slice existe hoy.</div>
               </div>
               <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
                 <MapPin className="h-5 w-5" />
@@ -93,13 +93,13 @@ export default function Passport() {
 
             <div className="mt-5 space-y-3">
               <select value={spotId} onChange={(event) => setSpotId(event.target.value)} className="h-12 w-full rounded-2xl border border-white/10 bg-[#171717] px-4 text-sm text-white outline-none">
-                <option value="">Choose a pizza spot</option>
+                <option value="">Elige un sitio</option>
                 {spots.map((spot) => <option key={spot.id} value={spot.id}>{spot.name}</option>)}
               </select>
-              <Input value={slicePrice} onChange={(event) => setSlicePrice(event.target.value)} inputMode="decimal" placeholder={selectedSpot?.slice_price ? `Current price: $${selectedSpot.slice_price}` : "Slice price, e.g. 3.25"} className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <Textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Short note: fresh, busy, price changed..." className="min-h-24 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Input value={slicePrice} onChange={(event) => setSlicePrice(event.target.value)} inputMode="decimal" placeholder={selectedSpot?.slice_price ? `Precio actual: $${selectedSpot.slice_price}` : "Precio del slice, ej. 3.25"} className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Nota corta: fresco, lleno, cambio de precio..." className="min-h-24 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
               <Button disabled={!spotId || checkIn.isPending} onClick={() => checkIn.mutate()} className="h-12 w-full rounded-2xl bg-[#df5b43] font-black text-white hover:bg-[#c84b35]">
-                <Send className="mr-2 h-4 w-4" />{checkIn.isPending ? "Saving..." : "Check in"}
+                <Send className="mr-2 h-4 w-4" />{checkIn.isPending ? "Guardando..." : "Hacer check-in"}
               </Button>
             </div>
           </section>
@@ -107,8 +107,8 @@ export default function Passport() {
           <section className="surface-card rounded-[28px] p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-xl font-black">Weekly progress</div>
-                <div className="mt-1 text-sm text-stone-500">Missions that make the map better.</div>
+                <div className="text-xl font-black">Progreso semanal</div>
+                <div className="mt-1 text-sm text-stone-500">Misiones que hacen mejor el mapa.</div>
               </div>
               <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-black text-white">
                 {totalProgress}/{totalTarget}
@@ -121,18 +121,18 @@ export default function Passport() {
         </div>
 
         <section className="surface-card mt-4 rounded-[28px] p-4 sm:p-5">
-          <div className="mb-4 flex items-center gap-2 text-xl font-black"><BadgeCheck className="h-5 w-5 text-[#efbf3a]" />Recent check-ins</div>
-          {isLoading ? <div className="text-sm text-stone-500">Loading...</div> : null}
+          <div className="mb-4 flex items-center gap-2 text-xl font-black"><BadgeCheck className="h-5 w-5 text-[#efbf3a]" />Check-ins recientes</div>
+          {isLoading ? <div className="text-sm text-stone-500">Cargando...</div> : null}
           <div className="stagger-in grid gap-3 md:grid-cols-2">
             {(bundle.checkins || []).slice(0, 8).map((row, index) => (
               <div key={row.id || `${row.spot_id}-${index}`} className="soft-list-item rounded-[22px] p-4">
-                <div className="flex items-center gap-2 font-black text-white"><Pizza className="h-4 w-4 text-[#efbf3a]" />{row.spots?.name || row.spot_name || "Pizza spot"}</div>
+                <div className="flex items-center gap-2 font-black text-white"><Pizza className="h-4 w-4 text-[#efbf3a]" />{row.spots?.name || row.spot_name || "Sitio de pizza"}</div>
                 <div className="mt-1 text-xs text-stone-500">{new Date(row.created_at).toLocaleString()}</div>
-                {row.slice_price ? <div className="mt-2 text-sm text-stone-300">Verified slice: ${Number(row.slice_price).toFixed(2)}</div> : null}
+                {row.slice_price ? <div className="mt-2 text-sm text-stone-300">Slice verificado: ${Number(row.slice_price).toFixed(2)}</div> : null}
                 {row.note ? <div className="mt-2 text-sm leading-6 text-stone-400">{row.note}</div> : null}
               </div>
             ))}
-            {!isLoading && !(bundle.checkins || []).length ? <div className="rounded-[22px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 md:col-span-2">No check-ins yet.</div> : null}
+            {!isLoading && !(bundle.checkins || []).length ? <div className="rounded-[22px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 md:col-span-2">Todavia no hay check-ins.</div> : null}
           </div>
         </section>
       </div>

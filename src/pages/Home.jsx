@@ -78,13 +78,13 @@ export default function Home() {
       const next = await toggleSavedSpot(user?.id, place.id, isSaved);
       setSavedPlaceIds(next);
       toast({
-        title: isSaved ? "Spot removed" : "Spot saved",
-        description: isSaved ? "It is no longer in your saved places." : "You can find it again from this device.",
+        title: isSaved ? "Sitio quitado" : "Sitio guardado",
+        description: isSaved ? "Ya no aparece en tus guardados." : "Podras volver a encontrarlo desde este dispositivo.",
       });
     } catch (error) {
       toast({
-        title: "Could not update saved spots",
-        description: error.message || "Please try again.",
+        title: "No se pudo actualizar",
+        description: error.message || "Prueba de nuevo.",
         variant: "destructive",
       });
     }
@@ -122,12 +122,12 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm font-black text-[#111111]">
-                        {!isSupabaseConfigured ? "Mapa en modo preparacion" : "No spots match this view"}
+                        {!isSupabaseConfigured ? "Mapa en modo preparacion" : "No hay sitios con estos filtros"}
                       </p>
                       <p className="mt-1 text-xs leading-5 text-[#6f644f]">
                         {!isSupabaseConfigured
                           ? "La app esta lista. Conecta las claves privadas del proyecto para cargar datos reales."
-                          : "Try fewer filters or add the first pizza spot for this area."}
+                          : "Prueba con menos filtros o anade el primer sitio de esta zona."}
                       </p>
                     </div>
                   </div>
@@ -150,8 +150,8 @@ export default function Home() {
                   },
                   () => {
                     toast({
-                      title: "Location unavailable",
-                      description: "Allow location access or search the map manually.",
+                      title: "Ubicacion no disponible",
+                      description: "Permite el acceso a ubicacion o busca manualmente.",
                       variant: "destructive",
                     });
                   },
@@ -159,8 +159,8 @@ export default function Home() {
                 );
               } else {
                 toast({
-                  title: "Location unsupported",
-                  description: "Your browser does not support geolocation.",
+                  title: "Ubicacion no compatible",
+                  description: "Tu navegador no permite usar geolocalizacion.",
                   variant: "destructive",
                 });
               }
@@ -169,12 +169,12 @@ export default function Home() {
 
           <button onClick={() => setListOpen((prev) => !prev)} className="home-map-count md:hidden">
             <List className="h-4 w-4" />
-            <span>{filteredPlaces.length} spots</span>
+            <span>{filteredPlaces.length} sitios</span>
           </button>
 
-          <button onClick={handleAddPin} className="home-map-fab" aria-label="Add Spot">
+          <button onClick={handleAddPin} className="home-map-fab" aria-label="Anadir sitio">
             <MapPin className="h-5 w-5" />
-            <span className="home-map-fab-label">Add Spot</span>
+            <span className="home-map-fab-label">Anadir</span>
           </button>
 
           <PlaceListPanel
@@ -203,7 +203,7 @@ export default function Home() {
             />
           )}
           <AddPinModal open={addPinOpen} onClose={() => setAddPinOpen(false)} user={user} />
-          <LoginPrompt open={loginPrompt} onClose={() => setLoginPrompt(false)} message="Sign in to create and join pizza plans." />
+          <LoginPrompt open={loginPrompt} onClose={() => setLoginPrompt(false)} message="Entra para crear planes, unirte a grupos y guardar tu actividad." />
         </div>
       </section>
 

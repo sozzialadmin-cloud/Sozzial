@@ -69,22 +69,22 @@ export default function PinPopup({ place, onClose, onViewDetails }) {
 
               <div className="mt-4 grid grid-cols-3 gap-2">
                 <div className="rounded-2xl border border-white/12 bg-black/45 p-3 backdrop-blur-sm">
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"><Coins className="h-3.5 w-3.5" />Slice</div>
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"><Coins className="h-3.5 w-3.5" />Precio</div>
                   <div className="mt-1 text-lg font-black text-white">{formatPrice(place.standard_slice_price)}</div>
                 </div>
                 <div className="rounded-2xl border border-white/12 bg-black/45 p-3 backdrop-blur-sm">
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"><Star className="h-3.5 w-3.5 fill-red-500 text-red-500" />Rating</div>
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"><Star className="h-3.5 w-3.5 fill-red-500 text-red-500" />Valoracion</div>
                   <div className="mt-1 text-lg font-black text-white">{Number(place.average_rating || 0).toFixed(1)}</div>
                   <StarRating rating={Number(place.average_rating || 0)} size="sm" />
                 </div>
                 <div className="rounded-2xl border border-white/12 bg-black/45 p-3 backdrop-blur-sm">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Best slice</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Mejor slice</div>
                   <div className="mt-1 line-clamp-2 text-sm font-bold leading-tight text-white">{place.best_known_slice || "Cheese slice"}</div>
                 </div>
               </div>
 
               <Button onClick={onViewDetails} className="mt-4 h-11 w-full rounded-2xl bg-red-600 text-white font-bold hover:bg-red-500">
-                View details
+                Ver detalles
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>

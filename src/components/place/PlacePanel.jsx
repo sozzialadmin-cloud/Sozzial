@@ -143,10 +143,10 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
   const displayBestSlice = place.best_known_slice || place.best_slice || "Optional";
   const displayRating = Number(ratingSummary.average || 0);
   const trustSignals = [
-    place.photo_url ? "Photo added" : null,
-    approvedComments.length ? `${approvedComments.length} community notes` : null,
-    ratingSummary.count ? `${ratingSummary.count} ratings` : null,
-    relatedPlans.length ? `${relatedPlans.length} active plans` : null,
+    place.photo_url ? "Foto anadida" : null,
+    approvedComments.length ? `${approvedComments.length} notas de la comunidad` : null,
+    ratingSummary.count ? `${ratingSummary.count} valoraciones` : null,
+    relatedPlans.length ? `${relatedPlans.length} planes activos` : null,
   ].filter(Boolean);
 
   useEffect(() => {
@@ -198,12 +198,12 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
 
   const handleRatePlace = async (value) => {
     if (!user?.id) {
-      setLoginPrompt({ open: true, message: "Sign in to save your own rating for this spot." });
+      setLoginPrompt({ open: true, message: "Entra para guardar tu valoracion de este sitio." });
       return;
     }
 
     if (!isSupabaseConfigured || !supabase) {
-      setRatingError("Connect Supabase before saving ratings.");
+      setRatingError("La valoracion aun no esta conectada.");
       return;
     }
 
@@ -239,7 +239,7 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
       setRatingSaved(true);
       window.setTimeout(() => setRatingSaved(false), 1600);
     } catch (error) {
-      setRatingError(error.message || "Could not save your rating.");
+      setRatingError(error.message || "No se pudo guardar tu valoracion.");
     } finally {
       setIsSavingRating(false);
     }
@@ -258,13 +258,13 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
       setReportOpen(false);
       setReportDetails("");
       toast({
-        title: "Report received",
-        description: result.persisted ? "The admin team can review it now." : "It was saved locally until the reports table is connected.",
+        title: "Reporte recibido",
+        description: result.persisted ? "El equipo de administracion ya puede revisarlo." : "Se guardo localmente hasta conectar la tabla de reportes.",
       });
     } catch (error) {
       toast({
-        title: "Could not send report",
-        description: error.message || "Please try again.",
+        title: "No se pudo enviar",
+        description: error.message || "Prueba de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -276,9 +276,9 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
 
   const tabs = [
     { id: "info", label: "Info" },
-    { id: "plans", label: "Plans", count: relatedPlans.length },
-    { id: "comments", label: "Comments", count: approvedComments.length },
-    { id: "photos", label: "Photos", count: approvedPhotos.length },
+    { id: "plans", label: "Planes", count: relatedPlans.length },
+    { id: "comments", label: "Reseñas", count: approvedComments.length },
+    { id: "photos", label: "Fotos", count: approvedPhotos.length },
   ];
 
   return (
@@ -305,40 +305,40 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
             </button>
 
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-red-300">Spot</span>
-              {displayBestSlice ? <span className="inline-flex items-center rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-300">Best slice - {displayBestSlice}</span> : null}
+              <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-red-300">Sitio</span>
+              {displayBestSlice ? <span className="inline-flex items-center rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-300">Mejor slice - {displayBestSlice}</span> : null}
             </div>
 
             <h2 className="text-[2rem] font-black leading-tight text-white">{place.name}</h2>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-stone-400">
               <MapPin className="h-4 w-4" />
-              {place.address || "Location pinned on map"}
+              {place.address || "Ubicacion marcada en el mapa"}
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <InfoCard label="Slice price" value={formatPrice(displaySlicePrice)} icon={Coins} accent="text-stone-500" />
-              <InfoCard label="Rating" icon={Star} accent="text-red-300">
+              <InfoCard label="Precio slice" value={formatPrice(displaySlicePrice)} icon={Coins} accent="text-stone-500" />
+              <InfoCard label="Valoracion" icon={Star} accent="text-red-300">
                 <div className="mt-2 flex items-center gap-3">
                   <div className="text-2xl font-black leading-none text-white">{displayRating.toFixed(1)}</div>
                   <StarRating rating={displayRating} size="md" showValue={false} />
                 </div>
-                <div className="mt-2 text-xs text-stone-500">{ratingSummary.count} ratings</div>
+                <div className="mt-2 text-xs text-stone-500">{ratingSummary.count} valoraciones</div>
               </InfoCard>
-              <InfoCard label="Best slice" value={displayBestSlice} icon={Sparkles} accent="text-stone-500" />
-              <InfoCard label="Comments" value={String(approvedComments.length)} icon={MessageCircle} accent="text-stone-500" />
+              <InfoCard label="Mejor slice" value={displayBestSlice} icon={Sparkles} accent="text-stone-500" />
+              <InfoCard label="Reseñas" value={String(approvedComments.length)} icon={MessageCircle} accent="text-stone-500" />
             </div>
 
             <div className="mt-4 rounded-[24px] border border-red-500/15 bg-black/30 p-4">
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-red-300"><Sparkles className="h-3.5 w-3.5" />Quick note</div>
-              <p className="mt-2 text-sm leading-6 text-stone-300">{place.quick_note || place.description || "No quick note yet."}</p>
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-red-300"><Sparkles className="h-3.5 w-3.5" />Nota rapida</div>
+              <p className="mt-2 text-sm leading-6 text-stone-300">{place.quick_note || place.description || "Todavia no hay nota rapida."}</p>
             </div>
 
             <div className="mt-4 rounded-[24px] border border-white/10 bg-white/[0.035] p-4">
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400">
-                <ShieldCheck className="h-3.5 w-3.5" />Community signals
+                <ShieldCheck className="h-3.5 w-3.5" />Senales de confianza
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                {(trustSignals.length ? trustSignals : ["Needs community details"]).map((signal) => (
+                {(trustSignals.length ? trustSignals : ["Faltan detalles de la comunidad"]).map((signal) => (
                   <span key={signal} className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-semibold text-stone-300">
                     {signal}
                   </span>
@@ -348,37 +348,37 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
 
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.08]">
-                <ArrowUpRight className="mr-2 h-4 w-4" />Open in maps
+                <ArrowUpRight className="mr-2 h-4 w-4" />Abrir mapa
               </a>
               <Link to={`${createPageUrl('CrearQuedada')}?place=${place.id}`} className="inline-flex h-11 items-center justify-center rounded-2xl bg-red-600 text-white font-bold hover:bg-red-500">
-                <Plus className="mr-2 h-4 w-4" />Create plan here
+                <Plus className="mr-2 h-4 w-4" />Crear plan aqui
               </Link>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button onClick={onToggleSaved} className={`inline-flex h-11 items-center justify-center rounded-2xl border text-sm font-bold transition ${saved ? "border-yellow-400/40 bg-yellow-400/15 text-yellow-100" : "border-white/10 bg-white/[0.03] text-stone-200 hover:bg-white/[0.08]"}`}>
-                <Bookmark className={`mr-2 h-4 w-4 ${saved ? "fill-yellow-300 text-yellow-300" : ""}`} />{saved ? "Saved" : "Save spot"}
+                <Bookmark className={`mr-2 h-4 w-4 ${saved ? "fill-yellow-300 text-yellow-300" : ""}`} />{saved ? "Guardado" : "Guardar"}
               </button>
               <button onClick={() => setReportOpen((prev) => !prev)} className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-sm font-bold text-stone-200 transition hover:bg-white/[0.08]">
-                <Flag className="mr-2 h-4 w-4" />Report
+                <Flag className="mr-2 h-4 w-4" />Reportar
               </button>
             </div>
             {place.created_by ? (
               <Link to={`/profile/${place.created_by}`} className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-white/10 bg-black/25 text-sm font-bold text-stone-200 transition hover:bg-white/[0.06]">
-                <UserRound className="mr-2 h-4 w-4" />View contributor profile
+                <UserRound className="mr-2 h-4 w-4" />Ver perfil del colaborador
               </Link>
             ) : null}
             {reportOpen ? (
               <div className="mt-3 rounded-[22px] border border-white/10 bg-black/35 p-4">
-                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">What needs attention?</label>
+                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Que hay que revisar?</label>
                 <select value={reportReason} onChange={(event) => setReportReason(event.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-white/10 bg-[#111111] px-3 text-sm text-white outline-none">
-                  <option value="wrong_info">Wrong info</option>
-                  <option value="closed">Place closed</option>
-                  <option value="duplicate">Duplicate spot</option>
-                  <option value="unsafe">Unsafe or inappropriate</option>
+                  <option value="wrong_info">Informacion incorrecta</option>
+                  <option value="closed">Sitio cerrado</option>
+                  <option value="duplicate">Sitio duplicado</option>
+                  <option value="unsafe">Inseguro o inapropiado</option>
                 </select>
-                <textarea value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} placeholder="Add a short note for admins" className="mt-2 min-h-20 w-full rounded-2xl border border-white/10 bg-[#111111] px-3 py-3 text-sm text-white outline-none placeholder:text-stone-600" />
+                <textarea value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} placeholder="Anade una nota corta para administracion" className="mt-2 min-h-20 w-full rounded-2xl border border-white/10 bg-[#111111] px-3 py-3 text-sm text-white outline-none placeholder:text-stone-600" />
                 <Button onClick={handleReport} disabled={reportBusy} className="mt-3 h-10 w-full rounded-2xl bg-white text-[#111111] font-bold hover:bg-stone-100">
-                  {reportBusy ? "Sending..." : "Send report"}
+                  {reportBusy ? "Enviando..." : "Enviar reporte"}
                 </Button>
               </div>
             ) : null}
@@ -398,33 +398,33 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
             {activeTab === "info" ? (
               <div className="space-y-5">
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
-                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Your rating</div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Tu valoracion</div>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <StarRating rating={myRating} onRate={handleRatePlace} interactive step={0.5} size="lg" showValue />
-                    <span className="text-sm text-stone-400">Tap a star or half-star from 0 to 5.</span>
+                    <span className="text-sm text-stone-400">Toca una estrella o media estrella de 0 a 5.</span>
                   </div>
-                  <div className="mt-2 text-xs text-stone-500">Your rating is saved to your account and updates the spot average.</div>
-                  {isSavingRating ? <div className="mt-3 inline-flex rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold text-stone-200">Saving rating...</div> : null}
-                  {ratingSaved ? <div className="mt-3 inline-flex rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-200">Rating saved</div> : null}
+                  <div className="mt-2 text-xs text-stone-500">Tu valoracion se guarda en tu cuenta y actualiza la media del sitio.</div>
+                  {isSavingRating ? <div className="mt-3 inline-flex rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold text-stone-200">Guardando...</div> : null}
+                  {ratingSaved ? <div className="mt-3 inline-flex rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-200">Valoracion guardada</div> : null}
                   {ratingError ? <div className="mt-3 inline-flex rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[11px] font-semibold text-red-200">{ratingError}</div> : null}
                 </div>
 
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
-                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Address</div>
-                  <div className="mt-2 text-sm leading-6 text-stone-300">{place.address || "No address yet."}</div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Direccion</div>
+                  <div className="mt-2 text-sm leading-6 text-stone-300">{place.address || "Todavia no hay direccion."}</div>
                 </div>
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
-                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Active plans - {relatedPlans.length}</div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Planes activos - {relatedPlans.length}</div>
                   {relatedPlans.length ? (
                     <div className="mt-3 space-y-3">
                       {relatedPlans.map((plan) => (
                         <div key={plan.id} className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
                           <div className="font-bold text-white">{plan.title}</div>
-                          <div className="mt-1 text-sm text-stone-400">{plan.plan_date} - {String(plan.plan_time).slice(0,5)} - {plan.max_people} people</div>
+                          <div className="mt-1 text-sm text-stone-400">{plan.plan_date} - {String(plan.plan_time).slice(0,5)} - {plan.max_people} personas</div>
                         </div>
                       ))}
                     </div>
-                  ) : <div className="mt-2 text-sm text-stone-400">No active plans for this spot yet.</div>}
+                  ) : <div className="mt-2 text-sm text-stone-400">Todavia no hay planes activos aqui.</div>}
                 </div>
               </div>
             ) : null}
@@ -433,11 +433,11 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
               <div className="space-y-4">
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
                   <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">
-                    <CalendarDays className="h-3.5 w-3.5" />Plans at this spot
+                    <CalendarDays className="h-3.5 w-3.5" />Planes en este sitio
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-stone-400">Create a plan from this place or join an active one when the community has something open.</p>
+                  <p className="mt-2 text-sm leading-6 text-stone-400">Crea un plan desde este sitio o unete a uno activo cuando la comunidad tenga algo abierto.</p>
                   <Link to={`${createPageUrl('CrearQuedada')}?place=${place.id}`} className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-2xl bg-red-600 text-sm font-bold text-white hover:bg-red-500">
-                    <Plus className="mr-2 h-4 w-4" />Create a plan here
+                    <Plus className="mr-2 h-4 w-4" />Crear plan aqui
                   </Link>
                 </div>
                 {relatedPlans.length ? (
@@ -447,20 +447,20 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
                       <div className="mt-2 flex flex-wrap gap-2 text-xs text-stone-400">
                         <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{plan.plan_date}</span>
                         <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{String(plan.plan_time || "").slice(0, 5)}</span>
-                        <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{plan.max_people} people</span>
+                        <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{plan.max_people} personas</span>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="rounded-[22px] border border-dashed border-white/12 bg-white/[0.02] p-5 text-center text-sm text-stone-400">
-                    No active plans here yet.
+                    Todavia no hay planes activos aqui.
                   </div>
                 )}
               </div>
             ) : null}
 
-            {activeTab === "comments" ? <CommentsSection placeId={place.id} user={user} comments={approvedComments} onRequireAuth={() => setLoginPrompt({ open: true, message: "Sign in to comment on places." })} /> : null}
-            {activeTab === "photos" ? <PhotoGallery placeId={place.id} user={user} photos={approvedPhotos} onRequireAuth={() => setLoginPrompt({ open: true, message: "Sign in to add photos." })} /> : null}
+            {activeTab === "comments" ? <CommentsSection placeId={place.id} user={user} comments={approvedComments} onRequireAuth={() => setLoginPrompt({ open: true, message: "Entra para comentar sitios." })} /> : null}
+            {activeTab === "photos" ? <PhotoGallery placeId={place.id} user={user} photos={approvedPhotos} onRequireAuth={() => setLoginPrompt({ open: true, message: "Entra para anadir fotos." })} /> : null}
           </div>
         </motion.div>
       </AnimatePresence>

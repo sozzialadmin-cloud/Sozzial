@@ -60,7 +60,7 @@ async function fetchDiscoverPlans() {
       slice_price: Number(spot?.slice_price ?? 0),
       average_rating: Number(spot?.average_rating ?? 0),
       best_slice: spot?.best_slice || "Optional",
-      description: plan.quick_note || spot?.quick_note || "Quick pizza plan. Easy join, clear time, zero friction.",
+      description: plan.quick_note || spot?.quick_note || "Plan rapido de pizza: hora clara, sitio concreto y unirse sin friccion.",
     };
   });
 }
@@ -145,10 +145,10 @@ function SwipeCard({ current, onSkip, onJoin }) {
       <motion.div className="pointer-events-none absolute inset-0 z-0 rounded-[28px]" style={{ backgroundColor: tintColor, opacity: tintOpacity }} />
 
       <motion.div style={{ opacity: leftOpacity, scale: leftScale }} className="pointer-events-none absolute left-5 top-5 z-20 rounded-full border-2 border-[#d94b3d] bg-[#fff1ef] px-5 py-2 text-sm font-black uppercase tracking-[0.2em] text-[#d94b3d]">
-        Nope
+        Paso
       </motion.div>
       <motion.div style={{ opacity: rightOpacity, scale: rightScale }} className="pointer-events-none absolute right-5 top-5 z-20 rounded-full border-2 border-[#43a047] bg-[#edf8ee] px-5 py-2 text-sm font-black uppercase tracking-[0.2em] text-[#43a047]">
-        Like
+        Me apunto
       </motion.div>
 
       <div className="relative z-10 flex h-full min-h-0 flex-col">
@@ -159,11 +159,11 @@ function SwipeCard({ current, onSkip, onJoin }) {
             <div className="flex h-full items-center justify-center text-6xl"><Pizza className="h-16 w-16" /></div>
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/22 via-black/20 to-black/78" />
-          <div className="absolute left-3 top-3 rounded-full border border-white/12 bg-black/88 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#efbf3a] shadow-[0_10px_24px_rgba(0,0,0,0.28)]">Slice plan</div>
-          <div className="absolute right-3 top-3 rounded-full border border-white/12 bg-black/88 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#7bc18a] shadow-[0_10px_24px_rgba(0,0,0,0.28)]">{seatsLeft} seats left</div>
+          <div className="absolute left-3 top-3 rounded-full border border-white/12 bg-black/88 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#efbf3a] shadow-[0_10px_24px_rgba(0,0,0,0.28)]">Plan de pizza</div>
+          <div className="absolute right-3 top-3 rounded-full border border-white/12 bg-black/88 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#7bc18a] shadow-[0_10px_24px_rgba(0,0,0,0.28)]">{seatsLeft} plazas</div>
           <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between gap-3">
             <Link to={`/profile/${current.created_by}`} onClick={(event) => event.stopPropagation()} className="min-w-0 rounded-full border border-white/12 bg-black/88 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[0_10px_24px_rgba(0,0,0,0.28)] hover:bg-black">
-              Host - {getPublicUsername(current.host)}
+              Organiza - {getPublicUsername(current.host)}
             </Link>
           </div>
         </div>
@@ -199,9 +199,9 @@ function SwipeCard({ current, onSkip, onJoin }) {
           </div>
 
           <div className="grid grid-cols-3 gap-1.5">
-            <StatBox label="People">{current.joined_count}/{current.max_people}</StatBox>
+            <StatBox label="Gente">{current.joined_count}/{current.max_people}</StatBox>
             <StatBox label="Rating" accent><span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-[#efbf3a] text-[#efbf3a]" />{Number(current.average_rating || 0).toFixed(1)}</span></StatBox>
-            <StatBox label="Best"><span className="line-clamp-2 text-[13px]">{current.best_slice}</span></StatBox>
+            <StatBox label="Mejor"><span className="line-clamp-2 text-[13px]">{current.best_slice}</span></StatBox>
           </div>
         </div>
       </div>
@@ -276,8 +276,8 @@ export default function Descubrir() {
 
   const joinMutation = useMutation({
     mutationFn: async () => {
-      if (!user || !current) throw new Error("Login required");
-      if (!isSupabaseConfigured || !supabase) throw new Error("Service unavailable");
+      if (!user || !current) throw new Error("Necesitas entrar para unirte.");
+      if (!isSupabaseConfigured || !supabase) throw new Error("El servicio aun no esta disponible.");
       const { error } = await supabase.from("plan_members").upsert(
         { plan_id: current.id, user_id: user.id, status: "joined" },
         { onConflict: "plan_id,user_id" }
@@ -287,7 +287,7 @@ export default function Descubrir() {
     },
     onSuccess: async () => {
       setJoinedHiddenIds((prev) => [...new Set([...prev, current.id])]);
-      const joinedToast = toast({ title: "You joined this plan", description: "You are in. Keep swiping." });
+      const joinedToast = toast({ title: "Te has unido al plan", description: "Ya estas dentro. Puedes seguir descubriendo." });
       setTimeout(() => joinedToast.dismiss(), 1400);
       await queryClient.invalidateQueries({ queryKey: ["discover-plans"] });
       await queryClient.invalidateQueries({ queryKey: ["discover-joined-plan-ids", user?.id] });
@@ -295,7 +295,7 @@ export default function Descubrir() {
       setIndex(0);
     },
     onError: (error) => {
-      toast({ title: "Could not join the plan", description: error?.message || "Try again.", variant: "destructive" });
+      toast({ title: "No se pudo unir al plan", description: error?.message || "Prueba de nuevo.", variant: "destructive" });
     },
   });
 
@@ -323,16 +323,16 @@ export default function Descubrir() {
               type="button"
               onClick={() => navigate(createPageUrl("Home"))}
               className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/6 text-white backdrop-blur-sm"
-              aria-label="Back to map"
+              aria-label="Volver al mapa"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <div className="text-center text-[11px] font-black uppercase tracking-[0.24em] text-white/48">Discover</div>
+            <div className="text-center text-[11px] font-black uppercase tracking-[0.24em] text-white/48">Descubrir</div>
             <button
               type="button"
               onClick={() => setFiltersOpen((prev) => !prev)}
               className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 ${filtersOpen ? "bg-[#efbf3a] text-[#141414]" : "bg-white/6 text-white"}`}
-              aria-label="Toggle filters"
+              aria-label="Abrir filtros"
             >
               <Settings2 className="h-5 w-5" />
             </button>
@@ -348,36 +348,36 @@ export default function Descubrir() {
               >
                 <div className="space-y-4">
                   <div>
-                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><DollarSign className="h-4 w-4 text-[#dbab23]" />Max slice price</div>
+                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><DollarSign className="h-4 w-4 text-[#dbab23]" />Precio maximo por slice</div>
                     <input type="range" min="3" max="15" step="0.5" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="w-full accent-[#df5b43]" />
                     <div className="mt-1 flex items-center justify-between text-sm text-white/50"><span>$3</span><span className="font-black text-white">${maxPrice.toFixed(0)}</span><span>$15</span></div>
                   </div>
 
                   <div>
-                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><Users className="h-4 w-4 text-[#dbab23]" />Minimum free spots</div>
+                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><Users className="h-4 w-4 text-[#dbab23]" />Plazas libres minimas</div>
                     <input type="range" min="1" max="6" step="1" value={minSeatsLeft} onChange={(e) => setMinSeatsLeft(Number(e.target.value))} className="w-full accent-[#df5b43]" />
                     <div className="mt-1 flex items-center justify-between text-sm text-white/50"><span>1</span><span className="font-black text-white">{minSeatsLeft}+</span><span>6</span></div>
                   </div>
 
                   <div>
-                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><Star className="h-4 w-4 text-[#dbab23]" />Minimum rating</div>
+                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white"><Star className="h-4 w-4 text-[#dbab23]" />Valoracion minima</div>
                     <div className="flex flex-wrap gap-2">
                       {[0, 3, 4, 4.5].map((value) => (
                         <FilterChip key={value} active={minRating === value} onClick={() => setMinRating(value)}>
-                          {value === 0 ? "Any" : `${value}+`}
+                          {value === 0 ? "Todas" : `${value}+`}
                         </FilterChip>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <div className="mb-2 text-sm font-bold text-white">Sort plans</div>
+                    <div className="mb-2 text-sm font-bold text-white">Ordenar planes</div>
                     <div className="flex flex-wrap gap-2">
-                      <FilterChip active={sortMode === "all"} onClick={() => setSortMode("all")}>All plans</FilterChip>
-                      <FilterChip active={sortMode === "cheap"} onClick={() => setSortMode("cheap")}>Cheap first</FilterChip>
-                      <FilterChip active={sortMode === "mid"} onClick={() => setSortMode("mid")}>Mid range</FilterChip>
-                      <FilterChip active={sortMode === "top"} onClick={() => setSortMode("top")}>Top rated</FilterChip>
-                      <FilterChip active={sortMode === "spots"} onClick={() => setSortMode("spots")}>More spots</FilterChip>
+                      <FilterChip active={sortMode === "all"} onClick={() => setSortMode("all")}>Todos</FilterChip>
+                      <FilterChip active={sortMode === "cheap"} onClick={() => setSortMode("cheap")}>Mas baratos</FilterChip>
+                      <FilterChip active={sortMode === "mid"} onClick={() => setSortMode("mid")}>Precio medio</FilterChip>
+                      <FilterChip active={sortMode === "top"} onClick={() => setSortMode("top")}>Mejor valorados</FilterChip>
+                      <FilterChip active={sortMode === "spots"} onClick={() => setSortMode("spots")}>Mas plazas</FilterChip>
                     </div>
                   </div>
                 </div>
@@ -406,7 +406,7 @@ export default function Descubrir() {
                   className="flex h-14 flex-1 items-center justify-center gap-2 rounded-[22px] border border-[#d94b3d]/25 bg-[#2a120f] text-[#ffb5ad] shadow-[0_16px_32px_rgba(217,75,61,0.12)] transition hover:bg-[#341410]"
                 >
                   <X className="h-5 w-5" />
-                  <span className="text-sm font-black uppercase tracking-[0.16em]">Nope</span>
+                  <span className="text-sm font-black uppercase tracking-[0.16em]">Paso</span>
                 </button>
                 <button
                   type="button"
@@ -415,24 +415,24 @@ export default function Descubrir() {
                   className="flex h-14 flex-1 items-center justify-center gap-2 rounded-[22px] bg-[#43a047] text-white shadow-[0_16px_32px_rgba(67,160,71,0.28)] transition hover:bg-[#3a943f] disabled:opacity-60"
                 >
                   {joinMutation.isPending ? <Users className="h-5 w-5 animate-pulse" /> : <Check className="h-5 w-5" />}
-                  <span className="text-sm font-black uppercase tracking-[0.16em]">Like</span>
+                  <span className="text-sm font-black uppercase tracking-[0.16em]">Me apunto</span>
                 </button>
               </div>
             </>
           ) : (
             <div className="flex h-full flex-col justify-center rounded-[32px] border border-white/10 bg-[#111111] p-8 text-center">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-white/[0.04] text-4xl"><Pizza className="h-16 w-16" /></div>
-              <h1 className="mt-6 text-3xl font-black text-white">No more plans right now</h1>
-              <p className="mt-3 text-sm leading-7 text-stone-400">Try relaxing your filters or come back later.</p>
+              <h1 className="mt-6 text-3xl font-black text-white">No hay mas planes ahora</h1>
+              <p className="mt-3 text-sm leading-7 text-stone-400">Prueba con menos filtros o vuelve mas tarde.</p>
               <button type="button" onClick={() => navigate(createPageUrl("Home"))} className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-red-600 px-5 text-sm font-bold text-white">
-                Back to map
+                Volver al mapa
               </button>
             </div>
           )}
         </div>
       </div>
 
-      <LoginPrompt open={loginPrompt} onClose={() => setLoginPrompt(false)} message="Sign in to join plans and enter the group chat." />
+      <LoginPrompt open={loginPrompt} onClose={() => setLoginPrompt(false)} message="Entra para unirte a planes y participar en el chat del grupo." />
     </div>
   );
 }

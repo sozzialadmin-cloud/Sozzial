@@ -19,10 +19,10 @@ function writeLocal(key, value) {
 }
 
 export const PASSPORT_TASKS = [
-  { id: "first_checkin", label: "First check-in", description: "Mark that you are at a pizza spot.", target: 1, metric: "checkins" },
-  { id: "slice_hunter", label: "Slice hunter", description: "Check in at 5 different pizza spots.", target: 5, metric: "uniqueSpots" },
-  { id: "reviewer", label: "Reviewer", description: "Leave 3 public notes or reviews.", target: 3, metric: "comments" },
-  { id: "social_host", label: "Social host", description: "Create or join 2 pizza plans.", target: 2, metric: "plans" },
+  { id: "first_checkin", label: "Primer check-in", description: "Marca que estas en un sitio de pizza.", target: 1, metric: "checkins" },
+  { id: "slice_hunter", label: "Cazador de slices", description: "Haz check-in en 5 sitios diferentes.", target: 5, metric: "uniqueSpots" },
+  { id: "reviewer", label: "Reseñador", description: "Deja 3 notas o reseñas publicas.", target: 3, metric: "comments" },
+  { id: "social_host", label: "Anfitrion social", description: "Crea o unete a 2 planes de pizza.", target: 2, metric: "plans" },
 ];
 
 export async function createCheckIn({ userId, spotId, slicePrice, note }) {

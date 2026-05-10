@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }) => {
     if (!isSupabaseConfigured) {
       setAuthError({
         type: 'config_missing',
-        message: 'Supabase no esta configurado.',
+        message: 'El acceso todavia no esta conectado.',
       });
       setIsProfileReady(true);
       setIsLoadingAuth(false);
@@ -290,7 +290,7 @@ export const AuthProvider = ({ children }) => {
   }, [clearSession, resolveProfile]);
 
   const signIn = async (email, password) => {
-    if (!supabase) throw new Error('Supabase no esta configurado.');
+    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
 
     setAuthError(null);
 
@@ -313,7 +313,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signUp = async ({ email, password, fullName }) => {
-    if (!supabase) throw new Error('Supabase no esta configurado.');
+    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
 
     const cleanName = await getAvailableUsername(fullName);
     const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
@@ -340,7 +340,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signInWithProvider = async (provider) => {
-    if (!supabase) throw new Error('Supabase no esta configurado.');
+    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
     const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
     const redirectTo = `${baseUrl.replace(/\/$/, '')}/auth/confirm`;
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -352,7 +352,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resetPassword = async (email) => {
-    if (!supabase) throw new Error('Supabase no esta configurado.');
+    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
     const cleanEmail = String(email || '').trim();
     if (!cleanEmail) throw new Error('Escribe tu email primero.');
     const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;

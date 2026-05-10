@@ -42,7 +42,7 @@ export default function SearchFilters({
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8e8578]" />
             <Input
-              placeholder="Search spots, address or slice"
+              placeholder="Busca sitio, direccion o slice"
               value={searchText}
               onChange={(e) => handleSearch(e.target.value)}
               className="h-11 rounded-[18px] border-black/10 bg-white pl-10 pr-10 text-sm font-medium text-[#141414] placeholder:text-[#9c9385] shadow-none focus-visible:ring-[#efbf3a]"
@@ -54,11 +54,11 @@ export default function SearchFilters({
             )}
           </div>
 
-          <button onClick={() => setExpanded(!expanded)} className={buttonClass(expanded)} aria-label="Open filters">
+          <button onClick={() => setExpanded(!expanded)} className={buttonClass(expanded)} aria-label="Abrir filtros">
             <SlidersHorizontal className="h-4 w-4" />
           </button>
 
-          <button onClick={onLocateMe} className={buttonClass(false)} aria-label="Locate me">
+          <button onClick={onLocateMe} className={buttonClass(false)} aria-label="Usar mi ubicacion">
             <Compass className="h-4 w-4" />
           </button>
         </div>

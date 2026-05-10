@@ -7,7 +7,7 @@ export default function PlaceFilters({ onFilterChange, resultCount }) {
       <SearchFilters onFilterChange={onFilterChange} />
       {resultCount === 0 && (
         <div className="px-4 py-3 text-xs text-stone-500 bg-white/[0.02] border-t border-white/5">
-          No se encontraron pizzerÃ­as con esos filtros
+          No se encontraron pizzerias con esos filtros
         </div>
       )}
     </div>

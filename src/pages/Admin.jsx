@@ -1034,12 +1034,12 @@ export default function Admin() {
                         <div className="mt-2 text-sm leading-7 text-[#6d665b]">{selectedSpot.address}</div>
                       </div>
                       <div className="grid gap-3 sm:grid-cols-2">
-                        <DetailMetric label="Slice price" value={formatPrice(selectedSpot.slice_price)} />
-                        <DetailMetric label="Best slice" value={selectedSpot.best_slice || '-'} />
+                        <DetailMetric label="Precio slice" value={formatPrice(selectedSpot.slice_price)} />
+                        <DetailMetric label="Mejor slice" value={selectedSpot.best_slice || '-'} />
                         <DetailMetric label="Rating medio" value={Number(selectedSpot.average_rating || 0).toFixed(1)} tone="success" />
                         <DetailMetric label="No. valoraciones" value={selectedSpot.ratings_count || 0} />
                         <DetailMetric label="Lat / Lng" value={`${selectedSpot.lat ?? '-'} / ${selectedSpot.lng ?? '-'}`} />
-                        <DetailMetric label="Flags" value={selectedSpot.reportCount || 0} tone={selectedSpot.reportCount ? 'danger' : 'neutral'} />
+                        <DetailMetric label="Reportes" value={selectedSpot.reportCount || 0} tone={selectedSpot.reportCount ? 'danger' : 'neutral'} />
                       </div>
                     </div>
                   </div>
@@ -1047,7 +1047,7 @@ export default function Admin() {
                   <div className="grid gap-5 xl:grid-cols-[1.1fr,0.9fr]">
                     <div className="space-y-5">
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Descripcion / quick note</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Descripcion / nota rapida</div>
                         <div className="mt-2 text-sm leading-7 text-[#5d574d]">{selectedSpot.quick_note || 'Sin nota rapida.'}</div>
                       </div>
 

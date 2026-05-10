@@ -32,10 +32,10 @@ export default function CommentsSection({ placeId, comments, user, onRequireAuth
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["spot-comments", placeId] });
       setText("");
-      toast.success("Comment sent for review.");
+      toast.success("Comentario enviado a revision.");
     },
     onError: (error) => {
-      toast.error(error?.message || "Could not send the comment.");
+      toast.error(error?.message || "No se pudo enviar el comentario.");
     },
   });
 
@@ -53,7 +53,7 @@ export default function CommentsSection({ placeId, comments, user, onRequireAuth
     <div className="space-y-5">
       <form onSubmit={handleSubmit} className="space-y-3">
         <Textarea
-          placeholder={user ? "Share your experience..." : "Sign in to comment..."}
+          placeholder={user ? "Comparte tu experiencia..." : "Entra para comentar..."}
           value={text}
           onChange={(event) => setText(event.target.value)}
           onFocus={() => {
@@ -63,14 +63,14 @@ export default function CommentsSection({ placeId, comments, user, onRequireAuth
         />
         <Button type="submit" size="sm" disabled={!text.trim() || addComment.isPending} className="bg-red-600 text-white hover:bg-red-500">
           <Send className="mr-1.5 h-3.5 w-3.5" />
-          {addComment.isPending ? "Sending..." : "Send for review"}
+          {addComment.isPending ? "Enviando..." : "Enviar a revision"}
         </Button>
       </form>
 
       {comments.length === 0 ? (
         <div className="py-8 text-center">
           <MessageCircle className="mx-auto mb-2 h-8 w-8 text-stone-700" />
-          <p className="text-sm text-stone-500">No comments yet. Be the first!</p>
+          <p className="text-sm text-stone-500">Todavia no hay comentarios. Se el primero.</p>
         </div>
       ) : (
         <div className="space-y-4">

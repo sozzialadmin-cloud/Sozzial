@@ -37,7 +37,7 @@ export default function PlaceListPanel({
     else if (sortMode === "rating") copy.sort((a, b) => (Number(a.average_rating || 0) - Number(b.average_rating || 0)) * -directionFactor);
     else if (sortMode === "hangouts") copy.sort((a, b) => (Number(a.active_hangouts_count || 0) - Number(b.active_hangouts_count || 0)) * -directionFactor);
     else {
-      const order = ["Steal", "Best budget", "Worth it", "Good value", "Premium", "Overpriced"];
+      const order = ["Chollo", "Buen precio", "Merece la pena", "Buen valor", "Premium", "Caro"];
       copy.sort((a, b) => {
         const av = order.indexOf(getValueLabel(a));
         const bv = order.indexOf(getValueLabel(b));
@@ -81,7 +81,7 @@ export default function PlaceListPanel({
               <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                 <SortChip active={sortMode === "value"} onClick={() => onSortModeChange?.("value")}>Valor</SortChip>
                 <SortChip active={sortMode === "price"} onClick={() => onSortModeChange?.("price")}>Mas baratos</SortChip>
-                <SortChip active={sortMode === "rating"} onClick={() => onSortModeChange?.("rating")}>Top rated</SortChip>
+                <SortChip active={sortMode === "rating"} onClick={() => onSortModeChange?.("rating")}>Mejor valorados</SortChip>
                 <SortChip active={sortMode === "hangouts"} onClick={() => onSortModeChange?.("hangouts")}>Planes</SortChip>
               </div>
             </div>

@@ -12,11 +12,11 @@ export default function PageNotFound() {
           <Pizza className="h-8 w-8" />
         </div>
         <h1 className="mb-2 text-4xl font-black">404</h1>
-        <p className="mb-8 text-[#6d665b]">This page does not exist anymore.</p>
+        <p className="mb-8 text-[#6d665b]">Esta pagina ya no existe.</p>
         <Link to={createPageUrl('Home')}>
           <Button className="border-0 bg-[#e25545] text-white hover:bg-[#cf493a]">
             <MapPin className="mr-2 h-4 w-4" />
-            Back to map
+            Volver al mapa
           </Button>
         </Link>
       </div>

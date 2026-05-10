@@ -147,7 +147,7 @@ export default function AuthPage() {
       if (mode === authModes.SIGN_IN) {
         await signIn(cleanEmail(form.email), form.password)
         persistRememberChoice()
-        toast.success('Welcome back to Sozzial')
+        toast.success('Bienvenido de nuevo a Sozzial')
         navigate(nextUrl, { replace: true })
         return
       }
@@ -159,7 +159,7 @@ export default function AuthPage() {
       })
       persistRememberChoice()
       if (result?.session?.user) {
-        toast.success('Account created. Welcome to Sozzial')
+        toast.success('Cuenta creada. Bienvenido a Sozzial')
         navigate(nextUrl, { replace: true })
         return
       }
@@ -180,7 +180,7 @@ export default function AuthPage() {
     setFormError('')
     const email = cleanEmail(form.email)
     if (!email) {
-      setErrors((current) => ({ ...current, email: 'Write your email first.' }))
+      setErrors((current) => ({ ...current, email: 'Escribe tu email primero.' }))
       return
     }
     try {
@@ -218,7 +218,7 @@ export default function AuthPage() {
           <section className="hidden rounded-[30px] bg-[#111111] p-8 text-white shadow-[0_30px_90px_rgba(17,17,17,0.18)] lg:flex lg:flex-col lg:justify-between">
             <div>
               <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0bf39] text-[#111111]"><Pizza className="h-7 w-7" /></div>
-              <div className="text-[3rem] font-black leading-[0.92] tracking-tight">Pizza plans, not profile swipes.</div>
+              <div className="text-[3rem] font-black leading-[0.92] tracking-tight">Planes de pizza, no perfiles vacios.</div>
               <p className="mt-4 max-w-md text-base leading-7 text-white/70">
                 Explora el mapa como invitado. Entra solo cuando quieras unirte a planes, crear uno, valorar un sitio o hablar con el grupo.
               </p>
@@ -304,7 +304,7 @@ export default function AuthPage() {
                 onChange={(event) => updateField('password', event.target.value)}
                 error={errors.password}
                 rightSlot={
-                  <button type="button" onClick={() => setShowPassword((value) => !value)} className="grid h-7 w-7 place-items-center rounded-full text-[#8b836f] hover:bg-[#f1eadf] hover:text-[#111]" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                  <button type="button" onClick={() => setShowPassword((value) => !value)} className="grid h-7 w-7 place-items-center rounded-full text-[#8b836f] hover:bg-[#f1eadf] hover:text-[#111]" aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 }
