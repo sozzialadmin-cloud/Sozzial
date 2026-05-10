@@ -324,7 +324,7 @@ export default function AddPinModal({ open, onClose, user }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[2000] flex items-end justify-center bg-black/75 p-0 backdrop-blur-md sm:items-center sm:p-4"
+        className="fixed inset-0 z-[5000] flex items-end justify-center bg-black/75 p-0 backdrop-blur-md sm:items-center sm:p-4"
         onClick={handleClose}
       >
         <motion.div
@@ -466,7 +466,7 @@ export default function AddPinModal({ open, onClose, user }) {
                 {errorMessage ? <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">{errorMessage}</div> : null}
               </div>
 
-              <div className="shrink-0 border-t border-white/10 bg-[#111]/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:px-6">
+              <div className="shrink-0 border-t border-white/10 bg-[#111]/95 px-5 py-4 pb-[calc(var(--mobile-nav-height)+1rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:px-6 sm:pb-4">
                 <Button type="submit" disabled={!canSubmit} className="h-12 w-full rounded-2xl bg-[#df5b43] text-base font-black text-white shadow-[0_16px_34px_rgba(223,91,67,0.28)] hover:bg-red-500 disabled:opacity-45">
                   {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
                   Add spot
