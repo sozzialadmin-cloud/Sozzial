@@ -8,9 +8,9 @@ const NYC_ZOOM = 12;
 const FALLBACK_TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 function getMarkerTheme(price) {
-  if (price <= 2.5) return { bg: "#2f8f46", shadow: "rgba(47,143,70,0.38)" };
-  if (price <= 5) return { bg: "#d7a622", shadow: "rgba(215,166,34,0.34)" };
-  return { bg: "#df5b43", shadow: "rgba(223,91,67,0.34)" };
+  if (price <= 2.5) return { accent: "#2f8f46", glow: "rgba(47,143,70,0.28)" };
+  if (price <= 5) return { accent: "#efbf3a", glow: "rgba(239,191,58,0.30)" };
+  return { accent: "#df5b43", glow: "rgba(223,91,67,0.28)" };
 }
 
 function formatPrice(price) {
@@ -23,89 +23,28 @@ function createPriceIcon(place, isActive, isSaved = false) {
   const price = Number(place.standard_slice_price || 0);
   const rating = Number(place.average_rating || 0);
   const plans = Number(place.active_hangouts_count || 0);
-  const { bg, shadow } = getMarkerTheme(price);
+  const { accent, glow } = getMarkerTheme(price);
   const label = formatPrice(price);
-  const size = isActive ? 62 : plans > 0 ? 52 : 46;
-  const fontSize = label.length > 4 ? "10px" : "11px";
-  const ring = isActive ? `${bg}33` : isSaved ? "rgba(20,20,20,0.08)" : "transparent";
-  const badge = rating > 0 ? `${rating.toFixed(1)} star` : plans > 0 ? `${plans} plan${plans === 1 ? "" : "s"}` : "new";
+  const meta = rating > 0 ? rating.toFixed(1) : plans > 0 ? `${plans} plan${plans === 1 ? "" : "s"}` : "new";
+  const stateClass = isActive ? "is-active" : isSaved ? "is-saved" : "";
 
   return L.divIcon({
     className: "pizza-marker",
     html: `
-      <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
-        <div style="
-          min-width: ${size}px;
-          height: ${size - 8}px;
-          padding: 0 12px;
-          background: ${bg};
-          border-radius: 999px;
-          border: ${isActive ? "3px" : "2px"} solid rgba(255,255,255,0.96);
-          box-shadow: 0 12px 28px ${shadow}, 0 0 0 ${isActive ? "7px" : "4px"} ${ring};
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-          transform: ${isActive ? "translateY(-2px) scale(1.08)" : "scale(1)"};
-          animation: ${isActive ? "sozzialMarkerPop 1.6s ease-in-out infinite" : "none"};
-        ">
-          <span style="
-            color: white;
-            font-weight: 900;
-            font-size: ${fontSize};
-            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            letter-spacing: -0.25px;
-            line-height: 1;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            white-space: nowrap;
-          ">${label}</span>
+      <div class="sozzial-price-pin ${stateClass}" style="--pin-accent:${accent}; --pin-glow:${glow};">
+        <div class="sozzial-price-pin__card">
+          <span class="sozzial-price-pin__price">${label}</span>
+          <span class="sozzial-price-pin__meta">${meta}</span>
         </div>
-        <div style="
-          margin-top: -6px;
-          min-width: ${Math.max(34, size - 12)}px;
-          max-width: 76px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          border: 1px solid rgba(255,255,255,0.92);
-          background: rgba(17,17,17,0.92);
-          color: #fff7ea;
-          border-radius: 999px;
-          padding: 3px 7px;
-          font-weight: 900;
-          font-size: 9px;
-          line-height: 1;
-          box-shadow: 0 8px 18px rgba(0,0,0,0.28);
-          font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        ">${badge}</div>
-        <div style="
-          width: 0;
-          height: 0;
-          border-left: 6px solid transparent;
-          border-right: 6px solid transparent;
-          border-top: 9px solid ${bg};
-          margin-top: -2px;
-          filter: drop-shadow(0 2px 2px ${shadow});
-        "></div>
-        ${plans > 0 ? `<div style="
-          position:absolute;
-          right: 0;
-          top: -3px;
-          width: 13px;
-          height: 13px;
-          border-radius: 999px;
-          border: 2px solid white;
-          background: #efbf3a;
-          box-shadow: 0 0 0 4px rgba(239,191,58,0.18);
-        "></div>` : ""}
+        ${plans > 0 ? '<span class="sozzial-price-pin__pulse"></span>' : ""}
+        <span class="sozzial-price-pin__stem"></span>
       </div>
     `,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size - 4],
-    popupAnchor: [0, -(size - 8)],
+    iconSize: [72, 68],
+    iconAnchor: [36, 62],
+    popupAnchor: [0, -58],
   });
 }
-
 function MapEvents({ onBoundsChange, onMapMove }) {
   const map = useMap();
   useEffect(() => {

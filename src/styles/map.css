@@ -82,15 +82,107 @@
     background: none;
     border: none;
   }
+  .sozzial-price-pin {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 68px;
+    transform: translateY(0) scale(1);
+    transform-origin: center bottom;
+    transition: transform 180ms ease, filter 180ms ease;
+    filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.28));
+  }
+
+  .sozzial-price-pin:hover,
+  .sozzial-price-pin.is-active {
+    transform: translateY(-3px) scale(1.06);
+    filter: drop-shadow(0 22px 24px rgba(0, 0, 0, 0.34));
+  }
+
+  .sozzial-price-pin.is-active {
+    animation: sozzialMarkerPop 1.9s ease-in-out infinite;
+  }
+
+  .sozzial-price-pin__card {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    min-width: 56px;
+    padding: 7px 10px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255, 251, 243, 0.98), rgba(243, 232, 214, 0.96));
+    color: #141414;
+    box-shadow:
+      0 14px 28px rgba(0, 0, 0, 0.28),
+      0 0 0 5px var(--pin-glow),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    text-align: center;
+  }
+
+  .sozzial-price-pin__card::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 4px;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--pin-accent);
+  }
+
+  .sozzial-price-pin__price {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 950;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .sozzial-price-pin__meta {
+    margin-top: 4px;
+    color: rgba(20, 20, 20, 0.58);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 9px;
+    font-weight: 850;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .sozzial-price-pin__stem {
+    position: absolute;
+    z-index: 1;
+    bottom: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px 0 4px 0;
+    background: linear-gradient(135deg, rgba(255, 251, 243, 0.96), rgba(243, 232, 214, 0.96));
+    border-right: 1px solid rgba(255, 255, 255, 0.72);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.72);
+    transform: rotate(45deg);
+  }
+
+  .sozzial-price-pin__pulse {
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    z-index: 3;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 2px solid #fffaf1;
+    background: var(--pin-accent);
+    box-shadow: 0 0 0 4px var(--pin-glow);
+  }
 
   @keyframes sozzialMarkerPop {
     0%, 100% {
-      transform: translateY(-2px) scale(1.08);
-      filter: saturate(1);
+      transform: translateY(-3px) scale(1.06);
     }
     50% {
-      transform: translateY(-5px) scale(1.12);
-      filter: saturate(1.08);
+      transform: translateY(-6px) scale(1.09);
     }
   }
 }
