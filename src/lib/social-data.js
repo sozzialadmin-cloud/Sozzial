@@ -147,8 +147,95 @@ export async function fetchActivityFeed() {
   const rows = data || [];
   const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))];
   const { data: profiles } = userIds.length
-    ? await supabase.from("profiles").select("id,username,avatar_url").in("id", userIds)
+    ? await supabase.from("profiles").select("id,username,avatar_url,bio,city,neighborhood,favorite_slice,pizza_style,reputation_score").in("id", userIds)
     : { data: [] };
   const profileMap = new Map((profiles || []).map((profile) => [profile.id, profile]));
   return rows.map((row) => ({ ...row, profile: profileMap.get(row.user_id) || null }));
+}
+
+export async function fetchSocialDiscovery(viewerId) {
+  if (!isSupabaseConfigured || !supabase) return { people: [], spots: [], followingIds: [] };
+
+  const [profilesRes, followsRes, ratingsRes, commentsRes, spotsRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id,username,avatar_url,bio,city,neighborhood,favorite_slice,pizza_style,reputation_score,favorite_spot_id")
+      .eq("profile_visibility", "public")
+      .limit(80),
+    viewerId
+      ? supabase.from("profile_follows").select("following_id").eq("follower_id", viewerId).limit(500)
+      : Promise.resolve({ data: [], error: null }),
+    supabase.from("spot_ratings").select("id,user_id,spot_id,rating,updated_at").order("updated_at", { ascending: false }).limit(120),
+    supabase.from("spot_comments").select("id,user_id,spot_id,content,status,created_at").eq("status", "approved").order("created_at", { ascending: false }).limit(120),
+    supabase.from("spots").select("id,name,address,best_slice,slice_price,average_rating,status").eq("status", "approved").limit(250),
+  ]);
+
+  const followingIds = followsRes.error ? [] : (followsRes.data || []).map((row) => row.following_id);
+  const profiles = profilesRes.error ? [] : profilesRes.data || [];
+  const ratings = ratingsRes.error ? [] : ratingsRes.data || [];
+  const comments = commentsRes.error ? [] : commentsRes.data || [];
+  const spots = spotsRes.error ? [] : spotsRes.data || [];
+  const spotMap = new Map(spots.map((spot) => [spot.id, spot]));
+  const profileScores = new Map();
+
+  ratings.forEach((row) => profileScores.set(row.user_id, (profileScores.get(row.user_id) || 0) + 2));
+  comments.forEach((row) => profileScores.set(row.user_id, (profileScores.get(row.user_id) || 0) + 3));
+
+  const people = profiles
+    .filter((profile) => profile.id && profile.id !== viewerId)
+    .map((profile) => ({
+      ...profile,
+      social_score: (profileScores.get(profile.id) || 0) + Number(profile.reputation_score || 0),
+      is_following: followingIds.includes(profile.id),
+    }))
+    .sort((a, b) => Number(b.is_following) - Number(a.is_following) || b.social_score - a.social_score)
+    .slice(0, 12);
+
+  const spotScores = new Map();
+  ratings.forEach((row) => {
+    const spot = spotMap.get(row.spot_id);
+    if (!spot) return;
+    spotScores.set(row.spot_id, (spotScores.get(row.spot_id) || 0) + Number(row.rating || 0));
+  });
+  comments.forEach((row) => {
+    if (!spotMap.has(row.spot_id)) return;
+    spotScores.set(row.spot_id, (spotScores.get(row.spot_id) || 0) + 2);
+  });
+
+  const recommendedSpots = [...spotScores.entries()]
+    .map(([id, score]) => ({ ...spotMap.get(id), social_score: score }))
+    .sort((a, b) => b.social_score - a.social_score)
+    .slice(0, 8);
+
+  return { people, spots: recommendedSpots, followingIds };
+}
+
+export async function fetchProfileSocialState({ viewerId, profileId }) {
+  if (!viewerId || !profileId || !isSupabaseConfigured || !supabase) {
+    return { isFollowing: false, followersCount: 0, followingCount: 0 };
+  }
+
+  const [followingRes, followersCountRes, followingCountRes] = await Promise.all([
+    supabase.from("profile_follows").select("following_id").eq("follower_id", viewerId).eq("following_id", profileId).maybeSingle(),
+    supabase.from("profile_follows").select("follower_id", { count: "exact", head: true }).eq("following_id", profileId),
+    supabase.from("profile_follows").select("following_id", { count: "exact", head: true }).eq("follower_id", profileId),
+  ]);
+
+  return {
+    isFollowing: !followingRes.error && Boolean(followingRes.data),
+    followersCount: followersCountRes.error ? 0 : followersCountRes.count || 0,
+    followingCount: followingCountRes.error ? 0 : followingCountRes.count || 0,
+  };
+}
+
+export async function setProfileFollow({ viewerId, profileId, follow }) {
+  if (!viewerId || !profileId || !isSupabaseConfigured || !supabase) throw new Error("Social follow is not connected yet.");
+  if (follow) {
+    const { error } = await supabase.from("profile_follows").upsert({ follower_id: viewerId, following_id: profileId });
+    if (error) throw error;
+    return { following: true };
+  }
+  const { error } = await supabase.from("profile_follows").delete().eq("follower_id", viewerId).eq("following_id", profileId);
+  if (error) throw error;
+  return { following: false };
 }

@@ -64,3 +64,32 @@ create policy "Users can read own passport badges" on public.passport_badges for
 
 drop policy if exists "Users can manage own passport badges" on public.passport_badges;
 create policy "Users can manage own passport badges" on public.passport_badges for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Social graph: follow public profiles and build a real people layer.
+create table if not exists public.profile_follows (
+  follower_id uuid not null references auth.users(id) on delete cascade,
+  following_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (follower_id, following_id),
+  check (follower_id <> following_id)
+);
+
+create index if not exists profile_follows_follower_idx on public.profile_follows(follower_id, created_at desc);
+create index if not exists profile_follows_following_idx on public.profile_follows(following_id, created_at desc);
+
+alter table public.profile_follows enable row level security;
+
+drop policy if exists "Public can read follows" on public.profile_follows;
+create policy "Public can read follows"
+on public.profile_follows for select
+using (true);
+
+drop policy if exists "Users can follow from own account" on public.profile_follows;
+create policy "Users can follow from own account"
+on public.profile_follows for insert
+with check (auth.uid() = follower_id);
+
+drop policy if exists "Users can unfollow from own account" on public.profile_follows;
+create policy "Users can unfollow from own account"
+on public.profile_follows for delete
+using (auth.uid() = follower_id);

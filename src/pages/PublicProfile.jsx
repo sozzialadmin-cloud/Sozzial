@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, CalendarDays, Heart, MapPin, MessageSquare, Pizza, Star } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, CalendarDays, Heart, MapPin, MessageSquare, Pizza, Star, Trophy, UserCheck, UserPlus, Users } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { createPageUrl } from '@/utils';
 import { getAvatarLetter, getPublicUsername } from '@/lib/display-name';
+import { useAuth } from '@/lib/AuthContext';
+import { fetchProfileSocialState, setProfileFollow } from '@/lib/social-data';
 
 async function resolveAvatar(value) {
   if (!value || !isSupabaseConfigured || !supabase) return '';
@@ -90,6 +92,8 @@ function FeedItem({ title, meta, children }) {
 
 export default function PublicProfile() {
   const { userId } = useParams();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ['public-profile', userId],
     enabled: Boolean(userId && isSupabaseConfigured && supabase),
@@ -101,6 +105,23 @@ export default function PublicProfile() {
   const displayName = getPublicUsername(profile, 'Pizza friend');
   const handle = displayName.toLowerCase().replace(/\s+/g, '_');
   const bestRating = useMemo(() => [...(data?.ratings || [])].sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))[0], [data?.ratings]);
+  const socialQueryKey = ['profile-social-state', user?.id, profile?.id];
+  const { data: social = { isFollowing: false, followersCount: 0, followingCount: 0 } } = useQuery({
+    queryKey: socialQueryKey,
+    enabled: Boolean(user?.id && profile?.id && user.id !== profile.id),
+    queryFn: () => fetchProfileSocialState({ viewerId: user.id, profileId: profile.id }),
+  });
+  const followMutation = useMutation({
+    mutationFn: () => setProfileFollow({ viewerId: user.id, profileId: profile.id, follow: !social.isFollowing }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: socialQueryKey }),
+  });
+  const recommendedSpots = useMemo(() => {
+    const map = new Map();
+    if (data?.favoriteSpot) map.set(data.favoriteSpot.id, { ...data.favoriteSpot, reason: 'Favorite spot' });
+    if (bestRating?.spot) map.set(bestRating.spot.id, { ...bestRating.spot, reason: `${Number(bestRating.rating).toFixed(1)} star pick` });
+    (data?.createdSpots || []).slice(0, 4).forEach((spot) => map.set(spot.id, { ...spot, reason: 'Added by this profile' }));
+    return [...map.values()].slice(0, 4);
+  }, [bestRating, data?.createdSpots, data?.favoriteSpot]);
 
   return (
     <div className="min-h-screen bg-[#f4efe6] px-3 py-4 text-[#141414] sm:px-4 sm:py-5">
@@ -131,7 +152,20 @@ export default function PublicProfile() {
                   <div className="mt-4 flex flex-wrap gap-2">
                     {profile.city ? <span className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-black text-white">{profile.city}</span> : null}
                     {profile.neighborhood ? <span className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-black text-white">{profile.neighborhood}</span> : null}
+                    <span className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-black text-white">{social.followersCount} followers</span>
+                    <span className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-black text-white">{social.followingCount} following</span>
                   </div>
+                  {user?.id && profile.id !== user.id ? (
+                    <button
+                      type="button"
+                      disabled={followMutation.isPending}
+                      onClick={() => followMutation.mutate()}
+                      className={`mt-5 inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-black transition ${social.isFollowing ? 'border border-white/14 bg-white/10 text-white' : 'bg-[#efbf3a] text-[#141414] hover:bg-[#f2c94c]'}`}
+                    >
+                      {social.isFollowing ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+                      {social.isFollowing ? 'Following' : 'Follow'}
+                    </button>
+                  ) : null}
                 </div>
               </div>
 
@@ -152,10 +186,38 @@ export default function PublicProfile() {
                   <Stat icon={Star} label="Ratings" value={data.ratings.length} />
                   <Stat icon={MessageSquare} label="Reviews" value={data.comments.length} />
                 </div>
+
+                <div className="mt-4 rounded-[26px] border border-black/10 bg-white/70 p-4">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4 text-[#df5b43]" />
+                    <div className="font-black tracking-[-0.02em]">Taste summary</div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-black text-white">{profile.favorite_slice || 'Slice explorer'}</span>
+                    <span className="rounded-full bg-[#f2e4d0] px-3 py-1 text-xs font-black text-[#5f584d]">{profile.pizza_style || 'Open taste'}</span>
+                    <span className="rounded-full bg-[#f2e4d0] px-3 py-1 text-xs font-black text-[#5f584d]">{data.comments.length} public reviews</span>
+                  </div>
+                </div>
               </div>
             </section>
 
             <section className="space-y-5">
+              <div className="rounded-[32px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_58px_rgba(34,25,11,0.13)]">
+                <div className="mb-4 flex items-center gap-2">
+                  <Users className="h-5 w-5 text-[#efbf3a]" />
+                  <div className="text-2xl font-black tracking-[-0.04em]">Recommended by {displayName}</div>
+                </div>
+                <div className="grid gap-3">
+                  {recommendedSpots.map((spot) => (
+                    <div key={spot.id} className="rounded-[24px] border border-white/10 bg-white/[0.06] p-4">
+                      <div className="font-black">{spot.name}</div>
+                      <div className="mt-1 text-xs font-semibold text-[#efbf3a]">{spot.reason}</div>
+                      <div className="mt-2 line-clamp-2 text-sm text-white/55">{spot.address}</div>
+                    </div>
+                  ))}
+                  {!recommendedSpots.length ? <div className="rounded-[24px] border border-dashed border-white/12 p-8 text-center text-sm text-white/55">No recommendations yet.</div> : null}
+                </div>
+              </div>
               <div className="rounded-[32px] border border-black/10 bg-[#fffaf1] p-5 shadow-[0_24px_58px_rgba(34,25,11,0.10)]">
                 <div className="mb-4">
                   <div className="text-2xl font-black tracking-[-0.04em]">Pizza activity</div>
