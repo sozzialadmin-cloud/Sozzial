@@ -73,7 +73,7 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.98 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
-      className="relative mt-2 flex max-h-[calc(100dvh-12rem)] flex-col overflow-hidden rounded-[24px] border border-black/8 bg-[#fffaf2] shadow-[0_20px_50px_rgba(39,29,14,0.18)] sm:max-h-[68vh]"
+      className="relative mt-2 flex max-h-[calc(100dvh-var(--header-height)-var(--mobile-nav-height)-6.75rem)] flex-col overflow-hidden rounded-[24px] border border-black/8 bg-[#fffaf2] shadow-[0_20px_50px_rgba(39,29,14,0.18)] sm:max-h-[68vh]"
       style={{ zIndex: ZINDEX.FILTER_EXPANDED }}
     >
       <div className="flex-1 space-y-3 overflow-y-auto p-3.5">
@@ -139,7 +139,7 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-black/8 bg-[#f6efe4] px-4 py-3">
+      <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-black/8 bg-[#f6efe4] px-4 py-3 shadow-[0_-12px_24px_rgba(39,29,14,0.08)]">
         <span className="text-xs text-[#6d665b]">{resultCount} spot{resultCount !== 1 ? "s" : ""} found</span>
         <div className="flex shrink-0 gap-3">
           {activeFilterCount > 0 && (

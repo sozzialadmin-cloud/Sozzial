@@ -36,7 +36,7 @@ export default function SearchFilters({
     }`;
 
   return (
-    <div ref={panelRef} className="pointer-events-none absolute left-4 right-4 top-3 sm:right-auto sm:w-[390px]" style={{ zIndex: ZINDEX.MAP_CONTROLS }}>
+    <div ref={panelRef} className="pointer-events-none absolute left-4 right-4 top-3 sm:right-auto sm:w-[390px]" style={{ zIndex: expanded ? ZINDEX.FILTER_EXPANDED : ZINDEX.MAP_CONTROLS }}>
       <div className="pointer-events-auto rounded-[24px] border border-black/8 bg-[#fffaf2]/94 p-2 backdrop-blur-xl shadow-[0_18px_44px_rgba(39,29,14,0.16)]">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
