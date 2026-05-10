@@ -7,7 +7,7 @@ import { getPublicUsername } from "@/lib/display-name";
 
 function Row({ rank, icon: Icon, title, subtitle, score, to }) {
   const content = (
-    <div className="flex items-center gap-3 rounded-[24px] border border-white/10 bg-white/[0.04] p-3 transition hover:bg-white/[0.07]">
+    <div className="soft-list-item flex items-center gap-3 rounded-[24px] p-3">
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
         {rank <= 3 ? <Crown className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
       </div>
@@ -33,15 +33,15 @@ export default function Rankings() {
         <div className="mb-5">
           <div className="inline-flex rounded-full border border-[#efbf3a]/25 bg-[#efbf3a]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#efbf3a]">Weekly rankings</div>
           <h1 className="mt-3 text-[clamp(2rem,8vw,4rem)] font-black leading-none">Who moved Sozzial this week?</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-400">Check-ins and reviews push users and pizza spots up the board.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-400">Check-ins, reviews and useful additions push people and pizza spots up the board.</p>
         </div>
 
         {isLoading ? <div className="rounded-[28px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">Loading rankings...</div> : null}
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <section className="rounded-[28px] border border-white/10 bg-[#101010] p-4 sm:p-5">
+          <section className="surface-card rounded-[28px] p-4 sm:p-5">
             <div className="mb-4 flex items-center gap-2 text-xl font-black"><Trophy className="h-5 w-5 text-[#efbf3a]" />Top people</div>
-            <div className="grid gap-3">
+            <div className="stagger-in grid gap-3">
               {data.users.map((item, index) => (
                 <Row key={item.id} rank={index + 1} icon={UserRound} title={getPublicUsername(item.profile, "Sozzial user")} subtitle="Check-ins and reviews" score={item.score} to={`/profile/${item.id}`} />
               ))}
@@ -49,9 +49,9 @@ export default function Rankings() {
             </div>
           </section>
 
-          <section className="rounded-[28px] border border-white/10 bg-[#101010] p-4 sm:p-5">
+          <section className="surface-card rounded-[28px] p-4 sm:p-5">
             <div className="mb-4 flex items-center gap-2 text-xl font-black"><Star className="h-5 w-5 text-[#efbf3a]" />Top spots</div>
-            <div className="grid gap-3">
+            <div className="stagger-in grid gap-3">
               {data.spots.map((item, index) => (
                 <Row key={item.id} rank={index + 1} icon={MapPin} title={item.spot?.name || "Pizza spot"} subtitle={item.spot?.address || "Community activity"} score={item.score} />
               ))}

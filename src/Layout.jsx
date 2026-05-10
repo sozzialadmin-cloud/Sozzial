@@ -72,7 +72,7 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={item.page}
                     to={navTarget(item.page)}
-                    className={`inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-semibold transition ${navClass(active, item.accent)}`}
+                    className={`interactive-lift inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-semibold ${navClass(active, item.accent)}`}
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
@@ -102,7 +102,7 @@ export default function Layout({ children, currentPageName }) {
                             key={item.page}
                             to={navTarget(item.page)}
                             onClick={() => setMenuOpen(false)}
-                            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-[#292621] transition hover:bg-white hover:text-[#141414]"
+                    className="interactive-lift flex items-center gap-3 rounded-2xl px-4 py-3 text-[#292621] hover:bg-white hover:text-[#141414]"
                           >
                             <Icon className="h-4 w-4" />
                             <span>{item.label}</span>
@@ -140,7 +140,7 @@ export default function Layout({ children, currentPageName }) {
         </header>
       )}
 
-      <main className={`${hideHeader ? '' : `app-content ${VIEWPORT_PAGE_NAMES.has(currentPageName) ? 'app-content--viewport' : 'app-content--standard'} ${hideBottomNav ? 'app-content--flush' : ''}`}`}>
+      <main className={`${hideHeader ? 'page-transition' : `app-content page-transition ${VIEWPORT_PAGE_NAMES.has(currentPageName) ? 'app-content--viewport' : 'app-content--standard'} ${hideBottomNav ? 'app-content--flush' : ''}`}`}>
         {children}
       </main>
 
@@ -152,7 +152,7 @@ export default function Layout({ children, currentPageName }) {
               const active = currentPageName === item.page;
               return (
                 <Link key={item.page} to={navTarget(item.page)} className="flex flex-col items-center justify-center gap-1 text-center no-tap-highlight">
-                  <div className={`flex h-11 w-11 items-center justify-center rounded-2xl transition ${item.accent ? 'bg-[#df5b43] text-white shadow-[0_12px_30px_rgba(223,91,67,0.22)]' : active ? 'bg-white text-[#141414] shadow-[0_12px_24px_rgba(20,20,20,0.08)]' : 'text-[#6f6555]'}`}>
+                  <div className={`interactive-lift flex h-11 w-11 items-center justify-center rounded-2xl ${item.accent ? 'bg-[#df5b43] text-white shadow-[0_12px_30px_rgba(223,91,67,0.22)]' : active ? 'bg-white text-[#141414] shadow-[0_12px_24px_rgba(20,20,20,0.08)]' : 'text-[#6f6555]'}`}>
                     <Icon className="h-5 w-5" />
                   </div>
                   <span className={`text-[11px] font-medium ${active || item.accent ? 'text-[#141414]' : 'text-[#6f6555]'}`}>{item.label}</span>

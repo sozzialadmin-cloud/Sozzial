@@ -23,7 +23,6 @@ export const desktopNavItems = [...publicNavItems, ...privateNavItems];
 export const mobileNavItems = [
   publicNavItems[0],
   publicNavItems[1],
-  privateNavItems[0],
   privateNavItems[1],
   privateNavItems[2],
   privateNavItems[3],

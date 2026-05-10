@@ -20,7 +20,7 @@ function Mission({ task, value }) {
   const complete = value >= task.target;
   const pct = Math.min(100, Math.round((value / task.target) * 100));
   return (
-    <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
+    <div className="soft-list-item rounded-[24px] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 font-black text-white">
@@ -80,7 +80,7 @@ export default function Passport() {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[0.9fr,1.1fr]">
-          <section className="rounded-[28px] border border-white/10 bg-[#101010] p-4 sm:p-5">
+          <section className="surface-card rounded-[28px] p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-xl font-black">Quick check-in</div>
@@ -104,7 +104,7 @@ export default function Passport() {
             </div>
           </section>
 
-          <section className="rounded-[28px] border border-white/10 bg-[#101010] p-4 sm:p-5">
+          <section className="surface-card rounded-[28px] p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-xl font-black">Weekly progress</div>
@@ -114,18 +114,18 @@ export default function Passport() {
                 {totalProgress}/{totalTarget}
               </div>
             </div>
-            <div className="mt-5 grid gap-3">
+            <div className="stagger-in mt-5 grid gap-3">
               {PASSPORT_TASKS.map((task) => <Mission key={task.id} task={task} value={progressForTask(task, bundle)} />)}
             </div>
           </section>
         </div>
 
-        <section className="mt-4 rounded-[28px] border border-white/10 bg-[#101010] p-4 sm:p-5">
+        <section className="surface-card mt-4 rounded-[28px] p-4 sm:p-5">
           <div className="mb-4 flex items-center gap-2 text-xl font-black"><BadgeCheck className="h-5 w-5 text-[#efbf3a]" />Recent check-ins</div>
           {isLoading ? <div className="text-sm text-stone-500">Loading...</div> : null}
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="stagger-in grid gap-3 md:grid-cols-2">
             {(bundle.checkins || []).slice(0, 8).map((row, index) => (
-              <div key={row.id || `${row.spot_id}-${index}`} className="rounded-[22px] border border-white/10 bg-white/[0.035] p-4">
+              <div key={row.id || `${row.spot_id}-${index}`} className="soft-list-item rounded-[22px] p-4">
                 <div className="flex items-center gap-2 font-black text-white"><Pizza className="h-4 w-4 text-[#efbf3a]" />{row.spots?.name || row.spot_name || "Pizza spot"}</div>
                 <div className="mt-1 text-xs text-stone-500">{new Date(row.created_at).toLocaleString()}</div>
                 {row.slice_price ? <div className="mt-2 text-sm text-stone-300">Verified slice: ${Number(row.slice_price).toFixed(2)}</div> : null}

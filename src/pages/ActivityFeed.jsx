@@ -36,14 +36,14 @@ export default function ActivityFeed() {
           <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-400">A simple activity stream that makes Sozzial feel alive every time someone contributes.</p>
         </div>
 
-        <section className="rounded-[28px] border border-white/10 bg-[#101010] p-3 sm:p-5">
+        <section className="surface-card rounded-[28px] p-3 sm:p-5">
           {isLoading ? <div className="p-8 text-center text-sm text-stone-500">Loading activity...</div> : null}
-          <div className="grid gap-3">
+          <div className="stagger-in grid gap-3">
             {items.map((item) => {
               const profile = item.profile || null;
               const title = getPublicUsername(profile, item.metadata?.username || "Someone");
               return (
-                <div key={item.id || item.created_at} className="flex gap-3 rounded-[24px] border border-white/10 bg-white/[0.035] p-4">
+                <div key={item.id || item.created_at} className="soft-list-item flex gap-3 rounded-[24px] p-4">
                   <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
                     <EventIcon type={item.event_type} />
                   </div>
