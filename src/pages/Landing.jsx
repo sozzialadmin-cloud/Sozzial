@@ -1,7 +1,7 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Flame, Map, Pizza, Users } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, Download, Flame, Map, Pizza, Plus, Smartphone, Sparkles, Users, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 
@@ -35,20 +35,95 @@ const slides = [
   },
 ];
 
+const floatingSlices = [
+  'left-[10%] top-[14%] h-10 w-10 rotate-[-10deg]',
+  'right-[9%] top-[22%] h-7 w-7 rotate-[14deg]',
+  'left-[17%] bottom-[28%] h-6 w-6 rotate-[22deg]',
+  'right-[15%] bottom-[18%] h-9 w-9 rotate-[-18deg]',
+];
+
 export default function Landing() {
   const [index, setIndex] = useState(0);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installState, setInstallState] = useState('ready');
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const slide = useMemo(() => slides[index], [index]);
   const Icon = slide.icon;
+  const isStandalone =
+    typeof window !== 'undefined' &&
+    (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone);
+
+  useEffect(() => {
+    const handleBeforeInstall = (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+      setInstallState('ready');
+    };
+    const handleInstalled = () => {
+      setInstallPrompt(null);
+      setInstallState('installed');
+      setShowInstallHelp(false);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleInstalled);
+    };
+  }, []);
 
   const goTo = (next) => {
     if (next < 0 || next >= slides.length) return;
     setIndex(next);
   };
 
+  const handleInstall = async () => {
+    if (isStandalone || installState === 'installed') {
+      setShowInstallHelp(true);
+      return;
+    }
+
+    if (!installPrompt) {
+      setShowInstallHelp(true);
+      return;
+    }
+
+    setInstallState('installing');
+    try {
+      installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      if (choice?.outcome === 'accepted') {
+        setInstallState('installed');
+        setShowInstallHelp(false);
+      } else {
+        setInstallState('ready');
+        setShowInstallHelp(true);
+      }
+      setInstallPrompt(null);
+    } catch {
+      setInstallState('ready');
+      setShowInstallHelp(true);
+    }
+  };
+
   return (
-    <div className="h-dvh overflow-hidden bg-[#f5f0e7] text-[#111111]">
-      <div className="mx-auto flex h-dvh w-full max-w-[430px] flex-col overflow-hidden px-4 pb-3 pt-4">
-        <div className="shrink-0 pb-3">
+    <div className="relative h-dvh overflow-hidden bg-[#f5f0e7] text-[#111111]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(240,191,57,0.28),transparent_34%),linear-gradient(180deg,#fff8ea_0%,#f4ecdf_58%,#efe3d1_100%)]" />
+      {floatingSlices.map((className, i) => (
+        <motion.div
+          key={className}
+          aria-hidden="true"
+          className={`pointer-events-none absolute rounded-[14px] border border-black/8 bg-[#fffaf1]/70 text-[#df5b43] shadow-[0_18px_38px_rgba(34,25,11,0.10)] backdrop-blur-sm ${className}`}
+          animate={{ y: [0, i % 2 ? 12 : -10, 0], rotate: [0, i % 2 ? 8 : -7, 0] }}
+          transition={{ duration: 5 + i, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <Pizza className="m-auto h-full w-[55%]" />
+        </motion.div>
+      ))}
+
+      <div className="relative z-10 mx-auto flex h-dvh w-full max-w-[430px] flex-col overflow-hidden px-4 pb-3 pt-4">
+        <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="shrink-0 pb-3">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#f0bf39] text-[#111111] shadow-[0_16px_32px_rgba(240,191,57,0.22)]">
               <Pizza className="h-6 w-6" />
@@ -58,10 +133,15 @@ export default function Landing() {
               <div className="mt-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#8a8174]">spots, plans and passport</div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="flex min-h-0 flex-1 flex-col justify-center pb-4">
-          <div className="rounded-[28px] border border-black/10 bg-[#fffaf1] p-3 shadow-[0_24px_60px_rgba(34,25,11,0.12)]">
+          <motion.div
+            initial={{ opacity: 0, y: 22, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 24, delay: 0.08 }}
+            className="rounded-[28px] border border-black/10 bg-[#fffaf1]/90 p-3 shadow-[0_24px_60px_rgba(34,25,11,0.12)] backdrop-blur"
+          >
             <motion.div
               key={slide.eyebrow}
               drag="x"
@@ -71,35 +151,63 @@ export default function Landing() {
                 if (info.offset.x <= -80) goTo(index + 1);
                 if (info.offset.x >= 80) goTo(index - 1);
               }}
-              initial={{ opacity: 0, y: 16, scale: 0.985 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              initial={{ opacity: 0, x: 22, scale: 0.985 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-              className={`relative flex min-h-[438px] flex-col overflow-hidden rounded-[24px] bg-gradient-to-br ${slide.tone} p-5 text-white`}
+              className={`relative flex min-h-[438px] flex-col overflow-hidden rounded-[24px] bg-gradient-to-br ${slide.tone} p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]`}
             >
-              <div className="flex items-start justify-between gap-4">
+              <motion.div
+                aria-hidden="true"
+                className="absolute -right-12 -top-12 h-40 w-40 rounded-full border border-white/10 bg-white/10 blur-[1px]"
+                animate={{ scale: [1, 1.08, 1], opacity: [0.45, 0.7, 0.45] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <motion.div
+                aria-hidden="true"
+                className="absolute -bottom-16 left-8 h-36 w-36 rounded-full border border-white/10 bg-black/20"
+                animate={{ y: [0, -10, 0], opacity: [0.35, 0.5, 0.35] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              <div className="relative flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-white/90">
+                  <motion.div layout className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-white/90">
+                    <Sparkles className="h-3 w-3" />
                     {slide.eyebrow}
-                  </div>
+                  </motion.div>
                   <h1 className="mt-4 max-w-[14rem] text-[clamp(2rem,8.5vw,2.9rem)] font-black leading-[0.94] tracking-tight">
                     {slide.title}
                   </h1>
                 </div>
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/12 backdrop-blur-sm">
+                <motion.div whileHover={{ rotate: -5, scale: 1.05 }} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/12 backdrop-blur-sm">
                   <Icon className={`h-6 w-6 ${slide.accent}`} />
-                </div>
+                </motion.div>
               </div>
 
-              <p className="mt-5 max-w-[17rem] text-[15px] leading-7 text-white/82">{slide.text}</p>
+              <p className="relative mt-5 max-w-[17rem] text-[15px] leading-7 text-white/82">{slide.text}</p>
 
-              <div className="mt-auto space-y-4 pt-5">
+              <div className="relative mt-5 grid grid-cols-3 gap-2">
+                {['Installable', 'Fast map', 'Real plans'].map((item, i) => (
+                  <motion.div
+                    key={item}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.12 + i * 0.06 }}
+                    className="rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-center text-[11px] font-bold text-white/78 backdrop-blur-sm"
+                  >
+                    {item}
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="relative mt-auto space-y-4 pt-5">
                 <div className="grid grid-cols-3 gap-2">
                   {slides.map((item, i) => (
                     <button
                       key={item.eyebrow}
                       type="button"
                       onClick={() => setIndex(i)}
-                      className={`rounded-2xl border px-3 py-3 text-left transition ${
+                      className={`rounded-2xl border px-3 py-3 text-left transition hover:-translate-y-0.5 ${
                         i === index ? 'border-white/22 bg-white/14 text-white' : 'border-white/10 bg-black/10 text-white/72'
                       }`}
                     >
@@ -129,10 +237,18 @@ export default function Landing() {
                 </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
 
-        <div className="shrink-0 space-y-3">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.42 }} className="shrink-0 space-y-3">
+          <Button
+            type="button"
+            onClick={handleInstall}
+            className="h-14 w-full rounded-[18px] border-0 bg-[#111111] px-5 text-base font-black text-white shadow-[0_18px_36px_rgba(17,17,17,0.18)] hover:bg-[#252525]"
+          >
+            {installState === 'installed' || isStandalone ? <Smartphone className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
+            {installState === 'installing' ? 'Opening install...' : installState === 'installed' || isStandalone ? 'App installed' : 'Download the app'}
+          </Button>
           <Link to={createPageUrl('Home')}>
             <Button className="h-14 w-full rounded-[18px] border-0 bg-[#f0bf39] px-5 text-base font-black text-[#111111] shadow-[0_18px_36px_rgba(240,191,57,0.22)] hover:bg-[#d9a826]">
               Go to map
@@ -144,9 +260,52 @@ export default function Landing() {
               Go to my account
             </Button>
           </Link>
-        </div>
+        </motion.div>
       </div>
+
+      <AnimatePresence>
+        {showInstallHelp ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-20 flex items-end bg-black/35 px-4 pb-4 backdrop-blur-sm"
+            onClick={() => setShowInstallHelp(false)}
+          >
+            <motion.div
+              initial={{ y: 28, opacity: 0, scale: 0.98 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 28, opacity: 0, scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="mx-auto w-full max-w-[398px] rounded-[28px] border border-black/10 bg-[#fffaf1] p-5 shadow-[0_26px_70px_rgba(0,0,0,0.24)]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#111111] text-[#f0bf39]">
+                  <Smartphone className="h-6 w-6" />
+                </div>
+                <button type="button" onClick={() => setShowInstallHelp(false)} className="grid h-9 w-9 place-items-center rounded-full bg-[#f0e7d8] text-[#5f584e]">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <h2 className="mt-4 text-2xl font-black leading-tight tracking-tight">Install Sozzial on your phone</h2>
+              <p className="mt-2 text-sm leading-6 text-[#6d665b]">
+                If your browser does not show the install prompt, open the browser menu and choose Add to Home Screen. Sozzial will launch like an app with its own icon.
+              </p>
+              <div className="mt-4 grid gap-2">
+                {['Tap Share or the browser menu', 'Choose Add to Home Screen', 'Open Sozzial from your home screen'].map((item) => (
+                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-black/8 bg-white px-4 py-3 text-sm font-semibold text-[#141414]">
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f0bf39] text-[#111111]">
+                      <Plus className="h-3.5 w-3.5" />
+                    </span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
-
