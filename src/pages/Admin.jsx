@@ -1405,8 +1405,8 @@ export default function Admin() {
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Seguridad</div>
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Acciones graves deben pedir confirmacion adicional.</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Conviene guardar logs de cambios y trazabilidad.</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">High-impact actions should ask for extra confirmation.</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Keep change logs and traceability for admin actions.</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Avoid one-click actions for bans or bulk deletes.</div>
                         </div>
                       </div>

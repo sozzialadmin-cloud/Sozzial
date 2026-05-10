@@ -146,7 +146,7 @@ export default function Profile() {
       queryClient.invalidateQueries({ queryKey: ['profile-bundle', user?.id] });
     },
     onError: (error) => {
-      toast.error(error?.message?.includes('column') ? 'Faltan columnas del perfil en la base de datos. Ejecuta el SQL incluido.' : error?.message || 'No se pudo actualizar el perfil.');
+      toast.error(error?.message?.includes('column') ? 'Profile columns are missing in the database. Run the included SQL file.' : error?.message || 'The profile could not be updated.');
     },
   });
 

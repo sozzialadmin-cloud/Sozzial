@@ -126,7 +126,7 @@ export default function Home() {
                       </p>
                       <p className="mt-1 text-xs leading-5 text-[#6f644f]">
                         {!isSupabaseConfigured
-                          ? "La app esta lista. Conecta las claves privadas del proyecto para cargar datos reales."
+                          ? "The app is ready. Add the project keys to load live data."
                           : "Try fewer filters or add the first pizza spot for this area."}
                       </p>
                     </div>

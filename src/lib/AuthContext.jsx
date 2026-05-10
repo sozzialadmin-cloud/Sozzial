@@ -42,7 +42,7 @@ function friendlyAuthError(error) {
   if (lower.includes('rate limit')) return 'Demasiados intentos. Espera un minuto y prueba de nuevo.';
   if (lower.includes('network') || lower.includes('failed to fetch')) return 'Could not connect to the auth service. Check the private configuration.';
   if (lower.includes('duplicate key') || lower.includes('unique')) return 'That public username is already taken. Try another one.';
-  return raw || 'No se pudo completar la autenticacion.';
+  return raw || 'Authentication could not be completed.';
 }
 
 function cleanUsername(value, fallback = 'User') {
