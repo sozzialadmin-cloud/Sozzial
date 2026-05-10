@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, MessageCircle, Users, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -112,21 +112,30 @@ export default function NotificationCenter({ user }) {
     setClearedAt(new Date().toISOString());
   };
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open]);
+
   return <div className="relative" onClick={(e) => e.stopPropagation()}>
-    <button onClick={() => setOpen((prev) => !prev)} className="relative p-2 text-stone-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+    <button onClick={() => setOpen((prev) => !prev)} aria-label="Open notifications" className="relative rounded-2xl p-2 text-stone-400 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white active:scale-95">
       <Bell className="w-5 h-5" />
       {unreadCount > 0 && <span className="absolute top-0 right-0 w-5 h-5 bg-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{unreadCount > 9 ? '9+' : unreadCount}</span>}
     </button>
     <AnimatePresence>{open && <>
-      <div className="fixed inset-0" style={{ zIndex: ZINDEX.overlay }} onClick={() => setOpen(false)} />
-      <motion.div initial={{ opacity: 0, y: -10, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -10, scale: 0.96 }} className="absolute right-0 mt-2 w-80 max-h-[75vh] overflow-hidden rounded-2xl border border-white/10 bg-[#101010] shadow-2xl" style={{ zIndex: ZINDEX.notificationPanel }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/10 backdrop-blur-[1px]" style={{ zIndex: ZINDEX.NOTIFICATION_BACKDROP }} onClick={() => setOpen(false)} />
+      <motion.div initial={{ opacity: 0, y: -12, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.97 }} transition={{ type: "spring", stiffness: 420, damping: 34 }} className="fixed left-4 right-4 top-[96px] max-h-[75vh] overflow-hidden rounded-[26px] border border-white/10 bg-[#101010] shadow-[0_28px_80px_rgba(0,0,0,0.38)] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80" style={{ zIndex: ZINDEX.NOTIFICATION_POPUP }}>
         <div className="border-b border-white/10 p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="font-semibold text-white">Notifications</h3>
               <p className="mt-1 text-xs text-stone-500">Only new messages and joins stay here. Cleared items do not come back.</p>
             </div>
-            <button onClick={clearAll} className="text-xs text-stone-400 hover:text-white">Clear all</button>
+            <button onClick={clearAll} className="rounded-full border border-white/10 px-3 py-1.5 text-xs font-semibold text-stone-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white active:scale-95">Clear all</button>
           </div>
         </div>
         <div className="overflow-y-auto max-h-[60vh]">

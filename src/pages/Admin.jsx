@@ -118,7 +118,7 @@ function AdminActionButton({ onClick, children, variant = 'neutral', disabled = 
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'inline-flex h-10 items-center justify-center rounded-2xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50',
+        'premium-press inline-flex h-10 items-center justify-center rounded-2xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50',
         variants[variant],
       )}
     >
@@ -142,7 +142,7 @@ function StatusPill({ tone = 'neutral', children }) {
 
 function StatCard({ label, value, note, icon: Icon, accent = 'text-[#df5b43]' }) {
   return (
-    <div className="rounded-[28px] border border-black/10 bg-[#fffaf1] px-5 py-5 shadow-[0_20px_45px_rgba(34,25,11,0.08)]">
+    <div className="premium-motion-card rounded-[28px] border border-black/10 bg-[#fffaf1] px-5 py-5 shadow-[0_20px_45px_rgba(34,25,11,0.08)]">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">{label}</div>
@@ -159,7 +159,7 @@ function StatCard({ label, value, note, icon: Icon, accent = 'text-[#df5b43]' })
 
 function Shell({ title, subtitle, actions, children }) {
   return (
-    <section className="rounded-[30px] border border-black/10 bg-[#fffaf1] p-5 shadow-[0_22px_50px_rgba(34,25,11,0.08)]">
+    <section className="premium-motion-card rounded-[30px] border border-black/10 bg-[#fffaf1] p-5 shadow-[0_22px_50px_rgba(34,25,11,0.08)]">
       <div className="flex flex-col gap-4 border-b border-black/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-[1.4rem] font-black tracking-[-0.04em] text-[#111111]">{title}</h2>
@@ -803,8 +803,8 @@ export default function Admin() {
       <div className="grid min-h-[calc(100vh-64px)] place-items-center bg-[#f4efe6] px-4 py-6">
         <div className="rounded-[28px] border border-black/10 bg-[#fffaf1] px-6 py-10 text-center shadow-[0_24px_60px_rgba(34,25,11,0.12)]">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111111] text-[#f0bf39]"><Shield className="h-6 w-6" /></div>
-          <h1 className="text-2xl font-black text-[#111111]">Zona solo para administradores</h1>
-          <p className="mt-2 text-sm text-[#6d665b]">Necesitas un usuario con role = admin en profiles para entrar aqui.</p>
+          <h1 className="text-2xl font-black text-[#111111]">Administrators only</h1>
+          <p className="mt-2 text-sm text-[#6d665b]">You need a profile with role = admin to access this area.</p>
         </div>
       </div>
     );
@@ -824,7 +824,7 @@ export default function Admin() {
           <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#216b33]">
-                <Sparkles className="h-3.5 w-3.5" /> control operativo
+                <Sparkles className="h-3.5 w-3.5" /> operations command
               </div>
               <h1 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] font-black leading-none tracking-[-0.06em]">Admin Sozzial</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6d665b]">
@@ -833,12 +833,12 @@ export default function Admin() {
             </div>
             <div className="grid gap-3 rounded-[28px] border border-black/10 bg-white px-5 py-4 shadow-[0_18px_40px_rgba(39,29,14,0.08)] sm:grid-cols-2">
               <div>
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Sesion actual</div>
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Current session</div>
                 <div className="mt-2 text-base font-bold text-[#111111]">{user?.email}</div>
-                <div className="mt-1 text-sm text-[#6d665b]">Rol: {role}</div>
+                <div className="mt-1 text-sm text-[#6d665b]">Role: {role}</div>
               </div>
               <div>
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Urgencia</div>
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Urgency</div>
                 <div className="mt-2 text-base font-bold text-[#111111]">{overviewStats.urgentItems ? `${overviewStats.urgentItems} critical alerts` : 'No critical alerts'}</div>
                 <div className="mt-1 text-sm text-[#6d665b]">Today: {overviewStats.newUsersToday} new users</div>
               </div>
@@ -853,6 +853,38 @@ export default function Admin() {
           <StatCard label="New users" value={overviewStats.newUsersToday} note={`${overviewStats.newUsersWeek} this week`} icon={Users} accent="text-[#111111]" />
           <StatCard label="Reported messages" value={overviewStats.reportedMessages} note="Automatic signals" icon={MessageSquare} accent="text-[#df5b43]" />
           <StatCard label="Pending photos" value={overviewStats.pendingPhotos} note="Waiting for approval" icon={Camera} accent="text-[#216b33]" />
+        </div>
+        <div className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
+          <section className="attention-glow rounded-[30px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_70px_rgba(17,17,17,0.18)]">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-[#f0bf39]">
+                  <ShieldAlert className="h-3.5 w-3.5" /> live command center
+                </div>
+                <h2 className="mt-4 text-2xl font-black tracking-[-0.04em]">Moderation queue ready for scale</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
+                  Focus on risk first: pending spots, reports, suspicious text, missing media and accounts that need review.
+                </p>
+              </div>
+              <div className="grid min-w-[220px] gap-2">
+                <button type="button" onClick={() => goTo('reports')} className="premium-press inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#efbf3a] px-4 text-sm font-black text-[#141414]">
+                  Review alerts <ArrowRight className="h-4 w-4" />
+                </button>
+                <button type="button" onClick={() => goTo('operations')} className="premium-press inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 text-sm font-bold text-white">
+                  Open operations
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section className="premium-motion-card rounded-[30px] border border-black/10 bg-[#fffaf1] p-5 shadow-[0_22px_50px_rgba(34,25,11,0.08)]">
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">System health</div>
+            <div className="mt-4 grid gap-3">
+              <DetailMetric label="Data tables online" value={`${diagnostics.filter((item) => item.available).length}/${diagnostics.length}`} tone={diagnostics.every((item) => item.available) ? 'success' : 'warn'} />
+              <DetailMetric label="Priority queue" value={attentionQueue.length} tone={attentionQueue.length ? 'warn' : 'success'} />
+              <DetailMetric label="Profile health" value={`${profileCompleteness.score}%`} tone={profileCompleteness.score > 60 ? 'success' : 'warn'} />
+            </div>
+          </section>
         </div>
 
         <div className="sticky top-[72px] z-20 rounded-[26px] border border-black/10 bg-[#fffaf1]/95 p-3 shadow-[0_20px_50px_rgba(34,25,11,0.10)] backdrop-blur sm:rounded-[30px] sm:p-4">
@@ -884,7 +916,7 @@ export default function Admin() {
                 />
               </div>
               <button type="button" className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-black/10 bg-white px-4 text-sm font-semibold text-[#141414]">
-                <Filter className="h-4 w-4" /> Filtros guardados
+                <Filter className="h-4 w-4" /> Saved filters
               </button>
             </div>
           </div>
@@ -902,12 +934,12 @@ export default function Admin() {
               <ActionBlock icon={Pizza} title="Review pending spots" text={`${overviewStats.pendingSpots} waiting for approval or rejection.`} cta="Open spots" onClick={() => goTo('spots', { spotFilter: 'pending' })} />
               <ActionBlock icon={CalendarDays} title="Review recent plans" text={`${overviewStats.activePlans} active plans and ${plans.filter((row) => (toTs(row.created_at) || 0) >= todayStart).length} created today.`} cta="Open plans" onClick={() => goTo('plans', { planFilter: 'today' })} />
               <ActionBlock icon={ShieldAlert} title="Review urgent reports" text={`${overviewStats.urgentItems} strong risk signals right now.`} cta="Go to reports" onClick={() => goTo('reports')} />
-              <ActionBlock icon={AlertTriangle} title="Ver actividad sospechosa" text={`${suspiciousMessages.length + suspiciousPlans.length} textos marcados por heuristica.`} cta="Ir a chat" onClick={() => goTo('messages')} />
+              <ActionBlock icon={AlertTriangle} title="Review suspicious activity" text={`${suspiciousMessages.length + suspiciousPlans.length} texts flagged by heuristics.`} cta="Open chat" onClick={() => goTo('messages')} />
               <ActionBlock icon={UserCog} title="Go to users" text={`${overviewStats.newUsersToday} signups today and ${overviewStats.newUsersWeek} in the last week.`} cta="Open users" onClick={() => goTo('users', { userFilter: 'new' })} />
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.2fr,0.8fr]">
-              <Shell title="Necesita atencion ahora" subtitle="Lista real, no un dashboard vacio. Lo mas delicado va arriba.">
+              <Shell title="Needs attention now" subtitle="A real priority queue. The riskiest items stay on top.">
                 {attentionQueue.length ? (
                   <div className="grid gap-3">
                     {attentionQueue.slice(0, 10).map((item) => (
@@ -929,7 +961,7 @@ export default function Admin() {
               <div className="space-y-5">
                 <Shell title="Overall status" subtitle="Designed for a response in under 5 seconds.">
                   <div className="grid gap-3">
-                    <DetailMetric label="Spots aprobados" value={approvedSpots.length} tone="success" />
+                    <DetailMetric label="Approved spots" value={approvedSpots.length} tone="success" />
                     <DetailMetric label="Hidden/rejected spots" value={hiddenSpots.length + rejectedSpots.length} tone="warn" />
                     <DetailMetric label="Pending comments" value={pendingComments.length} tone="neutral" />
                     <DetailMetric label="Group messages" value={messages.length} tone="neutral" />
@@ -944,7 +976,7 @@ export default function Admin() {
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <div className="text-sm font-black text-[#111111]">{item.table}</div>
-                            <div className="mt-1 text-xs text-[#6d665b]">{item.available ? 'Disponible.' : 'Aun no existe o no es accesible.'}</div>
+                            <div className="mt-1 text-xs text-[#6d665b]">{item.available ? 'Available.' : 'Missing or not accessible yet.'}</div>
                           </div>
                           <StatusPill tone={item.available ? 'success' : 'warn'}>{item.available ? 'ok' : 'missing'}</StatusPill>
                         </div>
@@ -988,13 +1020,13 @@ export default function Admin() {
                             <div className="flex flex-wrap items-center gap-2">
                               <div className="truncate text-base font-black text-[#111111]">{spot.name}</div>
                               <StatusPill tone={spot.status === 'approved' ? 'success' : spot.status === 'hidden' ? 'dark' : spot.status === 'rejected' ? 'danger' : 'warn'}>{spot.status}</StatusPill>
-                              {spot.isDuplicate ? <StatusPill tone="warn">duplicado</StatusPill> : null}
+                              {spot.isDuplicate ? <StatusPill tone="warn">duplicate</StatusPill> : null}
                             </div>
                             <div className="mt-2 line-clamp-2 text-sm text-[#6d665b]">{spot.address}</div>
                             <div className="mt-3 flex flex-wrap gap-2">
                               <StatusPill tone="neutral">{formatPrice(spot.slice_price)}</StatusPill>
                               <StatusPill tone="info">rating {Number(spot.average_rating || 0).toFixed(1)}</StatusPill>
-                              <StatusPill tone="neutral">{spot.ratings_count || 0} valoraciones</StatusPill>
+                              <StatusPill tone="neutral">{spot.ratings_count || 0} ratings</StatusPill>
                               {spot.reportCount ? <StatusPill tone="danger">{spot.reportCount} flags</StatusPill> : null}
                             </div>
                             <div className="mt-3 text-xs text-[#8a8174]">{getPublicUsername(creator, 'No creator')} - {formatDateTime(spot.created_at)}</div>
@@ -1036,8 +1068,8 @@ export default function Admin() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <DetailMetric label="Slice price" value={formatPrice(selectedSpot.slice_price)} />
                         <DetailMetric label="Best slice" value={selectedSpot.best_slice || '-'} />
-                        <DetailMetric label="Rating medio" value={Number(selectedSpot.average_rating || 0).toFixed(1)} tone="success" />
-                        <DetailMetric label="No. valoraciones" value={selectedSpot.ratings_count || 0} />
+                        <DetailMetric label="Average rating" value={Number(selectedSpot.average_rating || 0).toFixed(1)} tone="success" />
+                        <DetailMetric label="No. ratings" value={selectedSpot.ratings_count || 0} />
                         <DetailMetric label="Lat / Lng" value={`${selectedSpot.lat ?? '-'} / ${selectedSpot.lng ?? '-'}`} />
                         <DetailMetric label="Flags" value={selectedSpot.reportCount || 0} tone={selectedSpot.reportCount ? 'danger' : 'neutral'} />
                       </div>
@@ -1091,10 +1123,10 @@ export default function Admin() {
                           <AdminActionButton variant="success" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('approved') })}><CheckCircle2 className="mr-2 h-4 w-4" />Approve</AdminActionButton>
                           <AdminActionButton variant="warn" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('rejected') })}><XCircle className="mr-2 h-4 w-4" />Reject</AdminActionButton>
                           <AdminActionButton variant="dark" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('hidden') })}><EyeOff className="mr-2 h-4 w-4" />Hide</AdminActionButton>
-                          <AdminActionButton variant="neutral" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: { updated_at: new Date().toISOString() } })}><Pencil className="mr-2 h-4 w-4" />Editar</AdminActionButton>
-                          <AdminActionButton variant="neutral" onClick={() => setSpotFilter('duplicates')}><Copy className="mr-2 h-4 w-4" />Marcar duplicado</AdminActionButton>
-                          <AdminActionButton variant="neutral" onClick={() => setSpotFilter('duplicates')}><MergeIcon />Fusionar</AdminActionButton>
-                          <AdminActionButton variant="neutral" onClick={() => setActiveTab('photos')}><Camera className="mr-2 h-4 w-4" />Sustituir foto</AdminActionButton>
+                          <AdminActionButton variant="neutral" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: { updated_at: new Date().toISOString() } })}><Pencil className="mr-2 h-4 w-4" />Edit</AdminActionButton>
+                          <AdminActionButton variant="neutral" onClick={() => setSpotFilter('duplicates')}><Copy className="mr-2 h-4 w-4" />Mark duplicate</AdminActionButton>
+                          <AdminActionButton variant="neutral" onClick={() => setSpotFilter('duplicates')}><MergeIcon />Merge</AdminActionButton>
+                          <AdminActionButton variant="neutral" onClick={() => setActiveTab('photos')}><Camera className="mr-2 h-4 w-4" />Replace photo</AdminActionButton>
                           <AdminActionButton variant="danger" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: { photo_url: null, updated_at: new Date().toISOString() } })}><Trash2 className="mr-2 h-4 w-4" />Delete photo</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => window.open(`/home?spot=${selectedSpot.id}`, '_blank')}><MapPin className="mr-2 h-4 w-4" />Ver en mapa</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => { setSelectedUserId(selectedSpot.created_by); setActiveTab('users'); }}><Users className="mr-2 h-4 w-4" />Ver creador</AdminActionButton>
@@ -1179,7 +1211,7 @@ export default function Admin() {
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <DetailMetric label="Linked spot" value={spotMap.get(selectedPlan.spot_id)?.name || 'No spot'} tone={selectedPlan.hasValidSpot ? 'success' : 'warn'} />
-                      <DetailMetric label="Fecha y hora" value={`${selectedPlan.plan_date || '-'} - ${selectedPlan.plan_time || '-'}`} />
+                      <DetailMetric label="Date and time" value={`${selectedPlan.plan_date || '-'} - ${selectedPlan.plan_time || '-'}`} />
                       <DetailMetric label="Miembros" value={`${selectedPlan.joinedCount}/${selectedPlan.max_people || 0}`} tone={selectedPlan.seatsOver ? 'danger' : 'neutral'} />
                       <DetailMetric label="Flags" value={selectedPlan.reportCount || 0} tone={selectedPlan.reportCount ? 'danger' : 'neutral'} />
                     </div>
@@ -1227,7 +1259,7 @@ export default function Admin() {
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Acciones</div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <AdminActionButton variant="neutral" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { updated_at: new Date().toISOString() } })}><Pencil className="mr-2 h-4 w-4" />Editar</AdminActionButton>
+                          <AdminActionButton variant="neutral" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { updated_at: new Date().toISOString() } })}><Pencil className="mr-2 h-4 w-4" />Edit</AdminActionButton>
                           <AdminActionButton variant="warn" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { status: 'cancelled' } })}><Clock3 className="mr-2 h-4 w-4" />Cerrar</AdminActionButton>
                           <AdminActionButton variant="dark" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { status: 'hidden' } })}><EyeOff className="mr-2 h-4 w-4" />Hide</AdminActionButton>
                           <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'plans', id: selectedPlan.id })}><Trash2 className="mr-2 h-4 w-4" />Delete</AdminActionButton>
@@ -1462,10 +1494,10 @@ export default function Admin() {
                         </div>
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <div className="text-base font-black text-[#111111]">{linkedSpot?.name || 'Spot no encontrado'}</div>
+                            <div className="text-base font-black text-[#111111]">{linkedSpot?.name || 'Spot not found'}</div>
                             <StatusPill tone={row.status === 'approved' ? 'success' : row.status === 'hidden' ? 'dark' : 'warn'}>{row.status}</StatusPill>
-                            {isOrphan ? <StatusPill tone="danger">huerfana</StatusPill> : null}
-                            {broken ? <StatusPill tone="warn">rota</StatusPill> : null}
+                            {isOrphan ? <StatusPill tone="danger">orphan</StatusPill> : null}
+                            {broken ? <StatusPill tone="warn">broken</StatusPill> : null}
                           </div>
                           <div className="mt-2 break-all text-sm text-[#6d665b]">{row.photo_url}</div>
                           <div className="mt-2 text-xs text-[#8a8174]">{formatDateTime(row.created_at)}</div>
@@ -1473,7 +1505,7 @@ export default function Admin() {
                         <div className="flex flex-wrap gap-2 lg:justify-end">
                           <AdminActionButton variant="success" onClick={() => photoMutation.mutate({ id: row.id, payload: moderationPayload('approved') })}>Approve</AdminActionButton>
                           <AdminActionButton variant="warn" onClick={() => photoMutation.mutate({ id: row.id, payload: moderationPayload('hidden') })}>Reject</AdminActionButton>
-                          <AdminActionButton variant="neutral">Abrir original</AdminActionButton>
+                          <AdminActionButton variant="neutral">Open original</AdminActionButton>
                           <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'spot_photos', id: row.id })}>Delete</AdminActionButton>
                         </div>
                       </div>
@@ -1488,8 +1520,8 @@ export default function Admin() {
         {!isLoading && activeTab === 'operations' ? (
           <div className="space-y-5">
             <Shell
-              title="Centro de operaciones"
-              subtitle="Herramientas para administrar una aplicacion grande: volumen, calidad, exportacion y salud de datos."
+              title="Operations center"
+              subtitle="Tools for running a large app: volume, quality, export and data health."
               actions={
                 <>
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-users.csv', users)}><Download className="mr-2 h-4 w-4" />Users CSV</AdminActionButton>
@@ -1500,14 +1532,14 @@ export default function Admin() {
             >
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <DetailMetric label="Total users" value={users.length} />
-                <DetailMetric label="Completitud perfiles" value={`${profileCompleteness.score}%`} tone={profileCompleteness.score > 60 ? 'success' : 'warn'} />
-                <DetailMetric label="Contenido total" value={spots.length + plans.length + messages.length + comments.length + photos.length} />
-                <DetailMetric label="Alertas abiertas" value={openReports.length} tone={openReports.length ? 'danger' : 'success'} />
+                <DetailMetric label="Profile completeness" value={`${profileCompleteness.score}%`} tone={profileCompleteness.score > 60 ? 'success' : 'warn'} />
+                <DetailMetric label="Total content" value={spots.length + plans.length + messages.length + comments.length + photos.length} />
+                <DetailMetric label="Open alerts" value={openReports.length} tone={openReports.length ? 'danger' : 'success'} />
               </div>
 
               <div className="mt-5 grid gap-5 xl:grid-cols-2">
                 <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                  <div className="text-lg font-black text-[#111111]">Calidad de perfiles</div>
+                  <div className="text-lg font-black text-[#111111]">Profile quality</div>
                   <div className="mt-4 grid gap-3">
                     <DetailMetric label="No bio" value={profileCompleteness.missingBio} tone={profileCompleteness.missingBio ? 'warn' : 'success'} />
                     <DetailMetric label="No photo" value={profileCompleteness.missingAvatar} tone={profileCompleteness.missingAvatar ? 'warn' : 'success'} />
@@ -1518,9 +1550,9 @@ export default function Admin() {
                 <div className="rounded-[24px] border border-black/8 bg-white p-5">
                   <div className="text-lg font-black text-[#111111]">Ready for thousands of users</div>
                   <div className="mt-4 space-y-3 text-sm leading-7 text-[#5d574d]">
-                    <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Usa indices en `profiles.favorite_spot_id`, `spots.status`, `plans.status`, `messages.plan_id` y `spot_comments.status`.</div>
+                    <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Use indexes on profiles.favorite_spot_id, spots.status, plans.status, messages.plan_id and spot_comments.status.</div>
                     <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Keep destructive actions behind confirmation and audit logs.</div>
-                    <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Para volumen real, mueve contadores pesados a RPCs o vistas materializadas.</div>
+                    <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">For real volume, move heavy counters to RPCs or materialized views.</div>
                   </div>
                 </div>
               </div>
@@ -1532,28 +1564,28 @@ export default function Admin() {
           <Shell title="Settings / configuration" subtitle="Not huge, but useful for operating and moderating better.">
             <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">Limites de plazas</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Define maximos por plan, limites blandos y cuando marcar sobrecupo.</div>
+                <div className="text-lg font-black text-[#111111]">Seat limits</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Define max seats per plan, soft limits and over-capacity rules.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="text-lg font-black text-[#111111]">Allowed statuses</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">active, draft, cancelled, approved, hidden, rejected y cualquier flujo extra que anadas.</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">active, draft, cancelled, approved, hidden, rejected and any extra workflow you add.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="text-lg font-black text-[#111111]">Moderation copy</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Plantillas para avisos, rechazos de fotos, warnings y sanciones temporales.</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Templates for notices, photo rejections, warnings and temporary sanctions.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">Umbrales de sospecha</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Heuristicas para spam, duplicados, actividad extrana o exceso de reportes.</div>
+                <div className="text-lg font-black text-[#111111]">Suspicion thresholds</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Heuristics for spam, duplicates, unusual activity or excessive reports.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">Valores por defecto</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Precio, plazas, estados iniciales y visibilidad publica por tipo de contenido.</div>
+                <div className="text-lg font-black text-[#111111]">Default values</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">Price, seats, initial statuses and public visibility by content type.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">Badges del producto</div>
-                <div className="mt-2 text-sm leading-7 text-[#6d665b]">cheap, good value, overpriced o cualquier categoria visual que quieras usar en mapa y admin.</div>
+                <div className="text-lg font-black text-[#111111]">Product badges</div>
+                <div className="mt-2 text-sm leading-7 text-[#6d665b]">cheap, good value, overpriced or any visual category you want to use in map and admin.</div>
               </div>
             </div>
           </Shell>

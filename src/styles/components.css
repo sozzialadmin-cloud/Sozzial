@@ -1,4 +1,4 @@
-﻿@layer components {
+@layer components {
   .app-shell {
     @apply min-h-screen text-[color:var(--text-primary)];
     background:
@@ -226,6 +226,44 @@
   .stagger-in > *:nth-child(6) { animation-delay: 175ms; }
   .stagger-in > *:nth-child(7) { animation-delay: 210ms; }
   .stagger-in > *:nth-child(8) { animation-delay: 245ms; }
+  .premium-motion-card {
+    transform: translateZ(0);
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background 220ms ease;
+  }
+
+  .premium-motion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 60px rgba(34, 25, 11, 0.12);
+  }
+
+  .premium-press {
+    transition: transform 160ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+  }
+
+  .premium-press:active {
+    transform: scale(0.975);
+  }
+
+  .attention-glow {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .attention-glow::after {
+    content: "";
+    position: absolute;
+    inset: -40% -20%;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.34), transparent 70%);
+    transform: translateX(-120%);
+    animation: sozzial-sheen 4.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes sozzial-sheen {
+    0%, 72% { transform: translateX(-120%); }
+    100% { transform: translateX(120%); }
+  }
+
 
   @keyframes sozzial-page-in {
     from {
@@ -254,6 +292,11 @@
       animation: none;
     }
 
+    .premium-motion-card,
+    .premium-motion-card:hover,
+    .premium-press,
+    .premium-press:active,
+    .attention-glow::after,
     .interactive-lift,
     .interactive-lift:hover,
     .interactive-lift:active,

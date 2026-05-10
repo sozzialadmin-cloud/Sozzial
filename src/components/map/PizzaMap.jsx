@@ -48,7 +48,6 @@ function createPriceIcon(place, isActive, isSaved = false) {
           transition: all 0.2s ease;
           transform: ${isActive ? "translateY(-2px) scale(1.08)" : "scale(1)"};
           animation: ${isActive ? "sozzialMarkerPop 1.6s ease-in-out infinite" : "none"};
-          animation: ${isActive ? "sozzialMarkerPop 1.6s ease-in-out infinite" : "none"};
         ">
           <span style="
             color: white;
@@ -61,24 +60,6 @@ function createPriceIcon(place, isActive, isSaved = false) {
             white-space: nowrap;
           ">${label}</span>
         </div>
-        <div style="
-          margin-top: -6px;
-          min-width: ${Math.max(34, size - 12)}px;
-          max-width: 76px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          border: 1px solid rgba(255,255,255,0.92);
-          background: rgba(17,17,17,0.92);
-          color: #fff7ea;
-          border-radius: 999px;
-          padding: 3px 7px;
-          font-weight: 900;
-          font-size: 9px;
-          line-height: 1;
-          box-shadow: 0 8px 18px rgba(0,0,0,0.28);
-          font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        ">${badge}</div>
         <div style="
           margin-top: -6px;
           min-width: ${Math.max(34, size - 12)}px;
