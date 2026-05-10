@@ -32,9 +32,7 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     const handleChatState = (event) => setGroupChatOpen(Boolean(event?.detail?.open));
     window.addEventListener('sozzial:group-chat-state', handleChatState);
-    window.addEventListener('sozzial:group-chat-state', handleChatState);
     return () => {
-      window.removeEventListener('sozzial:group-chat-state', handleChatState);
       window.removeEventListener('sozzial:group-chat-state', handleChatState);
     };
   }, []);
@@ -85,16 +83,16 @@ export default function Layout({ children, currentPageName }) {
               {user ? <NotificationCenter user={user} /> : null}
               <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-11 w-11 rounded-2xl border border-black/10 bg-white/70 text-[#141414] hover:bg-white">
+                  <Button aria-label="Open menu" variant="ghost" size="icon" className="h-11 w-11 rounded-2xl border border-black/10 bg-white/70 text-[#141414] hover:bg-white">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="z-[2500] w-[340px] border-black/10 bg-[#fffaf1] p-0 text-[#141414]">
-                  <div className="p-6">
-                    <div className="mb-8">
+                <SheetContent side="right" className="z-[2500] w-[min(86vw,340px)] border-black/10 bg-[#fffaf1] p-0 text-[#141414]">
+                  <div className="flex h-dvh flex-col overflow-hidden p-5">
+                    <div className="mb-5 shrink-0">
                       <Brand compact />
                     </div>
-                    <div className="space-y-1">
+                    <div className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
                       {menuItems.map((item) => {
                         const Icon = item.icon;
                         return (
@@ -102,7 +100,7 @@ export default function Layout({ children, currentPageName }) {
                             key={item.page}
                             to={navTarget(item.page)}
                             onClick={() => setMenuOpen(false)}
-                    className="interactive-lift flex items-center gap-3 rounded-2xl px-4 py-3 text-[#292621] hover:bg-white hover:text-[#141414]"
+                            className="interactive-lift flex items-center gap-3 rounded-2xl px-4 py-2.5 text-[#292621] hover:bg-white hover:text-[#141414]"
                           >
                             <Icon className="h-4 w-4" />
                             <span>{item.label}</span>
@@ -112,13 +110,13 @@ export default function Layout({ children, currentPageName }) {
                       })}
                     </div>
 
-                    <div className="mt-8 rounded-[28px] border border-black/8 bg-[#f4ede2] p-5">
+                    <div className="mt-4 shrink-0 rounded-[24px] border border-black/8 bg-[#f4ede2] p-4">
                       <div className="text-base font-bold text-[#141414]">{isAuthenticated ? 'Your account' : 'Explore as a guest'}</div>
-                      <div className="mt-2 text-sm leading-6 text-[#6d665b]">
+                      <div className="mt-2 text-sm leading-5 text-[#6d665b]">
                         {user?.username || user?.full_name || 'Browse the map without signing in. Create plans, join groups and manage your profile once you log in.'}
                       </div>
                       {isAuthenticated ? (
-                        <Button onClick={logout} variant="outline" className="mt-4 h-12 w-full rounded-2xl border-black/10 bg-white text-[#141414] hover:bg-[#fffdf8]">
+                        <Button onClick={logout} variant="outline" className="mt-3 h-11 w-full rounded-2xl border-black/10 bg-white text-[#141414] hover:bg-[#fffdf8]">
                           <LogOut className="mr-2 h-4 w-4" />
                           Log out
                         </Button>
@@ -126,7 +124,7 @@ export default function Layout({ children, currentPageName }) {
                         <Link
                           to="/auth"
                           onClick={() => setMenuOpen(false)}
-                          className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#df5b43] text-sm font-bold text-white hover:bg-[#c84b35]"
+                          className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-2xl bg-[#df5b43] text-sm font-bold text-white hover:bg-[#c84b35]"
                         >
                           Login / Create account
                         </Link>

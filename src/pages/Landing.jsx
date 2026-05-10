@@ -110,7 +110,7 @@ export default function Landing() {
   return (
     <div className="relative h-dvh overflow-hidden bg-[#f5f0e7] text-[#111111]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(240,191,57,0.28),transparent_34%),linear-gradient(180deg,#fff8ea_0%,#f4ecdf_58%,#efe3d1_100%)]" />
-      {floatingSlices.map((className, i) => (
+      {floatingSlices.slice(0, 2).map((className, i) => (
         <motion.div
           key={className}
           aria-hidden="true"
@@ -122,25 +122,25 @@ export default function Landing() {
         </motion.div>
       ))}
 
-      <div className="relative z-10 mx-auto flex h-dvh w-full max-w-[430px] flex-col overflow-hidden px-4 pb-3 pt-4">
-        <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="shrink-0 pb-3">
+      <div className="relative z-10 mx-auto flex h-dvh w-full max-w-[430px] flex-col overflow-y-auto overflow-x-hidden px-4 pb-3 pt-3">
+        <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="shrink-0 pb-2">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#f0bf39] text-[#111111] shadow-[0_16px_32px_rgba(240,191,57,0.22)]">
-              <Pizza className="h-6 w-6" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-[#f0bf39] text-[#111111] shadow-[0_16px_32px_rgba(240,191,57,0.22)]">
+              <Pizza className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <div className="text-[clamp(1.95rem,7vw,2.45rem)] font-black leading-none tracking-tight">Sozzial</div>
+              <div className="text-[clamp(1.65rem,6.6vw,2.1rem)] font-black leading-none tracking-tight">Sozzial</div>
               <div className="mt-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#8a8174]">spots, plans and passport</div>
             </div>
           </div>
         </motion.div>
 
-        <div className="flex min-h-0 flex-1 flex-col justify-center pb-4">
+        <div className="shrink-0 pb-3">
           <motion.div
             initial={{ opacity: 0, y: 22, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ type: 'spring', stiffness: 220, damping: 24, delay: 0.08 }}
-            className="rounded-[28px] border border-black/10 bg-[#fffaf1]/90 p-3 shadow-[0_24px_60px_rgba(34,25,11,0.12)] backdrop-blur"
+            className="rounded-[26px] border border-black/10 bg-[#fffaf1]/90 p-2.5 shadow-[0_24px_60px_rgba(34,25,11,0.12)] backdrop-blur"
           >
             <motion.div
               key={slide.eyebrow}
@@ -154,60 +154,60 @@ export default function Landing() {
               initial={{ opacity: 0, x: 22, scale: 0.985 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-              className={`relative flex min-h-[438px] flex-col overflow-hidden rounded-[24px] bg-gradient-to-br ${slide.tone} p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]`}
+              className={`relative flex min-h-[310px] flex-col overflow-hidden rounded-[22px] bg-gradient-to-br ${slide.tone} p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] min-[390px]:min-h-[336px]`}
             >
               <motion.div
                 aria-hidden="true"
-                className="absolute -right-12 -top-12 h-40 w-40 rounded-full border border-white/10 bg-white/10 blur-[1px]"
+                className="absolute -right-12 -top-12 h-28 w-28 rounded-full border border-white/10 bg-white/10 blur-[1px] min-[390px]:h-32 min-[390px]:w-32"
                 animate={{ scale: [1, 1.08, 1], opacity: [0.45, 0.7, 0.45] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
               <motion.div
                 aria-hidden="true"
-                className="absolute -bottom-16 left-8 h-36 w-36 rounded-full border border-white/10 bg-black/20"
+                className="absolute -bottom-16 left-8 h-28 w-28 rounded-full border border-white/10 bg-black/20 min-[390px]:h-36 min-[390px]:w-36"
                 animate={{ y: [0, -10, 0], opacity: [0.35, 0.5, 0.35] }}
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               />
 
               <div className="relative flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <motion.div layout className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-white/90">
+                  <motion.div layout className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/90 min-[390px]:text-[11px]">
                     <Sparkles className="h-3 w-3" />
                     {slide.eyebrow}
                   </motion.div>
-                  <h1 className="mt-4 max-w-[14rem] text-[clamp(2rem,8.5vw,2.9rem)] font-black leading-[0.94] tracking-tight">
+                  <h1 className="mt-3 max-w-[14rem] text-[clamp(1.65rem,7.5vw,2.28rem)] font-black leading-[0.94] tracking-tight">
                     {slide.title}
                   </h1>
                 </div>
-                <motion.div whileHover={{ rotate: -5, scale: 1.05 }} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/12 backdrop-blur-sm">
-                  <Icon className={`h-6 w-6 ${slide.accent}`} />
+                <motion.div whileHover={{ rotate: -5, scale: 1.05 }} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/12 backdrop-blur-sm min-[390px]:h-12 min-[390px]:w-12">
+                  <Icon className={`h-5 w-5 min-[390px]:h-6 min-[390px]:w-6 ${slide.accent}`} />
                 </motion.div>
               </div>
 
-              <p className="relative mt-5 max-w-[17rem] text-[15px] leading-7 text-white/82">{slide.text}</p>
+              <p className="relative mt-3 max-w-[17rem] text-[13px] leading-6 text-white/82 min-[390px]:text-sm">{slide.text}</p>
 
-              <div className="relative mt-5 grid grid-cols-3 gap-2">
+              <div className="relative mt-3 grid grid-cols-3 gap-2">
                 {['Installable', 'Fast map', 'Real plans'].map((item, i) => (
                   <motion.div
                     key={item}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.12 + i * 0.06 }}
-                    className="rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-center text-[11px] font-bold text-white/78 backdrop-blur-sm"
+                    className="rounded-2xl border border-white/10 bg-white/10 px-2 py-2 text-center text-[10px] font-bold text-white/78 backdrop-blur-sm min-[390px]:px-3 min-[390px]:text-[11px]"
                   >
                     {item}
                   </motion.div>
                 ))}
               </div>
 
-              <div className="relative mt-auto space-y-4 pt-5">
+              <div className="relative mt-auto space-y-2.5 pt-3">
                 <div className="grid grid-cols-3 gap-2">
                   {slides.map((item, i) => (
                     <button
                       key={item.eyebrow}
                       type="button"
                       onClick={() => setIndex(i)}
-                      className={`rounded-2xl border px-3 py-3 text-left transition hover:-translate-y-0.5 ${
+                      className={`rounded-2xl border px-3 py-2 text-left transition hover:-translate-y-0.5 ${
                         i === index ? 'border-white/22 bg-white/14 text-white' : 'border-white/10 bg-black/10 text-white/72'
                       }`}
                     >
@@ -233,33 +233,35 @@ export default function Landing() {
                     ))}
                   </div>
 
-                  <div className="mt-4 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-white/55">Swipe to see more</div>
+                  <div className="mt-2 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">Swipe to see more</div>
                 </div>
               </div>
             </motion.div>
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.42 }} className="shrink-0 space-y-3">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.42 }} className="shrink-0 space-y-2.5">
           <Button
             type="button"
             onClick={handleInstall}
-            className="h-14 w-full rounded-[18px] border-0 bg-[#111111] px-5 text-base font-black text-white shadow-[0_18px_36px_rgba(17,17,17,0.18)] hover:bg-[#252525]"
+            className="h-12 w-full rounded-[17px] border-0 bg-[#111111] px-5 text-[15px] font-black text-white shadow-[0_18px_36px_rgba(17,17,17,0.18)] hover:bg-[#252525] min-[390px]:h-14"
           >
             {installState === 'installed' || isStandalone ? <Smartphone className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
             {installState === 'installing' ? 'Opening install...' : installState === 'installed' || isStandalone ? 'App installed' : 'Download the app'}
           </Button>
-          <Link to={createPageUrl('Home')}>
-            <Button className="h-14 w-full rounded-[18px] border-0 bg-[#f0bf39] px-5 text-base font-black text-[#111111] shadow-[0_18px_36px_rgba(240,191,57,0.22)] hover:bg-[#d9a826]">
-              Go to map
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
-          <Link to="/auth">
-            <Button variant="outline" className="h-14 w-full rounded-[18px] border-black/10 bg-[#fffaf1] text-base font-semibold text-[#141414] hover:bg-white">
-              Go to my account
-            </Button>
-          </Link>
+          <div className="grid grid-cols-2 gap-2.5">
+            <Link to={createPageUrl('Home')}>
+              <Button className="h-12 w-full rounded-[17px] border-0 bg-[#f0bf39] px-4 text-[15px] font-black text-[#111111] shadow-[0_18px_36px_rgba(240,191,57,0.22)] hover:bg-[#d9a826] min-[390px]:h-14">
+                Map
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button variant="outline" className="h-12 w-full rounded-[17px] border-black/10 bg-[#fffaf1] px-4 text-[15px] font-semibold text-[#141414] hover:bg-white min-[390px]:h-14">
+                Account
+              </Button>
+            </Link>
+          </div>
         </motion.div>
       </div>
 
