@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { SearchFilters } from "@/components/map/SearchFilters";
 
 export default function PlaceFilters({ onFilterChange, resultCount }) {
@@ -7,7 +7,7 @@ export default function PlaceFilters({ onFilterChange, resultCount }) {
       <SearchFilters onFilterChange={onFilterChange} />
       {resultCount === 0 && (
         <div className="px-4 py-3 text-xs text-stone-500 bg-white/[0.02] border-t border-white/5">
-          No se encontraron pizzerias con esos filtros
+          No pizza spots match those filters
         </div>
       )}
     </div>

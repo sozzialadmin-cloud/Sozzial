@@ -7,31 +7,31 @@ import { createPageUrl } from '@/utils';
 
 const slides = [
   {
-    eyebrow: 'Mapa publico',
-    title: 'Buenos slices, mas rapido.',
-    text: 'Abre el mapa, compara precio, valoracion y mejor slice, y encuentra sitios que merecen la pena.',
+    eyebrow: 'Public map',
+    title: 'Great slices, faster.',
+    text: 'Open the map, compare price, rating and best slice, and find the spots worth your time.',
     icon: Map,
     tone: 'from-[#111111] via-[#181818] to-[#2b2b28]',
     accent: 'text-[#f3be35]',
-    summary: 'Precio + mapa',
+    summary: 'Price + map',
   },
   {
-    eyebrow: 'Descubre planes',
-    title: 'Apuntarte debe ser facil.',
-    text: 'Unete a planes reales de pizza en segundos con una experiencia rapida, clara y social.',
+    eyebrow: 'Discover plans',
+    title: 'Swipe into plans you want.',
+    text: 'Join real pizza meetups in seconds with a swipe experience that stays quick and focused.',
     icon: Flame,
     tone: 'from-[#2a140f] via-[#571d16] to-[#8f2c21]',
     accent: 'text-[#ffd6c9]',
-    summary: 'Planes sociales',
+    summary: 'Social swipe',
   },
   {
-    eyebrow: 'Tu cuenta',
-    title: 'Crea planes y grupos.',
-    text: 'Publica sitios, guarda planes, entra en grupos y organiza la parte social desde una sola cuenta.',
+    eyebrow: 'Your account',
+    title: 'Create plans and groups.',
+    text: 'Publish places, save plans, join groups and keep the social layer organized from one account.',
     icon: Users,
     tone: 'from-[#173322] via-[#255334] to-[#3f744c]',
     accent: 'text-[#f4f0d7]',
-    summary: 'Cuenta + grupos',
+    summary: 'Account + groups',
   },
 ];
 
@@ -55,7 +55,7 @@ export default function Landing() {
             </div>
             <div className="min-w-0">
               <div className="text-[clamp(1.95rem,7vw,2.45rem)] font-black leading-none tracking-tight">Sozzial</div>
-              <div className="mt-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#8a8174]">sitios, planes y passport</div>
+              <div className="mt-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#8a8174]">spots, plans and passport</div>
             </div>
           </div>
         </div>
@@ -119,13 +119,13 @@ export default function Landing() {
                         className={`h-2.5 rounded-full transition-all duration-200 ${
                           i === index ? 'w-7 bg-white shadow-[0_0_0_4px_rgba(255,255,255,0.08)]' : 'w-2.5 bg-white/35 hover:bg-white/60'
                         }`}
-                        aria-label={`Ir a la diapositiva ${i + 1}`}
+                        aria-label={`Go to slide ${i + 1}`}
                         aria-pressed={i === index}
                       />
                     ))}
                   </div>
 
-                  <div className="mt-4 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-white/55">Desliza para ver mas</div>
+                  <div className="mt-4 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-white/55">Swipe to see more</div>
                 </div>
               </div>
             </motion.div>
@@ -135,13 +135,13 @@ export default function Landing() {
         <div className="shrink-0 space-y-3">
           <Link to={createPageUrl('Home')}>
             <Button className="h-14 w-full rounded-[18px] border-0 bg-[#f0bf39] px-5 text-base font-black text-[#111111] shadow-[0_18px_36px_rgba(240,191,57,0.22)] hover:bg-[#d9a826]">
-              Ir al mapa
+              Go to map
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
           <Link to="/auth">
             <Button variant="outline" className="h-14 w-full rounded-[18px] border-black/10 bg-[#fffaf1] text-base font-semibold text-[#141414] hover:bg-white">
-              Ir a mi cuenta
+              Go to my account
             </Button>
           </Link>
         </div>

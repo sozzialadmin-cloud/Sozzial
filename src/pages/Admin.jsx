@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle,
@@ -42,7 +42,7 @@ const TABS = [
   { id: 'spots', label: 'Spots', icon: Pizza },
   { id: 'plans', label: 'Planes', icon: CalendarDays },
   { id: 'reports', label: 'Reportes', icon: ShieldAlert },
-  { id: 'users', label: 'Usuarios', icon: UserCog },
+  { id: 'users', label: 'Users', icon: UserCog },
   { id: 'messages', label: 'Chat', icon: MessageSquare },
   { id: 'photos', label: 'Fotos', icon: ImageIcon },
   { id: 'operations', label: 'Operaciones', icon: Database },
@@ -55,7 +55,7 @@ const SPOT_FILTERS = [
   { id: 'approved', label: 'Aprobados' },
   { id: 'hidden', label: 'Ocultos' },
   { id: 'rejected', label: 'Rechazados' },
-  { id: 'no-photo', label: 'Sin foto' },
+  { id: 'no-photo', label: 'No photo' },
   { id: 'broken-photo', label: 'Foto rota' },
   { id: 'duplicates', label: 'Duplicados probables' },
   { id: 'low-quality', label: 'Pocos datos' },
@@ -72,7 +72,7 @@ const PLAN_FILTERS = [
   { id: 'empty', label: 'Vacios' },
   { id: 'reported', label: 'Reportados' },
   { id: 'today', label: 'Creados hoy' },
-  { id: 'invalid-spot', label: 'Sin spot valido' },
+  { id: 'invalid-spot', label: 'Invalid spot' },
   { id: 'suspicious', label: 'Sospechosos' },
   { id: 'cancelled', label: 'Cancelados' },
 ];
@@ -85,7 +85,7 @@ const USER_FILTERS = [
   { id: 'reported', label: 'Reportados' },
   { id: 'warned', label: 'Advertidos' },
   { id: 'banned', label: 'Baneados' },
-  { id: 'inactive', label: 'Sin actividad' },
+  { id: 'inactive', label: 'Inactive' },
 ];
 
 const suspiciousTerms = [
@@ -552,10 +552,10 @@ export default function Admin() {
           id: `spot-no-photo-${spot.id}`,
           type: 'spot',
           severity: 'warn',
-          label: 'Spot sin foto pero aprobado',
+          label: 'Approved spot without photo',
           entityTitle: spot.name,
           entityId: spot.id,
-          subtitle: 'Esta visible al publico sin una foto principal.',
+          subtitle: 'It is public without a main photo.',
           createdAt: spot.updated_at || spot.created_at,
         });
       }
@@ -566,10 +566,10 @@ export default function Admin() {
         id: `plan-suspicious-${plan.id}`,
         type: 'plan',
         severity: 'danger',
-        label: 'Plan con descripcion sospechosa',
+        label: 'Plan with suspicious description',
         entityTitle: plan.title,
         entityId: plan.id,
-        subtitle: plan.quick_note || 'El texto parece spam o abuso.',
+        subtitle: plan.quick_note || 'The text looks like spam or abuse.',
         createdAt: plan.updated_at || plan.created_at,
       });
     });
@@ -580,7 +580,7 @@ export default function Admin() {
         id: `message-report-${message.id}`,
         type: 'message',
         severity: 'danger',
-        label: 'Grupo con mensajes conflictivos',
+        label: 'Group with problematic messages',
         entityTitle: linkedPlan?.title || 'Plan',
         entityId: message.id,
         subtitle: message.content,
@@ -603,10 +603,10 @@ export default function Admin() {
           id: `user-reported-${person.id}`,
           type: 'user',
           severity: 'danger',
-          label: 'Usuario reportado 3 veces',
+          label: 'User reported 3 times',
           entityTitle: getPublicUsername(person),
           entityId: person.id,
-          subtitle: `Hay ${count} senales de riesgo en su actividad reciente.`,
+          subtitle: `There are ${count} risk signals in recent activity.`,
           createdAt: person.updated_at || person.created_at,
         });
       }
@@ -617,10 +617,10 @@ export default function Admin() {
         id: `duplicate-${index}`,
         type: 'spot',
         severity: 'warn',
-        label: 'Spot duplicado probable',
+        label: 'Likely duplicate spot',
         entityTitle: `${pair.a.name} / ${pair.b.name}`,
         entityId: pair.a.id,
-        subtitle: `Coincidencia por nombre/direccion y ${pair.distance} m de distancia.`,
+        subtitle: `Name/address match and ${pair.distance} m apart.`,
         createdAt: pair.a.updated_at || pair.a.created_at,
       });
     });
@@ -828,7 +828,7 @@ export default function Admin() {
               </div>
               <h1 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] font-black leading-none tracking-[-0.06em]">Admin Sozzial</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6d665b]">
-                Dashboard pensado para resolver en segundos: spots pendientes, planes activos, senales de riesgo, usuarios nuevos, mensajes conflictivos y contenido que necesita moderacion.
+                A dashboard built for fast decisions: pending spots, active plans, risk signals, new users, problematic messages and content that needs moderation.
               </p>
             </div>
             <div className="grid gap-3 rounded-[28px] border border-black/10 bg-white px-5 py-4 shadow-[0_18px_40px_rgba(39,29,14,0.08)] sm:grid-cols-2">
@@ -839,18 +839,18 @@ export default function Admin() {
               </div>
               <div>
                 <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Urgencia</div>
-                <div className="mt-2 text-base font-bold text-[#111111]">{overviewStats.urgentItems ? `${overviewStats.urgentItems} alertas criticas` : 'Sin alertas criticas'}</div>
-                <div className="mt-1 text-sm text-[#6d665b]">Hoy: {overviewStats.newUsersToday} usuarios nuevos</div>
+                <div className="mt-2 text-base font-bold text-[#111111]">{overviewStats.urgentItems ? `${overviewStats.urgentItems} critical alerts` : 'No critical alerts'}</div>
+                <div className="mt-1 text-sm text-[#6d665b]">Today: {overviewStats.newUsersToday} new users</div>
               </div>
             </div>
           </div>
         </header>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-          <StatCard label="Spots pendientes" value={overviewStats.pendingSpots} note="Esperando revision" icon={Pizza} accent="text-[#df5b43]" />
+          <StatCard label="Pending spots" value={overviewStats.pendingSpots} note="Waiting for review" icon={Pizza} accent="text-[#df5b43]" />
           <StatCard label="Planes activos" value={overviewStats.activePlans} note="En curso o proximos" icon={CalendarDays} accent="text-[#216b33]" />
-          <StatCard label="Reportes abiertos" value={overviewStats.openReports} note={overviewStats.urgentItems ? `${overviewStats.urgentItems} urgentes` : 'Sin urgencias'} icon={ShieldAlert} accent="text-[#df5b43]" />
-          <StatCard label="Usuarios nuevos" value={overviewStats.newUsersToday} note={`${overviewStats.newUsersWeek} esta semana`} icon={Users} accent="text-[#111111]" />
+          <StatCard label="Open reports" value={overviewStats.openReports} note={overviewStats.urgentItems ? `${overviewStats.urgentItems} urgentes` : 'No urgent items'} icon={ShieldAlert} accent="text-[#df5b43]" />
+          <StatCard label="New users" value={overviewStats.newUsersToday} note={`${overviewStats.newUsersWeek} this week`} icon={Users} accent="text-[#111111]" />
           <StatCard label="Mensajes reportados" value={overviewStats.reportedMessages} note="Senales automaticas" icon={MessageSquare} accent="text-[#df5b43]" />
           <StatCard label="Fotos pendientes" value={overviewStats.pendingPhotos} note="Pendientes de aprobar" icon={Camera} accent="text-[#216b33]" />
         </div>
@@ -879,7 +879,7 @@ export default function Admin() {
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar spot, usuario, plan, direccion o mensaje"
+                  placeholder="Search spot, user, plan, address or message"
                   className="h-11 w-full rounded-2xl border border-black/10 bg-white pl-11 pr-4 text-sm text-[#111111] outline-none transition focus:border-[#efbf3a]"
                 />
               </div>
@@ -899,11 +899,11 @@ export default function Admin() {
         {!isLoading && activeTab === 'overview' ? (
           <div className="space-y-5">
             <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
-              <ActionBlock icon={Pizza} title="Revisar spots pendientes" text={`${overviewStats.pendingSpots} pendientes de aprobacion o rechazo.`} cta="Abrir spots" onClick={() => goTo('spots', { spotFilter: 'pending' })} />
-              <ActionBlock icon={CalendarDays} title="Revisar planes recientes" text={`${overviewStats.activePlans} planes activos y ${plans.filter((row) => (toTs(row.created_at) || 0) >= todayStart).length} creados hoy.`} cta="Abrir planes" onClick={() => goTo('plans', { planFilter: 'today' })} />
-              <ActionBlock icon={ShieldAlert} title="Revisar reportes urgentes" text={`${overviewStats.urgentItems} senales fuertes de riesgo ahora mismo.`} cta="Ir a reportes" onClick={() => goTo('reports')} />
+              <ActionBlock icon={Pizza} title="Review pending spots" text={`${overviewStats.pendingSpots} waiting for approval or rejection.`} cta="Open spots" onClick={() => goTo('spots', { spotFilter: 'pending' })} />
+              <ActionBlock icon={CalendarDays} title="Review recent plans" text={`${overviewStats.activePlans} active plans and ${plans.filter((row) => (toTs(row.created_at) || 0) >= todayStart).length} created today.`} cta="Open plans" onClick={() => goTo('plans', { planFilter: 'today' })} />
+              <ActionBlock icon={ShieldAlert} title="Review urgent reports" text={`${overviewStats.urgentItems} strong risk signals right now.`} cta="Go to reports" onClick={() => goTo('reports')} />
               <ActionBlock icon={AlertTriangle} title="Ver actividad sospechosa" text={`${suspiciousMessages.length + suspiciousPlans.length} textos marcados por heuristica.`} cta="Ir a chat" onClick={() => goTo('messages')} />
-              <ActionBlock icon={UserCog} title="Ir a usuarios" text={`${overviewStats.newUsersToday} altas hoy y ${overviewStats.newUsersWeek} en la ultima semana.`} cta="Abrir usuarios" onClick={() => goTo('users', { userFilter: 'new' })} />
+              <ActionBlock icon={UserCog} title="Go to users" text={`${overviewStats.newUsersToday} signups today and ${overviewStats.newUsersWeek} in the last week.`} cta="Open users" onClick={() => goTo('users', { userFilter: 'new' })} />
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.2fr,0.8fr]">
@@ -916,28 +916,28 @@ export default function Admin() {
                         title={`${item.label} - ${item.entityTitle}`}
                         subtitle={item.subtitle}
                         tone={item.severity === 'danger' ? 'danger' : 'warn'}
-                        actionLabel={item.type === 'spot' ? 'Ver spots' : item.type === 'plan' ? 'Ver planes' : item.type === 'user' ? 'Ver usuarios' : 'Ver chat'}
+                        actionLabel={item.type === 'spot' ? 'View spots' : item.type === 'plan' ? 'View plans' : item.type === 'user' ? 'View users' : 'View chat'}
                         onAction={() => goTo(item.type === 'spot' ? 'spots' : item.type === 'plan' ? 'plans' : item.type === 'user' ? 'users' : 'messages')}
                       />
                     ))}
                   </div>
                 ) : (
-                  <EmptyState icon={CheckCircle2} title="Todo bajo control" text="Ahora mismo no hay alertas importantes. Puedes usar las acciones rapidas o revisar contenido reciente." />
+                  <EmptyState icon={CheckCircle2} title="All under control" text="There are no major alerts right now. Use quick actions or review recent content." />
                 )}
               </Shell>
 
               <div className="space-y-5">
-                <Shell title="Estado general" subtitle="Respuesta en menos de 5 segundos.">
+                <Shell title="Overall status" subtitle="Designed for a response in under 5 seconds.">
                   <div className="grid gap-3">
                     <DetailMetric label="Spots aprobados" value={approvedSpots.length} tone="success" />
                     <DetailMetric label="Spots ocultos/rechazados" value={hiddenSpots.length + rejectedSpots.length} tone="warn" />
                     <DetailMetric label="Comentarios pendientes" value={pendingComments.length} tone="neutral" />
                     <DetailMetric label="Mensajes en grupos" value={messages.length} tone="neutral" />
-                    <DetailMetric label="Usuarios registrados" value={users.length} tone="neutral" />
+                    <DetailMetric label="Registered users" value={users.length} tone="neutral" />
                   </div>
                 </Shell>
 
-                <Shell title="Diagnostico de tablas" subtitle="El panel aguanta aunque algunas tablas aun no existan.">
+                <Shell title="Table diagnostics" subtitle="The panel keeps working even if some tables do not exist yet.">
                   <div className="grid gap-3">
                     {diagnostics.map((item) => (
                       <div key={item.table} className="rounded-[20px] border border-black/8 bg-white px-4 py-3">
@@ -997,7 +997,7 @@ export default function Admin() {
                               <StatusPill tone="neutral">{spot.ratings_count || 0} valoraciones</StatusPill>
                               {spot.reportCount ? <StatusPill tone="danger">{spot.reportCount} flags</StatusPill> : null}
                             </div>
-                            <div className="mt-3 text-xs text-[#8a8174]">{getPublicUsername(creator, 'Sin creador')} - {formatDateTime(spot.created_at)}</div>
+                            <div className="mt-3 text-xs text-[#8a8174]">{getPublicUsername(creator, 'No creator')} - {formatDateTime(spot.created_at)}</div>
                           </div>
                         </div>
                       </button>
@@ -1009,7 +1009,7 @@ export default function Admin() {
               )}
             </Shell>
 
-            <Shell title="Ficha del spot" subtitle="Foto grande, datos, historico, ratings, planes vinculados y acciones rapidas.">
+            <Shell title="Spot profile" subtitle="Large photo, data, history, ratings, linked plans and quick actions.">
               {selectedSpot ? (
                 <div className="space-y-5">
                   <div className="grid gap-4 lg:grid-cols-[1.05fr,0.95fr]">
@@ -1020,7 +1020,7 @@ export default function Admin() {
                         <div className="grid h-full w-full place-items-center text-center">
                           <div>
                             <ImageIcon className="mx-auto h-8 w-8 text-[#8a8174]" />
-                            <div className="mt-3 text-sm font-semibold text-[#6d665b]">Sin foto principal</div>
+                            <div className="mt-3 text-sm font-semibold text-[#6d665b]">No main photo</div>
                           </div>
                         </div>
                       )}
@@ -1034,12 +1034,12 @@ export default function Admin() {
                         <div className="mt-2 text-sm leading-7 text-[#6d665b]">{selectedSpot.address}</div>
                       </div>
                       <div className="grid gap-3 sm:grid-cols-2">
-                        <DetailMetric label="Precio slice" value={formatPrice(selectedSpot.slice_price)} />
-                        <DetailMetric label="Mejor slice" value={selectedSpot.best_slice || '-'} />
+                        <DetailMetric label="Slice price" value={formatPrice(selectedSpot.slice_price)} />
+                        <DetailMetric label="Best slice" value={selectedSpot.best_slice || '-'} />
                         <DetailMetric label="Rating medio" value={Number(selectedSpot.average_rating || 0).toFixed(1)} tone="success" />
                         <DetailMetric label="No. valoraciones" value={selectedSpot.ratings_count || 0} />
                         <DetailMetric label="Lat / Lng" value={`${selectedSpot.lat ?? '-'} / ${selectedSpot.lng ?? '-'}`} />
-                        <DetailMetric label="Reportes" value={selectedSpot.reportCount || 0} tone={selectedSpot.reportCount ? 'danger' : 'neutral'} />
+                        <DetailMetric label="Flags" value={selectedSpot.reportCount || 0} tone={selectedSpot.reportCount ? 'danger' : 'neutral'} />
                       </div>
                     </div>
                   </div>
@@ -1047,8 +1047,8 @@ export default function Admin() {
                   <div className="grid gap-5 xl:grid-cols-[1.1fr,0.9fr]">
                     <div className="space-y-5">
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Descripcion / nota rapida</div>
-                        <div className="mt-2 text-sm leading-7 text-[#5d574d]">{selectedSpot.quick_note || 'Sin nota rapida.'}</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Descripcion / quick note</div>
+                        <div className="mt-2 text-sm leading-7 text-[#5d574d]">{selectedSpot.quick_note || 'No quick note.'}</div>
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
@@ -1059,11 +1059,11 @@ export default function Admin() {
                         <div className="mt-3 space-y-2">
                           {(ratingHistoryMap.get(selectedSpot.id) || []).slice(0, 5).map((row) => (
                             <div key={row.id} className="flex items-center justify-between rounded-2xl border border-black/8 bg-[#fffaf1] px-3 py-2 text-sm">
-                              <div className="text-[#5d574d]">{getPublicUsername(userMap.get(row.user_id), 'Usuario')}</div>
+                              <div className="text-[#5d574d]">{getPublicUsername(userMap.get(row.user_id), 'User')}</div>
                               <div className="font-black text-[#111111]">{Number(row.rating).toFixed(1)}</div>
                             </div>
                           ))}
-                          {!(ratingHistoryMap.get(selectedSpot.id) || []).length ? <div className="text-sm text-[#8a8174]">Sin historial de ratings todavia.</div> : null}
+                          {!(ratingHistoryMap.get(selectedSpot.id) || []).length ? <div className="text-sm text-[#8a8174]">No rating history yet.</div> : null}
                         </div>
                       </div>
 
@@ -1079,7 +1079,7 @@ export default function Admin() {
                               <div className="mt-1 text-sm text-[#6d665b]">{plan.plan_date} - {plan.plan_time} - {plan.status}</div>
                             </div>
                           ))}
-                          {!plans.some((plan) => plan.spot_id === selectedSpot.id) ? <div className="text-sm text-[#8a8174]">Este spot aun no tiene planes asociados.</div> : null}
+                          {!plans.some((plan) => plan.spot_id === selectedSpot.id) ? <div className="text-sm text-[#8a8174]">This spot does not have linked plans yet.</div> : null}
                         </div>
                       </div>
                     </div>
@@ -1088,24 +1088,24 @@ export default function Admin() {
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Acciones</div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <AdminActionButton variant="success" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('approved') })}><CheckCircle2 className="mr-2 h-4 w-4" />Aprobar</AdminActionButton>
-                          <AdminActionButton variant="warn" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('rejected') })}><XCircle className="mr-2 h-4 w-4" />Rechazar</AdminActionButton>
-                          <AdminActionButton variant="dark" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('hidden') })}><EyeOff className="mr-2 h-4 w-4" />Ocultar</AdminActionButton>
+                          <AdminActionButton variant="success" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('approved') })}><CheckCircle2 className="mr-2 h-4 w-4" />Approve</AdminActionButton>
+                          <AdminActionButton variant="warn" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('rejected') })}><XCircle className="mr-2 h-4 w-4" />Reject</AdminActionButton>
+                          <AdminActionButton variant="dark" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: moderationPayload('hidden') })}><EyeOff className="mr-2 h-4 w-4" />Hide</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: { updated_at: new Date().toISOString() } })}><Pencil className="mr-2 h-4 w-4" />Editar</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => setSpotFilter('duplicates')}><Copy className="mr-2 h-4 w-4" />Marcar duplicado</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => setSpotFilter('duplicates')}><MergeIcon />Fusionar</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => setActiveTab('photos')}><Camera className="mr-2 h-4 w-4" />Sustituir foto</AdminActionButton>
-                          <AdminActionButton variant="danger" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: { photo_url: null, updated_at: new Date().toISOString() } })}><Trash2 className="mr-2 h-4 w-4" />Eliminar foto</AdminActionButton>
+                          <AdminActionButton variant="danger" onClick={() => spotMutation.mutate({ id: selectedSpot.id, payload: { photo_url: null, updated_at: new Date().toISOString() } })}><Trash2 className="mr-2 h-4 w-4" />Delete photo</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => window.open(`/home?spot=${selectedSpot.id}`, '_blank')}><MapPin className="mr-2 h-4 w-4" />Ver en mapa</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => { setSelectedUserId(selectedSpot.created_by); setActiveTab('users'); }}><Users className="mr-2 h-4 w-4" />Ver creador</AdminActionButton>
                         </div>
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Checklist de aprobacion</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Approval checklist</div>
                         <div className="mt-3 grid gap-2 text-sm text-[#5d574d]">
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Nombre valido</span><StatusPill tone={selectedSpot.name?.trim() ? 'success' : 'danger'}>{selectedSpot.name?.trim() ? 'ok' : 'falta'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Direccion no vacia</span><StatusPill tone={selectedSpot.address?.trim() ? 'success' : 'danger'}>{selectedSpot.address?.trim() ? 'ok' : 'falta'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Valid name</span><StatusPill tone={selectedSpot.name?.trim() ? 'success' : 'danger'}>{selectedSpot.name?.trim() ? 'ok' : 'falta'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Address is not empty</span><StatusPill tone={selectedSpot.address?.trim() ? 'success' : 'danger'}>{selectedSpot.address?.trim() ? 'ok' : 'falta'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Coordenadas validas</span><StatusPill tone={typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'success' : 'danger'}>{typeof selectedSpot.lat === 'number' && typeof selectedSpot.lng === 'number' ? 'ok' : 'revisar'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Precio razonable</span><StatusPill tone={selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'success' : 'warn'}>{selectedSpot.slice_price >= 0 && selectedSpot.slice_price <= 20 ? 'ok' : 'revisar'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Foto valida o fallback</span><StatusPill tone={selectedSpot.photo_url ? 'success' : 'warn'}>{selectedSpot.photo_url ? 'ok' : 'fallback'}</StatusPill></div>
@@ -1117,7 +1117,7 @@ export default function Admin() {
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Creado: {formatDateTime(selectedSpot.created_at)}</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Ultima edicion: {formatDateTime(selectedSpot.updated_at)}</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ultima revision: {formatDateTime(selectedSpot.reviewed_at)}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Last review: {formatDateTime(selectedSpot.reviewed_at)}</div>
                         </div>
                       </div>
                     </div>
@@ -1151,22 +1151,22 @@ export default function Admin() {
                           {plan.isSuspicious ? <StatusPill tone="danger">sospechoso</StatusPill> : null}
                           {plan.seatsOver ? <StatusPill tone="danger">sobre cupo</StatusPill> : null}
                         </div>
-                        <div className="mt-2 text-sm text-[#6d665b]">{linkedSpot?.name || 'Sin spot'} - {plan.plan_date} - {plan.plan_time}</div>
-                        <div className="mt-2 text-sm text-[#6d665b] line-clamp-2">{plan.quick_note || 'Sin descripcion'}</div>
+                        <div className="mt-2 text-sm text-[#6d665b]">{linkedSpot?.name || 'No spot'} - {plan.plan_date} - {plan.plan_time}</div>
+                        <div className="mt-2 text-sm text-[#6d665b] line-clamp-2">{plan.quick_note || 'No description'}</div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <StatusPill tone="neutral">{plan.joinedCount}/{plan.max_people || 0} miembros</StatusPill>
                           {plan.reportCount ? <StatusPill tone="danger">{plan.reportCount} flags</StatusPill> : null}
-                          <StatusPill tone={plan.hasValidSpot ? 'success' : 'warn'}>{plan.hasValidSpot ? 'spot ok' : 'spot invalido'}</StatusPill>
+                          <StatusPill tone={plan.hasValidSpot ? 'success' : 'warn'}>{plan.hasValidSpot ? 'spot ok' : 'invalid spot'}</StatusPill>
                         </div>
-                        <div className="mt-3 text-xs text-[#8a8174]">{getPublicUsername(creator, 'Sin creador')} - {formatDateTime(plan.created_at)}</div>
+                        <div className="mt-3 text-xs text-[#8a8174]">{getPublicUsername(creator, 'No creator')} - {formatDateTime(plan.created_at)}</div>
                       </button>
                     );
                   })}
                 </div>
-              ) : <EmptyState icon={CalendarDays} title="No hay planes en este filtro" text="Cambia el filtro o crea actividad para ver resultados aqui." />}
+              ) : <EmptyState icon={CalendarDays} title="No plans in this filter" text="Change the filter or create activity to see results here." />}
             </Shell>
 
-            <Shell title="Ficha del plan" subtitle="Info principal, chat, miembros, reportes y acciones de control.">
+            <Shell title="Plan profile" subtitle="Core info, chat, members, reports and control actions.">
               {selectedPlan ? (
                 <div className="space-y-5">
                   <div className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
@@ -1175,10 +1175,10 @@ export default function Admin() {
                         <h3 className="text-3xl font-black tracking-[-0.05em] text-[#111111]">{selectedPlan.title}</h3>
                         <StatusPill tone={selectedPlan.status === 'active' ? 'success' : selectedPlan.status === 'cancelled' ? 'danger' : 'warn'}>{selectedPlan.status}</StatusPill>
                       </div>
-                      <div className="mt-3 text-sm leading-7 text-[#6d665b]">{selectedPlan.quick_note || 'Sin descripcion del plan.'}</div>
+                      <div className="mt-3 text-sm leading-7 text-[#6d665b]">{selectedPlan.quick_note || 'No description del plan.'}</div>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <DetailMetric label="Spot asociado" value={spotMap.get(selectedPlan.spot_id)?.name || 'Sin spot'} tone={selectedPlan.hasValidSpot ? 'success' : 'warn'} />
+                      <DetailMetric label="Linked spot" value={spotMap.get(selectedPlan.spot_id)?.name || 'No spot'} tone={selectedPlan.hasValidSpot ? 'success' : 'warn'} />
                       <DetailMetric label="Fecha y hora" value={`${selectedPlan.plan_date || '-'} - ${selectedPlan.plan_time || '-'}`} />
                       <DetailMetric label="Miembros" value={`${selectedPlan.joinedCount}/${selectedPlan.max_people || 0}`} tone={selectedPlan.seatsOver ? 'danger' : 'neutral'} />
                       <DetailMetric label="Flags" value={selectedPlan.reportCount || 0} tone={selectedPlan.reportCount ? 'danger' : 'neutral'} />
@@ -1195,14 +1195,14 @@ export default function Admin() {
                             return (
                               <div key={row.id} className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-3 text-sm">
                                 <div>
-                                  <div className="font-semibold text-[#111111]">{getPublicUsername(person, 'Usuario')}</div>
+                                  <div className="font-semibold text-[#111111]">{getPublicUsername(person, 'User')}</div>
                                   <div className="text-[#8a8174]">{row.status} - {formatDateTime(row.created_at)}</div>
                                 </div>
                                 <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'plan_members', id: row.id })}>Expulsar</AdminActionButton>
                               </div>
                             );
                           })}
-                          {!members.some((row) => row.plan_id === selectedPlan.id) ? <div className="text-sm text-[#8a8174]">Sin miembros todavia.</div> : null}
+                          {!members.some((row) => row.plan_id === selectedPlan.id) ? <div className="text-sm text-[#8a8174]">No members yet.</div> : null}
                         </div>
                       </div>
 
@@ -1212,13 +1212,13 @@ export default function Admin() {
                           {messages.filter((row) => row.plan_id === selectedPlan.id).slice(-6).map((row) => (
                             <div key={row.id} className="rounded-2xl border border-black/8 px-3 py-3">
                               <div className="flex items-center justify-between gap-2 text-xs text-[#8a8174]">
-                                <span>{getPublicUsername(userMap.get(row.user_id), 'Usuario')}</span>
+                                <span>{getPublicUsername(userMap.get(row.user_id), 'User')}</span>
                                 <span>{formatDateTime(row.created_at)}</span>
                               </div>
                               <div className="mt-2 text-sm text-[#111111]">{row.content}</div>
                             </div>
                           ))}
-                          {!messages.some((row) => row.plan_id === selectedPlan.id) ? <div className="text-sm text-[#8a8174]">Sin mensajes en el grupo.</div> : null}
+                          {!messages.some((row) => row.plan_id === selectedPlan.id) ? <div className="text-sm text-[#8a8174]">No group messages.</div> : null}
                         </div>
                       </div>
                     </div>
@@ -1229,8 +1229,8 @@ export default function Admin() {
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           <AdminActionButton variant="neutral" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { updated_at: new Date().toISOString() } })}><Pencil className="mr-2 h-4 w-4" />Editar</AdminActionButton>
                           <AdminActionButton variant="warn" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { status: 'cancelled' } })}><Clock3 className="mr-2 h-4 w-4" />Cerrar</AdminActionButton>
-                          <AdminActionButton variant="dark" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { status: 'hidden' } })}><EyeOff className="mr-2 h-4 w-4" />Ocultar</AdminActionButton>
-                          <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'plans', id: selectedPlan.id })}><Trash2 className="mr-2 h-4 w-4" />Eliminar</AdminActionButton>
+                          <AdminActionButton variant="dark" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { status: 'hidden' } })}><EyeOff className="mr-2 h-4 w-4" />Hide</AdminActionButton>
+                          <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'plans', id: selectedPlan.id })}><Trash2 className="mr-2 h-4 w-4" />Delete</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => setActiveTab('messages')}><MessageSquare className="mr-2 h-4 w-4" />Ver grupo</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => { setSelectedUserId(selectedPlan.created_by); setActiveTab('users'); }}><Users className="mr-2 h-4 w-4" />Ver creador</AdminActionButton>
                           <AdminActionButton variant="neutral" onClick={() => planMutation.mutate({ id: selectedPlan.id, payload: { status: 'draft' } })}><Copy className="mr-2 h-4 w-4" />Duplicar / recrear</AdminActionButton>
@@ -1240,7 +1240,7 @@ export default function Admin() {
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Deteccion de problemas</div>
                         <div className="mt-3 grid gap-2 text-sm text-[#5d574d]">
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Plan sin spot valido</span><StatusPill tone={selectedPlan.hasValidSpot ? 'success' : 'danger'}>{selectedPlan.hasValidSpot ? 'no' : 'si'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Plan without valid spot</span><StatusPill tone={selectedPlan.hasValidSpot ? 'success' : 'danger'}>{selectedPlan.hasValidSpot ? 'no' : 'si'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Fecha pasada pero sigue activo</span><StatusPill tone={selectedPlan.isPast && selectedPlan.status === 'active' ? 'danger' : 'success'}>{selectedPlan.isPast && selectedPlan.status === 'active' ? 'si' : 'no'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Mas miembros que plazas</span><StatusPill tone={selectedPlan.seatsOver ? 'danger' : 'success'}>{selectedPlan.seatsOver ? 'si' : 'no'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Creador baneado / advertido</span><StatusPill tone={(userRows.find((row) => row.id === selectedPlan.created_by)?.state || 'active') !== 'active' ? 'warn' : 'success'}>{userRows.find((row) => row.id === selectedPlan.created_by)?.state || 'active'}</StatusPill></div>
@@ -1265,7 +1265,7 @@ export default function Admin() {
         ) : null}
 
         {!isLoading && activeTab === 'reports' ? (
-          <Shell title="Reportes / moderacion" subtitle="Mientras no exista una tabla formal de reportes, este inbox usa senales reales del contenido para priorizar revision.">
+          <Shell title="Reports / moderation" subtitle="Until a formal reports table exists, this inbox uses real content signals to prioritize review.">
             {attentionQueue.length ? (
               <div className="grid gap-3">
                 {openReports.map((item) => (
@@ -1279,25 +1279,25 @@ export default function Admin() {
                         </div>
                         <div className="mt-2 text-sm font-semibold text-[#111111]">{item.entityTitle}</div>
                         <div className="mt-1 text-sm text-[#6d665b]">{item.subtitle}</div>
-                        <div className="mt-2 text-xs text-[#8a8174]">Fecha: {formatDateTime(item.createdAt)} - Estado: open</div>
+                        <div className="mt-2 text-xs text-[#8a8174]">Date: {formatDateTime(item.createdAt)} - Status: open</div>
                       </div>
                       <div className="flex flex-wrap gap-2 lg:justify-end">
                         <AdminActionButton variant="neutral" onClick={() => goTo(item.type === 'spot' ? 'spots' : item.type === 'plan' ? 'plans' : item.type === 'user' ? 'users' : 'messages')}>Ver</AdminActionButton>
                         <AdminActionButton variant="dark">Descartar</AdminActionButton>
-                        <AdminActionButton variant="warn">Ocultar contenido</AdminActionButton>
+                        <AdminActionButton variant="warn">Hide contenido</AdminActionButton>
                         <AdminActionButton variant="danger">Avisar / sancionar</AdminActionButton>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : <EmptyState icon={ShieldAlert} title="Sin reportes abiertos" text="Cuando lleguen reportes reales o senales automaticas, apareceran aqui con prioridad y estado." />}
+            ) : <EmptyState icon={ShieldAlert} title="No open reports" text="When real reports or automatic signals arrive, they will appear here with priority and status." />}
           </Shell>
         ) : null}
 
         {!isLoading && activeTab === 'users' ? (
           <div className="grid gap-5 xl:grid-cols-[0.95fr,1.05fr]">
-            <Shell title="Usuarios" subtitle="Control basico, con foco en actividad, reportes y rol." actions={USER_FILTERS.map((filter) => <FilterChip key={filter.id} active={userFilter === filter.id} onClick={() => setUserFilter(filter.id)}>{filter.label}</FilterChip>)}>
+            <Shell title="Users" subtitle="Basic control focused on activity, reports and role." actions={USER_FILTERS.map((filter) => <FilterChip key={filter.id} active={userFilter === filter.id} onClick={() => setUserFilter(filter.id)}>{filter.label}</FilterChip>)}>
               {userRows.length ? (
                 <div className="grid max-h-[900px] gap-3 overflow-auto pr-1">
                   {userRows.map((person) => (
@@ -1318,7 +1318,7 @@ export default function Admin() {
                           <div className="mt-2 truncate text-sm text-[#6d665b]">{person.email}</div>
                           <div className="mt-3 flex flex-wrap gap-2">
                             <StatusPill tone="neutral">{person.spotsCount} spots</StatusPill>
-                            <StatusPill tone="neutral">{person.plansCount} planes</StatusPill>
+                            <StatusPill tone="neutral">{person.plansCount} plans</StatusPill>
                             <StatusPill tone="neutral">{person.groupsJoined} grupos</StatusPill>
                             {person.reportsCount ? <StatusPill tone="danger">{person.reportsCount} flags</StatusPill> : null}
                           </div>
@@ -1327,10 +1327,10 @@ export default function Admin() {
                     </button>
                   ))}
                 </div>
-              ) : <EmptyState icon={Users} title="No hay usuarios en este filtro" text="Prueba otro filtro o espera a que entre mas gente en la plataforma." />}
+              ) : <EmptyState icon={Users} title="No users in this filter" text="Try another filter or wait for more people to join the platform." />}
             </Shell>
 
-            <Shell title="Ficha del usuario" subtitle="Actividad, reportes y acciones de seguridad.">
+            <Shell title="User profile" subtitle="Activity, reports and safety actions.">
               {selectedUser ? (
                 <div className="space-y-5">
                   <div className="grid gap-4 lg:grid-cols-[1fr,1fr]">
@@ -1338,7 +1338,7 @@ export default function Admin() {
                       <div className="flex items-center gap-4">
                         <div className="grid h-16 w-16 place-items-center rounded-2xl bg-[#141414] text-2xl font-black text-[#efbf3a]">{getAvatarLetter(selectedUser, 'U')}</div>
                         <div>
-                          <div className="text-2xl font-black tracking-[-0.04em] text-[#111111]">{selectedUser.username || 'Usuario sin nombre'}</div>
+                          <div className="text-2xl font-black tracking-[-0.04em] text-[#111111]">{selectedUser.username || 'Unnamed user'}</div>
                           <div className="mt-1 text-sm text-[#6d665b]">{selectedUser.email}</div>
                           <div className="mt-2 flex flex-wrap gap-2">
                             <StatusPill tone={selectedUser.role === 'admin' ? 'dark' : 'neutral'}>{selectedUser.roleLabel}</StatusPill>
@@ -1350,7 +1350,7 @@ export default function Admin() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <DetailMetric label="Spots creados" value={selectedUser.spotsCount} />
                       <DetailMetric label="Planes creados" value={selectedUser.plansCount} />
-                      <DetailMetric label="Grupos unidos" value={selectedUser.groupsJoined} />
+                      <DetailMetric label="Joined groups" value={selectedUser.groupsJoined} />
                       <DetailMetric label="Reportes recibidos" value={selectedUser.reportsCount} tone={selectedUser.reportsCount ? 'danger' : 'neutral'} />
                     </div>
                   </div>
@@ -1397,7 +1397,7 @@ export default function Admin() {
                           <AdminActionButton variant="warn"><AlertTriangle className="mr-2 h-4 w-4" />Advertir</AdminActionButton>
                           <AdminActionButton variant="dark"><Ban className="mr-2 h-4 w-4" />Suspender</AdminActionButton>
                           <AdminActionButton variant="danger"><Ban className="mr-2 h-4 w-4" />Banear</AdminActionButton>
-                          <AdminActionButton variant="neutral">Ocultar contenido</AdminActionButton>
+                          <AdminActionButton variant="neutral">Hide contenido</AdminActionButton>
                           <AdminActionButton variant="neutral">Ver todo su contenido</AdminActionButton>
                         </div>
                       </div>
@@ -1407,7 +1407,7 @@ export default function Admin() {
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Acciones graves deben pedir confirmacion adicional.</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Conviene guardar logs de cambios y trazabilidad.</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Evita acciones de 1 clic sobre baneos o borrados masivos.</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Avoid one-click actions for bans or bulk deletes.</div>
                         </div>
                       </div>
                     </div>
@@ -1419,7 +1419,7 @@ export default function Admin() {
         ) : null}
 
         {!isLoading && activeTab === 'messages' ? (
-          <Shell title="Chat / mensajes" subtitle="Busqueda por texto, filtrado por plan, contexto del chat y moderacion puntual.">
+          <Shell title="Chat / messages" subtitle="Text search, plan filtering, chat context and targeted moderation.">
             {messages.length ? (
               <div className="grid gap-3">
                 {messages.filter((row) => includesSearch(row.content, planMap.get(row.plan_id)?.title, userMap.get(row.user_id)?.email)).slice(0, 100).map((row) => (
@@ -1430,13 +1430,13 @@ export default function Admin() {
                           <StatusPill tone={isSuspiciousText(row.content) ? 'danger' : 'neutral'}>{isSuspiciousText(row.content) ? 'reportado' : 'normal'}</StatusPill>
                           <div className="text-base font-black text-[#111111]">{planMap.get(row.plan_id)?.title || 'Plan'}</div>
                         </div>
-                        <div className="mt-2 text-sm text-[#6d665b]">{getPublicUsername(userMap.get(row.user_id), 'Usuario')} - {formatDateTime(row.created_at)}</div>
+                        <div className="mt-2 text-sm text-[#6d665b]">{getPublicUsername(userMap.get(row.user_id), 'User')} - {formatDateTime(row.created_at)}</div>
                         <div className="mt-3 rounded-2xl border border-black/8 bg-[#fffaf1] px-3 py-3 text-sm leading-7 text-[#111111]">{row.content}</div>
                       </div>
                       <div className="flex flex-wrap gap-2 lg:justify-end">
                         <AdminActionButton variant="neutral" onClick={() => setSelectedPlanId(row.plan_id) || setActiveTab('plans')}><Eye className="mr-2 h-4 w-4" />Contexto</AdminActionButton>
-                        <AdminActionButton variant="warn" onClick={() => messageMutation.mutate({ id: row.id, payload: { content: '[mensaje eliminado por moderacion]' } })}>Ocultar</AdminActionButton>
-                        <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'messages', id: row.id })}>Eliminar</AdminActionButton>
+                        <AdminActionButton variant="warn" onClick={() => messageMutation.mutate({ id: row.id, payload: { content: '[message removed by moderation]' } })}>Hide</AdminActionButton>
+                        <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'messages', id: row.id })}>Delete</AdminActionButton>
                       </div>
                     </div>
                   </div>
@@ -1471,17 +1471,17 @@ export default function Admin() {
                           <div className="mt-2 text-xs text-[#8a8174]">{formatDateTime(row.created_at)}</div>
                         </div>
                         <div className="flex flex-wrap gap-2 lg:justify-end">
-                          <AdminActionButton variant="success" onClick={() => photoMutation.mutate({ id: row.id, payload: moderationPayload('approved') })}>Aprobar</AdminActionButton>
-                          <AdminActionButton variant="warn" onClick={() => photoMutation.mutate({ id: row.id, payload: moderationPayload('hidden') })}>Rechazar</AdminActionButton>
+                          <AdminActionButton variant="success" onClick={() => photoMutation.mutate({ id: row.id, payload: moderationPayload('approved') })}>Approve</AdminActionButton>
+                          <AdminActionButton variant="warn" onClick={() => photoMutation.mutate({ id: row.id, payload: moderationPayload('hidden') })}>Reject</AdminActionButton>
                           <AdminActionButton variant="neutral">Abrir original</AdminActionButton>
-                          <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'spot_photos', id: row.id })}>Eliminar</AdminActionButton>
+                          <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'spot_photos', id: row.id })}>Delete</AdminActionButton>
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-            ) : <EmptyState icon={Camera} title="No hay fotos en la tabla media" text="Si todavia no has creado spot_photos, el admin seguira funcionando y aqui quedara el hueco preparado." />}
+            ) : <EmptyState icon={Camera} title="No photos in the media table" text="If you have not created spot_photos yet, admin still works and this space is ready." />}
           </Shell>
         ) : null}
 
@@ -1492,14 +1492,14 @@ export default function Admin() {
               subtitle="Herramientas para administrar una aplicacion grande: volumen, calidad, exportacion y salud de datos."
               actions={
                 <>
-                  <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-users.csv', users)}><Download className="mr-2 h-4 w-4" />Usuarios CSV</AdminActionButton>
+                  <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-users.csv', users)}><Download className="mr-2 h-4 w-4" />Users CSV</AdminActionButton>
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-spots.csv', spots)}><Download className="mr-2 h-4 w-4" />Spots CSV</AdminActionButton>
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-plans.csv', plans)}><Download className="mr-2 h-4 w-4" />Planes CSV</AdminActionButton>
                 </>
               }
             >
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <DetailMetric label="Usuarios totales" value={users.length} />
+                <DetailMetric label="Total users" value={users.length} />
                 <DetailMetric label="Completitud perfiles" value={`${profileCompleteness.score}%`} tone={profileCompleteness.score > 60 ? 'success' : 'warn'} />
                 <DetailMetric label="Contenido total" value={spots.length + plans.length + messages.length + comments.length + photos.length} />
                 <DetailMetric label="Alertas abiertas" value={openReports.length} tone={openReports.length ? 'danger' : 'success'} />
@@ -1509,17 +1509,17 @@ export default function Admin() {
                 <div className="rounded-[24px] border border-black/8 bg-white p-5">
                   <div className="text-lg font-black text-[#111111]">Calidad de perfiles</div>
                   <div className="mt-4 grid gap-3">
-                    <DetailMetric label="Sin biografia" value={profileCompleteness.missingBio} tone={profileCompleteness.missingBio ? 'warn' : 'success'} />
-                    <DetailMetric label="Sin foto" value={profileCompleteness.missingAvatar} tone={profileCompleteness.missingAvatar ? 'warn' : 'success'} />
-                    <DetailMetric label="Sin sitio favorito" value={profileCompleteness.missingFavorite} tone={profileCompleteness.missingFavorite ? 'warn' : 'success'} />
+                    <DetailMetric label="No bio" value={profileCompleteness.missingBio} tone={profileCompleteness.missingBio ? 'warn' : 'success'} />
+                    <DetailMetric label="No photo" value={profileCompleteness.missingAvatar} tone={profileCompleteness.missingAvatar ? 'warn' : 'success'} />
+                    <DetailMetric label="No favorite spot" value={profileCompleteness.missingFavorite} tone={profileCompleteness.missingFavorite ? 'warn' : 'success'} />
                   </div>
                 </div>
 
                 <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                  <div className="text-lg font-black text-[#111111]">Preparado para miles de usuarios</div>
+                  <div className="text-lg font-black text-[#111111]">Ready for thousands of users</div>
                   <div className="mt-4 space-y-3 text-sm leading-7 text-[#5d574d]">
                     <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Usa indices en `profiles.favorite_spot_id`, `spots.status`, `plans.status`, `messages.plan_id` y `spot_comments.status`.</div>
-                    <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Mantén acciones destructivas con confirmacion y logs de auditoria.</div>
+                    <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Keep destructive actions behind confirmation and audit logs.</div>
                     <div className="rounded-2xl border border-black/8 bg-[#fffaf1] px-4 py-3">Para volumen real, mueve contadores pesados a RPCs o vistas materializadas.</div>
                   </div>
                 </div>
@@ -1529,18 +1529,18 @@ export default function Admin() {
         ) : null}
 
         {!isLoading && activeTab === 'settings' ? (
-          <Shell title="Ajustes / configuracion" subtitle="No enorme, pero si util para operar y moderar mejor.">
+          <Shell title="Settings / configuration" subtitle="Not huge, but useful for operating and moderating better.">
             <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="text-lg font-black text-[#111111]">Limites de plazas</div>
                 <div className="mt-2 text-sm leading-7 text-[#6d665b]">Define maximos por plan, limites blandos y cuando marcar sobrecupo.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">Estados permitidos</div>
+                <div className="text-lg font-black text-[#111111]">Allowed statuses</div>
                 <div className="mt-2 text-sm leading-7 text-[#6d665b]">active, draft, cancelled, approved, hidden, rejected y cualquier flujo extra que anadas.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
-                <div className="text-lg font-black text-[#111111]">Textos de moderacion</div>
+                <div className="text-lg font-black text-[#111111]">Moderation copy</div>
                 <div className="mt-2 text-sm leading-7 text-[#6d665b]">Plantillas para avisos, rechazos de fotos, warnings y sanciones temporales.</div>
               </div>
               <div className="rounded-[24px] border border-black/8 bg-white p-5">

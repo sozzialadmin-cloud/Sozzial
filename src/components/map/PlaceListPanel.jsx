@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from "react";
+import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Star, MapPin, ChevronUp, Coins, Users, ArrowUpDown } from "lucide-react";
 import { ZINDEX } from "@/lib/zindex";
@@ -37,7 +37,7 @@ export default function PlaceListPanel({
     else if (sortMode === "rating") copy.sort((a, b) => (Number(a.average_rating || 0) - Number(b.average_rating || 0)) * -directionFactor);
     else if (sortMode === "hangouts") copy.sort((a, b) => (Number(a.active_hangouts_count || 0) - Number(b.active_hangouts_count || 0)) * -directionFactor);
     else {
-      const order = ["Chollo", "Buen precio", "Merece la pena", "Buen valor", "Premium", "Caro"];
+      const order = ["Steal", "Best budget", "Worth it", "Good value", "Premium", "Overpriced"];
       copy.sort((a, b) => {
         const av = order.indexOf(getValueLabel(a));
         const bv = order.indexOf(getValueLabel(b));
@@ -64,7 +64,7 @@ export default function PlaceListPanel({
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-base font-black text-[#111111]">Comparar spots</p>
-                  <p className="mt-1 text-xs text-[#605747]">Precio, valor y planes activos sin salir del mapa.</p>
+                  <p className="mt-1 text-xs text-[#605747]">Price, value and active plans without leaving the map.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -81,7 +81,7 @@ export default function PlaceListPanel({
               <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                 <SortChip active={sortMode === "value"} onClick={() => onSortModeChange?.("value")}>Valor</SortChip>
                 <SortChip active={sortMode === "price"} onClick={() => onSortModeChange?.("price")}>Mas baratos</SortChip>
-                <SortChip active={sortMode === "rating"} onClick={() => onSortModeChange?.("rating")}>Mejor valorados</SortChip>
+                <SortChip active={sortMode === "rating"} onClick={() => onSortModeChange?.("rating")}>Top rated</SortChip>
                 <SortChip active={sortMode === "hangouts"} onClick={() => onSortModeChange?.("hangouts")}>Planes</SortChip>
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function PlaceListPanel({
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[#605747]">
                         <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{place.neighborhood || place.borough}</span>
                         {Number(place.active_hangouts_count || 0) > 0 ? (
-                          <span className="inline-flex items-center gap-1 text-[#216b33]"><Users className="h-3 w-3" />{place.active_hangouts_count} planes</span>
+                          <span className="inline-flex items-center gap-1 text-[#216b33]"><Users className="h-3 w-3" />{place.active_hangouts_count} plans</span>
                         ) : null}
                       </div>
                       <div className="mt-2 line-clamp-1 text-xs text-[#7a6f5c]">{place.best_known_slice || "Cheese slice"}</div>

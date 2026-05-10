@@ -4,18 +4,18 @@ import { motion } from "framer-motion";
 import { ZINDEX } from "@/lib/zindex";
 
 const PRICE_BANDS = [
-  { value: "budget", label: "Barato", desc: "Hasta $3", color: "bg-emerald-500" },
-  { value: "mid", label: "Medio", desc: "$3 a $5", color: "bg-[#efbf3a]" },
-  { value: "premium", label: "Premium", desc: "Mas de $5", color: "bg-[#df5b43]" },
+  { value: "budget", label: "Budget", desc: "Up to $3", color: "bg-emerald-500" },
+  { value: "mid", label: "Mid", desc: "$3 to $5", color: "bg-[#efbf3a]" },
+  { value: "premium", label: "Premium", desc: "Above $5", color: "bg-[#df5b43]" },
 ];
 
 const SORT_OPTIONS = [
-  { value: "price_low", label: "Precio mas bajo" },
-  { value: "price_high", label: "Precio mas alto" },
-  { value: "rating", label: "Mejor valorados" },
-  { value: "reviews", label: "Mas reseñas" },
-  { value: "active_plans", label: "Mas planes" },
-  { value: "name", label: "A-Z" },
+  { value: "price_low", label: "Lowest price" },
+  { value: "price_high", label: "Highest price" },
+  { value: "rating", label: "Top rated" },
+  { value: "reviews", label: "Most reviews" },
+  { value: "active_plans", label: "Most active plans" },
+  { value: "name", label: "A to Z" },
 ];
 
 const RATING_OPTIONS = [0, 3.5, 4, 4.5];
@@ -78,17 +78,17 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
     >
       <div className="flex-1 space-y-3 overflow-y-auto p-3.5">
         <div>
-          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Filtros utiles</p>
+          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Filters</p>
           <div className="flex flex-wrap gap-1.5">
-            <FilterChip active={filters.withPhoto} onClick={() => updateFilter("withPhoto", !filters.withPhoto)} icon={Camera}>Con foto</FilterChip>
-            <FilterChip active={filters.withActivePlans} onClick={() => updateFilter("withActivePlans", !filters.withActivePlans)} icon={Users}>Con planes</FilterChip>
-            <FilterChip active={filters.withBestSlice} onClick={() => updateFilter("withBestSlice", !filters.withBestSlice)} icon={Pizza}>Mejor slice</FilterChip>
-            <FilterChip active={filters.withNotes} onClick={() => updateFilter("withNotes", !filters.withNotes)} icon={FileText}>Con nota</FilterChip>
+            <FilterChip active={filters.withPhoto} onClick={() => updateFilter("withPhoto", !filters.withPhoto)} icon={Camera}>Has photo</FilterChip>
+            <FilterChip active={filters.withActivePlans} onClick={() => updateFilter("withActivePlans", !filters.withActivePlans)} icon={Users}>Active plans</FilterChip>
+            <FilterChip active={filters.withBestSlice} onClick={() => updateFilter("withBestSlice", !filters.withBestSlice)} icon={Pizza}>Best slice</FilterChip>
+            <FilterChip active={filters.withNotes} onClick={() => updateFilter("withNotes", !filters.withNotes)} icon={FileText}>Has note</FilterChip>
           </div>
         </div>
 
         <div>
-          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Precio</p>
+          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Price range</p>
           <div className="grid grid-cols-3 gap-2">
             {PRICE_BANDS.map((p) => {
               const active = (filters.priceBands || []).includes(p.value);
@@ -112,7 +112,7 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
         </div>
 
         <div>
-          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Valoracion minima</p>
+          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Minimum rating</p>
           <div className="flex flex-wrap gap-1.5">
             {RATING_OPTIONS.map((value) => (
               <FilterChip
@@ -121,14 +121,14 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
                 onClick={() => updateFilter("minRating", Number(filters.minRating || 0) === value ? 0 : value)}
                 icon={Star}
               >
-                {value === 0 ? "Todas" : `${value}+`}
+                {value === 0 ? "Any" : `${value}+`}
               </FilterChip>
             ))}
           </div>
         </div>
 
         <div>
-          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Ordenar</p>
+          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Sort by</p>
           <div className="flex flex-wrap gap-1.5">
             {SORT_OPTIONS.map((s) => (
               <FilterChip key={s.value} active={filters.sortBy === s.value} onClick={() => updateFilter("sortBy", s.value)}>
@@ -140,15 +140,15 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
       </div>
 
       <div className="flex items-center justify-between gap-3 border-t border-black/8 bg-[#f6efe4] px-4 py-3">
-        <span className="text-xs text-[#6d665b]">{resultCount} sitio{resultCount !== 1 ? "s" : ""}</span>
+        <span className="text-xs text-[#6d665b]">{resultCount} spot{resultCount !== 1 ? "s" : ""} found</span>
         <div className="flex shrink-0 gap-3">
           {activeFilterCount > 0 && (
             <button onClick={clearAll} className="text-xs font-medium text-[#8e8578] transition-colors hover:text-[#141414]">
-              Limpiar
+              Clear all
             </button>
           )}
           <button onClick={onClose} className="rounded-xl bg-[#efbf3a] px-3 py-2 text-xs font-semibold text-[#141414] transition-colors hover:bg-[#dbab23]">
-            Ver resultados
+            Show results
           </button>
         </div>
       </div>

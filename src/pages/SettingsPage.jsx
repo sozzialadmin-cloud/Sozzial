@@ -4,10 +4,10 @@ import { ArrowLeft, Bell, Globe, Shield, UserCog } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 
 const settings = [
-  { icon: Bell, title: 'Notificaciones', desc: 'Solo mensajes y nuevos miembros en tus planes.', page: 'NotificationsSettings' },
-  { icon: Globe, title: 'Idioma', desc: 'Mantener la app publica en espanol.', page: 'LanguageSettings' },
-  { icon: Shield, title: 'Privacidad', desc: 'Nombre publico, email privado.', page: 'PrivacySettings' },
-  { icon: UserCog, title: 'Cuenta', desc: 'Recordarme y ajustes basicos de sesion.', page: 'AccountSettings' },
+  { icon: Bell, title: 'Notifications', desc: 'Only messages and new joins in your plans.', page: 'NotificationsSettings' },
+  { icon: Globe, title: 'Language', desc: 'Keep the public app in English.', page: 'LanguageSettings' },
+  { icon: Shield, title: 'Privacy', desc: 'Username public, email private.', page: 'PrivacySettings' },
+  { icon: UserCog, title: 'Account', desc: 'Remember-me and session basics.', page: 'AccountSettings' },
 ];
 
 export default function SettingsPage() {
@@ -19,8 +19,8 @@ export default function SettingsPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-3xl font-black">Ajustes</h1>
-            <p className="text-sm text-stone-500">Solo lo esencial.</p>
+            <h1 className="text-3xl font-black">Settings</h1>
+            <p className="text-sm text-stone-500">Only the essentials.</p>
           </div>
         </div>
         <div className="stagger-in space-y-3">

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Loader2, Map, Pizza, XCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -9,12 +9,12 @@ function getHashParams() {
 }
 
 function friendlyMessage(raw) {
-  if (!raw) return 'No pudimos confirmar tu email. Pide un enlace nuevo e intentalo otra vez.';
+  if (!raw) return 'We could not confirm your email. Request a new link and try again.';
   const text = String(raw);
-  if (text.includes('expired') || text.includes('otp_expired')) return 'Este enlace ha caducado. Pide uno nuevo desde la pantalla de acceso.';
-  if (text.includes('invalid')) return 'Este enlace no es valido o ya fue usado. Pide uno nuevo e intentalo otra vez.';
+  if (text.includes('expired') || text.includes('otp_expired')) return 'This link has expired. Request a new one from the sign-in screen.';
+  if (text.includes('invalid')) return 'This link is invalid or has already been used. Request a new one and try again.';
   if (text.includes('stole it') || text.includes('released because another request stole it')) {
-    return 'El enlace ya fue procesado. Vamos a comprobar si tu cuenta quedo confirmada igualmente.';
+    return 'This link was already processed. We will check whether your account is confirmed anyway.';
   }
   return text;
 }
@@ -24,7 +24,7 @@ export default function AuthConfirm() {
   const [searchParams] = useSearchParams();
   const next = searchParams.get('next') || '/home';
   const [status, setStatus] = useState('loading');
-  const [message, setMessage] = useState('Estamos confirmando tu email y preparando tu acceso.');
+  const [message, setMessage] = useState('We are confirming your email and preparing your access.');
 
   useEffect(() => {
     let active = true;
@@ -33,7 +33,7 @@ export default function AuthConfirm() {
       if (!supabase) {
         if (!active) return;
         setStatus('error');
-        setMessage('El acceso todavia no esta conectado en esta version.');
+        setMessage('Authentication is not configured in this build.');
         return;
       }
 
@@ -52,7 +52,7 @@ export default function AuthConfirm() {
         if (existing?.data?.session?.user) {
           if (!active) return;
           setStatus('success');
-          setMessage('Tu cuenta ya estaba confirmada. Entrando en Sozzial...');
+          setMessage('Your account was already confirmed. Taking you into Sozzial...');
           window.history.replaceState({}, document.title, '/auth/confirm');
           window.setTimeout(() => navigate(next, { replace: true }), 900);
           return;
@@ -68,12 +68,12 @@ export default function AuthConfirm() {
           const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
           if (error) throw error;
         } else {
-          throw new Error('Faltan datos de confirmacion en el enlace.');
+          throw new Error('The confirmation link is missing required data.');
         }
 
         if (!active) return;
         setStatus('success');
-        setMessage('Email confirmado correctamente. Ya puedes usar spots, planes y grupos.');
+        setMessage('Email confirmed. You can now use spots, plans and groups.');
         window.history.replaceState({}, document.title, '/auth/confirm');
         window.setTimeout(() => navigate(next, { replace: true }), 900);
       } catch (error) {
@@ -85,7 +85,7 @@ export default function AuthConfirm() {
             if (retry?.data?.session?.user) {
               if (!active) return;
               setStatus('success');
-              setMessage('Tu cuenta ya quedo confirmada. Entrando en Sozzial...');
+              setMessage('Your account is already confirmed. Taking you into Sozzial...');
               window.history.replaceState({}, document.title, '/auth/confirm');
               window.setTimeout(() => navigate(next, { replace: true }), 900);
               return;
@@ -112,7 +112,7 @@ export default function AuthConfirm() {
       <div className="w-full max-w-md rounded-[34px] border border-black/8 bg-[#fffaf2] p-6 shadow-[0_24px_60px_rgba(39,29,14,0.12)]">
         <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#efbf3a] text-[#141414] shadow-[0_18px_38px_rgba(239,191,58,0.24)]"><Pizza className="h-7 w-7" /></div>
         <h1 className="text-3xl font-black tracking-tight">Sozzial</h1>
-        <p className="mt-2 text-[#6d665b]">Confirmacion de email</p>
+        <p className="mt-2 text-[#6d665b]">Email confirmation</p>
 
         <div className="mt-8 rounded-[28px] border border-black/8 bg-white p-6 text-center">
           {status === 'loading' && <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#dbab23]" />}
@@ -121,8 +121,8 @@ export default function AuthConfirm() {
           <p className="mt-5 text-sm leading-7 text-[#5f584e]">{message}</p>
           {success && (
             <div className="mt-5 rounded-2xl border border-[#d8ebd4] bg-[#eef7ec] p-4 text-left text-sm text-[#2f7a35]">
-              <div className="font-semibold">Tu cuenta esta activa.</div>
-              <div className="mt-1">Ya puedes crear planes, anadir spots y unirte a grupos.</div>
+              <div className="font-semibold">Your account is active.</div>
+              <div className="mt-1">You can now create plans, add spots and join groups.</div>
             </div>
           )}
         </div>
@@ -130,10 +130,10 @@ export default function AuthConfirm() {
         <div className="mt-6 grid gap-3">
           <Link to="/home" className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#3e9444] text-sm font-bold text-white hover:bg-[#2f7a35]">
             <Map className="mr-2 h-4 w-4" />
-            Explorar el mapa
+            Explore the map
           </Link>
           <Link to="/auth" className="inline-flex h-12 items-center justify-center rounded-2xl border border-black/10 bg-white text-sm font-semibold text-[#141414] hover:bg-[#fffdf8]">
-            Ir al acceso
+            Go to sign in
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -19,7 +19,7 @@ function toLocalDateInput(value) {
 }
 
 function defaultTitle(place, time) {
-  if (!place) return "Plan de pizza";
+  if (!place) return "Pizza plan";
   return `${place.name} - ${time || "20:00"}`;
 }
 
@@ -56,7 +56,7 @@ function PlaceOption({ place, active, onClick }) {
           </div>
         </div>
       </div>
-      {place.best_slice ? <div className="mt-3 text-sm text-stone-300">Mejor slice: {place.best_slice}</div> : null}
+      {place.best_slice ? <div className="mt-3 text-sm text-stone-300">Best slice: {place.best_slice}</div> : null}
     </button>
   );
 }
@@ -135,8 +135,8 @@ export default function CrearQuedada() {
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
             <Pizza className="h-7 w-7" />
           </div>
-          <h1 className="mt-5 text-2xl font-black">Los planes aun no estan conectados</h1>
-          <p className="mt-3 text-sm leading-7 text-stone-400">Configura las claves privadas del proyecto antes de crear planes reales.</p>
+          <h1 className="mt-5 text-2xl font-black">Plans are not connected yet</h1>
+          <p className="mt-3 text-sm leading-7 text-stone-400">Configure the private project keys before creating real plans.</p>
         </div>
       </div>
     );
@@ -175,7 +175,7 @@ export default function CrearQuedada() {
         .single();
       if (planError) throw planError;
 
-      const introText = `${user.username || user.full_name || "Usuario"} ha creado este plan en ${selectedPlace.name}.`;
+      const introText = `${user.username || user.full_name || "User"} created this plan at ${selectedPlace.name}.`;
       const [memberRes, messageRes] = await Promise.all([
         supabase.from("plan_members").upsert({ plan_id: createdPlan.id, user_id: user.id, status: "joined" }, { onConflict: "plan_id,user_id" }),
         supabase.from("messages").insert({ plan_id: createdPlan.id, user_id: user.id, content: introText }),
@@ -191,7 +191,7 @@ export default function CrearQuedada() {
       setCreatedId(createdPlan.id);
       setDone(true);
     } catch (error) {
-      setErrorMessage(error?.message || "No se pudo crear el plan.");
+      setErrorMessage(error?.message || "Could not create the plan.");
     } finally {
       setSubmitting(false);
     }
@@ -203,24 +203,24 @@ export default function CrearQuedada() {
         <div className="border-b border-white/8 p-4 lg:border-b-0 lg:border-r lg:p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-red-300">Crear plan</div>
-              <h1 className="mt-1 text-2xl font-black tracking-tight">Que sea facil apuntarse</h1>
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-red-300">Create plan</div>
+              <h1 className="mt-1 text-2xl font-black tracking-tight">Make it feel instant</h1>
             </div>
             <Button disabled={publishDisabled} onClick={submit} className="h-11 rounded-2xl bg-red-600 px-4 font-bold text-white hover:bg-red-500 disabled:opacity-50">
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Publicar
+              Publish
             </Button>
           </div>
 
           <form onSubmit={submit} className="space-y-5">
             <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-4">
-              <div className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-stone-500">1 - Elige el sitio</div>
+              <div className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-stone-500">1 - Choose the spot</div>
               <div className="relative mb-4">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Busca una pizzeria"
+                  placeholder="Search pizza spot"
                   className="h-11 border-white/10 bg-white/[0.04] pl-10 text-white"
                 />
                 {autocompletePlaces.length ? (
@@ -252,44 +252,44 @@ export default function CrearQuedada() {
               </div>
 
               <div className="mb-3 text-xs leading-6 text-stone-400">
-                Busca solo entre los sitios reales que ya estan aprobados. Asi el plan siempre sale de tu propio mapa y no de ejemplos de relleno.
+                Search only among the spots you already added and approved. No built-in demo spots are injected anymore, so the list stays fully editable by you.
               </div>
 
               {selectedPlace ? (
                 <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                  <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Sitio elegido</div>
+                  <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Selected spot</div>
                   <PlaceOption place={selectedPlace} active />
                 </div>
               ) : (
                 <div className="rounded-[22px] border border-dashed border-white/10 bg-white/[0.02] px-4 py-5 text-sm text-stone-400">
-                  Todavia no has elegido sitio. Busca uno de tus sitios aprobados.
+                  No spot selected yet. Search one of your real approved spots.
                 </div>
               )}
             </section>
 
             <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-4">
-              <div className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-stone-500">2 - Cuando</div>
+              <div className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-stone-500">2 - When</div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><CalendarDays className="h-3.5 w-3.5" />Fecha *</Label>
+                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><CalendarDays className="h-3.5 w-3.5" />Date *</Label>
                   <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><Clock3 className="h-3.5 w-3.5" />Hora *</Label>
+                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><Clock3 className="h-3.5 w-3.5" />Time *</Label>
                   <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="h-11 border-white/10 bg-white/[0.04] text-white" />
                 </div>
               </div>
             </section>
 
             <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-4">
-              <div className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-stone-500">3 - Detalles del plan</div>
+              <div className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-stone-500">3 - Plan details</div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Titulo *</Label>
+                  <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Title *</Label>
                   <Input value={form.title} onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))} placeholder="Joe's Pizza - 20:00" className="h-11 border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><Users className="h-3.5 w-3.5" />Maximo personas</Label>
+                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><Users className="h-3.5 w-3.5" />Max people</Label>
                   <div className="grid grid-cols-5 gap-2">
                     {sizeOptions.map((option) => (
                       <button
@@ -305,8 +305,8 @@ export default function CrearQuedada() {
                 </div>
               </div>
               <div className="mt-4">
-                <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Nota rapida</Label>
-                <Textarea value={form.quick_note} onChange={(e) => setForm((prev) => ({ ...prev, quick_note: e.target.value }))} className="min-h-[96px] border-white/10 bg-white/[0.04] text-white" placeholder="Plan informal, cualquiera puede apuntarse, perfecto despues del trabajo..." />
+                <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Quick note</Label>
+                <Textarea value={form.quick_note} onChange={(e) => setForm((prev) => ({ ...prev, quick_note: e.target.value }))} className="min-h-[96px] border-white/10 bg-white/[0.04] text-white" placeholder="Casual slice stop, anyone welcome, easy plan after work..." />
               </div>
               {errorMessage ? <div className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">{errorMessage}</div> : null}
             </section>
@@ -315,7 +315,7 @@ export default function CrearQuedada() {
 
         <aside className="p-4 lg:p-5">
           <div className="rounded-[30px] border border-white/10 bg-[#121212] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-red-300">Vista previa</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-red-300">Preview</div>
             <div className="mt-4 overflow-hidden rounded-[26px] border border-white/10 bg-[#171717]">
               <div className="relative h-52 border-b border-white/10 bg-black">
                 {selectedPlace?.photo_url ? <img src={selectedPlace.photo_url} alt={selectedPlace.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-[#efbf3a]"><Pizza className="h-16 w-16" /></div>}
@@ -323,28 +323,28 @@ export default function CrearQuedada() {
                 <div className="absolute left-4 bottom-4 rounded-full bg-[#efbf3a] px-3 py-1 text-xs font-black text-[#141414]">${Number(selectedPlace?.slice_price || 0).toFixed(2)}</div>
               </div>
               <div className="p-5">
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-stone-500">{date || "Fecha"} - {time || "Hora"}</div>
-                <h2 className="mt-3 text-3xl font-black leading-none text-white">{form.title?.trim() || (selectedPlace ? defaultTitle(selectedPlace, time) : "Plan de pizza")}</h2>
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-stone-500">{date || "Date"} - {time || "Time"}</div>
+                <h2 className="mt-3 text-3xl font-black leading-none text-white">{form.title?.trim() || (selectedPlace ? defaultTitle(selectedPlace, time) : "Pizza plan")}</h2>
                 <div className="mt-4 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
                   <div className="min-w-0">
-                    <div className="truncate font-semibold text-white">{selectedPlace?.name || "Elige un sitio"}</div>
-                    <div className="truncate text-sm text-stone-400">{selectedPlace?.address || "Primero selecciona la pizzeria"}</div>
+                    <div className="truncate font-semibold text-white">{selectedPlace?.name || "Choose a place"}</div>
+                    <div className="truncate text-sm text-stone-400">{selectedPlace?.address || "Pick the spot first"}</div>
                   </div>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Personas</div>
+                    <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">People</div>
                     <div className="mt-1 text-xl font-black text-white">{form.max_people}</div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Mejor slice</div>
-                    <div className="mt-1 truncate text-base font-black text-white">{selectedPlace?.best_slice || "Opcional"}</div>
+                    <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Best slice</div>
+                    <div className="mt-1 truncate text-base font-black text-white">{selectedPlace?.best_slice || "Optional"}</div>
                   </div>
                 </div>
-                <p className="mt-4 text-sm leading-7 text-stone-300">{form.quick_note?.trim() || "Plan corto y claro. Elige sitio, pon hora y deja que la gente se apunte rapido."}</p>
+                <p className="mt-4 text-sm leading-7 text-stone-300">{form.quick_note?.trim() || "Short, simple plan. Pick the place, set the time and let people join fast."}</p>
                 <button type="button" onClick={submit} disabled={publishDisabled} className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-red-600 font-bold text-white disabled:opacity-50">
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><span>Crear plan</span><ArrowRight className="h-4 w-4" /></>}
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><span>Create plan</span><ArrowRight className="h-4 w-4" /></>}
                 </button>
               </div>
             </div>
@@ -356,11 +356,11 @@ export default function CrearQuedada() {
         <div className="fixed inset-0 z-[2200] grid place-items-center bg-black/55 px-4 backdrop-blur-sm">
           <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-[32px] border border-emerald-500/20 bg-[#07150f] p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[24px] bg-emerald-500/20 text-emerald-300"><CheckCircle2 className="h-8 w-8" /></div>
-            <div className="mt-5 text-2xl font-black text-white">Plan creado</div>
-            <p className="mt-3 text-sm leading-7 text-stone-300">Plan creado. Te llevamos al mapa y ya estas dentro del grupo automaticamente.</p>
+            <div className="mt-5 text-2xl font-black text-white">Plan created</div>
+            <p className="mt-3 text-sm leading-7 text-stone-300">Plan created. We are sending you to the map and you already joined the group automatically.</p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button type="button" onClick={() => navigate(`${createPageUrl("Home")}?createdPlan=${createdId}`, { replace: true })} className="inline-flex h-12 items-center justify-center rounded-2xl bg-red-600 font-bold text-white">Ir al mapa</button>
-              <button type="button" onClick={() => navigate(`${createPageUrl("MisMatches")}?focus=${createdId}`, { replace: true })} className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] font-bold text-stone-200">Abrir grupo</button>
+              <button type="button" onClick={() => navigate(`${createPageUrl("Home")}?createdPlan=${createdId}`, { replace: true })} className="inline-flex h-12 items-center justify-center rounded-2xl bg-red-600 font-bold text-white">Go to map</button>
+              <button type="button" onClick={() => navigate(`${createPageUrl("MisMatches")}?focus=${createdId}`, { replace: true })} className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] font-bold text-stone-200">Open group</button>
             </div>
           </motion.div>
         </div>

@@ -4,17 +4,17 @@ export const PUBLIC_PAGE_NAMES = new Set(['Landing', 'Home', 'Descubrir', 'Ranki
 export const VIEWPORT_PAGE_NAMES = new Set(['Landing']);
 
 export const publicNavItems = [
-  { label: 'Mapa', page: 'Home', icon: Map },
-  { label: 'Descubrir', page: 'Descubrir', icon: Flame },
+  { label: 'Map', page: 'Home', icon: Map },
+  { label: 'Discover', page: 'Descubrir', icon: Flame },
   { label: 'Rankings', page: 'Rankings', icon: Trophy },
-  { label: 'Actividad', page: 'ActivityFeed', icon: Activity },
+  { label: 'Feed', page: 'ActivityFeed', icon: Activity },
 ];
 
 export const privateNavItems = [
   { label: 'Passport', page: 'Passport', icon: Trophy },
-  { label: 'Crear', page: 'CrearQuedada', icon: PlusCircle, accent: true },
-  { label: 'Grupos', page: 'MisMatches', icon: Users },
-  { label: 'Perfil', page: 'Profile', icon: User },
+  { label: 'Add plan', page: 'CrearQuedada', icon: PlusCircle, accent: true },
+  { label: 'Groups', page: 'MisMatches', icon: Users },
+  { label: 'Profile', page: 'Profile', icon: User },
 ];
 
 export const adminNavItem = { label: 'Admin', page: 'Admin', icon: Shield };

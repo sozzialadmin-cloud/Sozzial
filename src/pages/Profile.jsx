@@ -121,7 +121,7 @@ export default function Profile() {
 
   const saveProfile = useMutation({
     mutationFn: async () => {
-      if (!isSupabaseConfigured || !supabase || !user?.id) throw new Error('El perfil aun no esta conectado.');
+      if (!isSupabaseConfigured || !supabase || !user?.id) throw new Error('Profile is not connected yet.');
       const payload = {
         username: form.username.trim() || displayName,
         bio: form.bio.trim() || null,
@@ -140,7 +140,7 @@ export default function Profile() {
       if (error) throw error;
     },
     onSuccess: async () => {
-      toast.success('Perfil actualizado');
+      toast.success('Profile updated');
       setEditing(false);
       await refreshProfile?.();
       queryClient.invalidateQueries({ queryKey: ['profile-bundle', user?.id] });
@@ -157,7 +157,7 @@ export default function Profile() {
     if (!file || !user?.id) return;
     setUploading(true);
     try {
-      if (!isSupabaseConfigured || !supabase) throw new Error('La subida de fotos aun no esta conectada.');
+      if (!isSupabaseConfigured || !supabase) throw new Error('Photo upload is not connected yet.');
       const ext = file.name.split('.').pop() || 'jpg';
       const filePath = `${user.id}/avatar-${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true, cacheControl: '3600' });
@@ -168,7 +168,7 @@ export default function Profile() {
       await refreshProfile?.();
       queryClient.invalidateQueries({ queryKey: ['profile-bundle', user.id] });
     } catch (error) {
-      toast.error(error?.message || 'No se pudo subir la foto.');
+      toast.error(error?.message || 'Could not upload avatar.');
     } finally {
       setUploading(false);
     }
@@ -203,105 +203,105 @@ export default function Profile() {
           </div>
 
           <p className="mt-6 text-sm leading-7 text-stone-300">
-            {liveProfile.bio || 'Anade una bio corta para que la comunidad conozca tu estilo.'}
+            {liveProfile.bio || 'Add a short bio so other pizza people know your style.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
               <Heart className="h-4 w-4 text-[#efbf3a]" />
-              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Slice favorito</div>
-              <div className="mt-1 font-black">{liveProfile.favorite_slice || 'Sin definir'}</div>
+              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Favorite slice</div>
+              <div className="mt-1 font-black">{liveProfile.favorite_slice || 'Not set'}</div>
             </div>
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
               <MapPin className="h-4 w-4 text-[#efbf3a]" />
-              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Sitio favorito</div>
-              <div className="mt-1 font-black">{favoriteSpot?.name || 'Sin definir'}</div>
+              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Favorite spot</div>
+              <div className="mt-1 font-black">{favoriteSpot?.name || 'Not set'}</div>
             </div>
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
               <Pizza className="h-4 w-4 text-[#efbf3a]" />
-              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Estilo pizza</div>
-              <div className="mt-1 font-black">{liveProfile.pizza_style || 'Sin definir'}</div>
+              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Pizza style</div>
+              <div className="mt-1 font-black">{liveProfile.pizza_style || 'Not set'}</div>
             </div>
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
               <Award className="h-4 w-4 text-[#efbf3a]" />
-              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Notas dieta</div>
-              <div className="mt-1 font-black">{liveProfile.dietary_notes || 'Sin definir'}</div>
+              <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Dietary notes</div>
+              <div className="mt-1 font-black">{liveProfile.dietary_notes || 'Not set'}</div>
             </div>
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Stat icon={MapPin} label="Sitios" value={bundle?.createdSpots?.length || 0} />
-            <Stat icon={CalendarDays} label="Planes" value={bundle?.plans?.length || 0} />
+            <Stat icon={MapPin} label="Spots" value={bundle?.createdSpots?.length || 0} />
+            <Stat icon={CalendarDays} label="Plans" value={bundle?.plans?.length || 0} />
             <Stat icon={Star} label="Ratings" value={bundle?.ratings?.length || 0} />
-            <Stat icon={MessageSquare} label="Reseñas" value={bundle?.comments?.length || 0} />
+            <Stat icon={MessageSquare} label="Reviews" value={bundle?.comments?.length || 0} />
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <Button onClick={() => setEditing((value) => !value)} className="h-12 rounded-2xl bg-[#df5b43] font-bold text-white hover:bg-[#c84b35]">
-              {editing ? 'Cerrar editor' : 'Editar perfil'}
+              {editing ? 'Close editor' : 'Edit profile'}
             </Button>
             <Link to={`/profile/${user.id}`} className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-white hover:bg-white/[0.07]">
               <UserRound className="mr-2 h-4 w-4" />
-              Vista publica
+              Public view
             </Link>
             {role === 'admin' ? (
               <Link to={createPageUrl('Admin')} className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#efbf3a]/30 bg-[#17130a] text-sm font-bold text-[#efbf3a]">
                 <Shield className="mr-2 h-4 w-4" />
-                Panel admin
+                Admin panel
               </Link>
             ) : null}
             <button type="button" onClick={logout} className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-stone-200">
               <LogOut className="mr-2 h-4 w-4" />
-              Salir
+              Log out
             </button>
           </div>
 
-          {uploading ? <div className="mt-3 text-xs text-stone-500">Subiendo foto...</div> : null}
+          {uploading ? <div className="mt-3 text-xs text-stone-500">Uploading avatar...</div> : null}
         </section>
 
         <section className="space-y-5">
           {editing ? (
             <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
-              <div className="text-xl font-black">Editor de perfil</div>
+              <div className="text-xl font-black">Profile editor</div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Nombre publico</Label>
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Username</Label>
                   <Input value={form.username} onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))} className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Ciudad</Label>
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">City / neighborhood</Label>
                   <Input value={form.city} onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value }))} className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Barrio</Label>
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Neighborhood</Label>
                   <Input value={form.neighborhood} onChange={(e) => setForm((prev) => ({ ...prev, neighborhood: e.target.value }))} className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Slice favorito</Label>
-                  <Input value={form.favorite_slice} onChange={(e) => setForm((prev) => ({ ...prev, favorite_slice: e.target.value }))} placeholder="Pepperoni, grandma, margarita..." className="border-white/10 bg-white/[0.04] text-white" />
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Favorite slice</Label>
+                  <Input value={form.favorite_slice} onChange={(e) => setForm((prev) => ({ ...prev, favorite_slice: e.target.value }))} placeholder="Pepperoni, grandma, margherita..." className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Estilo pizza</Label>
-                  <Input value={form.pizza_style} onChange={(e) => setForm((prev) => ({ ...prev, pizza_style: e.target.value }))} placeholder="Barato, clasicos, planes tranquilos..." className="border-white/10 bg-white/[0.04] text-white" />
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Pizza style</Label>
+                  <Input value={form.pizza_style} onChange={(e) => setForm((prev) => ({ ...prev, pizza_style: e.target.value }))} placeholder="Cheap slices, classics, date-night spots..." className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Notas dieta</Label>
-                  <Input value={form.dietary_notes} onChange={(e) => setForm((prev) => ({ ...prev, dietary_notes: e.target.value }))} placeholder="Vegetariano, halal, sin gluten..." className="border-white/10 bg-white/[0.04] text-white" />
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Dietary notes</Label>
+                  <Input value={form.dietary_notes} onChange={(e) => setForm((prev) => ({ ...prev, dietary_notes: e.target.value }))} placeholder="Vegetarian, halal, gluten-free..." className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Sitio favorito</Label>
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Favorite spot</Label>
                   <select value={form.favorite_spot_id} onChange={(e) => setForm((prev) => ({ ...prev, favorite_spot_id: e.target.value }))} className="h-10 w-full rounded-md border border-white/10 bg-[#171717] px-3 text-sm text-white">
-                    <option value="">Elige un sitio</option>
+                    <option value="">Choose a spot</option>
                     {(bundle?.spots || []).map((spot) => <option key={spot.id} value={spot.id}>{spot.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Visibilidad</Label>
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Profile visibility</Label>
                   <select value={form.profile_visibility} onChange={(e) => setForm((prev) => ({ ...prev, profile_visibility: e.target.value }))} className="h-10 w-full rounded-md border border-white/10 bg-[#171717] px-3 text-sm text-white">
-                    <option value="public">Publico</option>
-                    <option value="private">Privado</option>
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
                   </select>
                 </div>
                 <div className="sm:col-span-2">
@@ -318,7 +318,7 @@ export default function Profile() {
                 </div>
               </div>
               <Button disabled={saveProfile.isPending} onClick={() => saveProfile.mutate()} className="mt-5 h-12 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
-                Guardar perfil
+                Save profile
               </Button>
             </div>
           ) : null}
@@ -326,19 +326,19 @@ export default function Profile() {
           <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <div className="text-xl font-black">Actividad</div>
-                <div className="mt-1 text-sm text-stone-500">Reseñas, valoraciones, planes y sitios asociados a tu perfil.</div>
+                <div className="text-xl font-black">Activity</div>
+                <div className="mt-1 text-sm text-stone-500">Reviews, ratings, plans and spots attached to your profile.</div>
               </div>
-              {isLoading ? <span className="text-xs text-stone-500">Cargando...</span> : null}
+              {isLoading ? <span className="text-xs text-stone-500">Loading...</span> : null}
             </div>
             <div className="grid gap-3">
               {(bundle?.ratings || []).slice(0, 4).map((rating) => (
-                <ActivityItem key={rating.id} title={`${Number(rating.rating).toFixed(1)} estrellas en ${rating.spot?.name || 'Sitio de pizza'}`} meta="Valoracion">
-                  {rating.spot?.address || 'Sin direccion'}
+                <ActivityItem key={rating.id} title={`${Number(rating.rating).toFixed(1)} stars at ${rating.spot?.name || 'Pizza spot'}`} meta="Rating">
+                  {rating.spot?.address || 'No address'}
                 </ActivityItem>
               ))}
               {(bundle?.comments || []).slice(0, 4).map((comment) => (
-                <ActivityItem key={comment.id} title={comment.spot?.name || 'Sitio de pizza'} meta={`Reseña - ${comment.status || 'pendiente'}`}>
+                <ActivityItem key={comment.id} title={comment.spot?.name || 'Pizza spot'} meta={`Review - ${comment.status || 'pending'}`}>
                   {comment.content}
                 </ActivityItem>
               ))}
@@ -349,7 +349,7 @@ export default function Profile() {
               ))}
               {!isLoading && !(bundle?.ratings?.length || bundle?.comments?.length || bundle?.plans?.length) ? (
                 <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">
-                  Todavia no hay actividad. Valora un sitio, escribe una reseña o crea un plan.
+                  No activity yet. Rate a spot, write a review or create a plan.
                 </div>
               ) : null}
             </div>
@@ -358,12 +358,12 @@ export default function Profile() {
           <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
             <div className="mb-4 flex items-center gap-2">
               <Award className="h-5 w-5 text-[#efbf3a]" />
-              <div className="text-xl font-black">Reputacion</div>
+              <div className="text-xl font-black">Reputation</div>
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
-              <ActivityItem title="Explorador" meta="Insignia">Anade sitios y valoraciones.</ActivityItem>
-              <ActivityItem title="Anfitrion" meta="Insignia">Crea planes de pizza.</ActivityItem>
-              <ActivityItem title="Reseñador" meta="Insignia">Deja notas utiles.</ActivityItem>
+              <ActivityItem title="Explorer" meta="Profile badge">Adds spots and ratings.</ActivityItem>
+              <ActivityItem title="Host" meta="Profile badge">Creates pizza plans.</ActivityItem>
+              <ActivityItem title="Reviewer" meta="Profile badge">Leaves useful notes.</ActivityItem>
             </div>
           </div>
         </section>

@@ -27,25 +27,25 @@ function validateForm(values, mode) {
   const password = String(values.password || '')
   const username = String(values.username || '').trim().replace(/^@+/, '')
 
-  if (mode === authModes.SIGN_UP && username.length < 2) errors.username = 'Elige un nombre publico.'
-  else if (mode === authModes.SIGN_UP && !/^[a-zA-Z0-9._-]{2,30}$/.test(username)) errors.username = 'Usa letras, numeros, punto, guion o guion bajo.'
-  if (!email) errors.email = 'Escribe tu email.'
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Escribe un email valido.'
-  if (!password) errors.password = 'Escribe tu contrasena.'
-  else if (password.length < 6) errors.password = 'La contrasena debe tener al menos 6 caracteres.'
+  if (mode === authModes.SIGN_UP && username.length < 2) errors.username = 'Choose a public username.'
+  else if (mode === authModes.SIGN_UP && !/^[a-zA-Z0-9._-]{2,30}$/.test(username)) errors.username = 'Use letters, numbers, dots, hyphens or underscores.'
+  if (!email) errors.email = 'Enter your email.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email.'
+  if (!password) errors.password = 'Enter your password.'
+  else if (password.length < 6) errors.password = 'Password must be at least 6 characters.'
   return errors
 }
 
 function friendlyPageError(error) {
   const raw = String(error?.message || error || '').trim()
   const lower = raw.toLowerCase()
-  if (!raw) return 'No se pudo completar la accion.'
+  if (!raw) return 'Could not complete the action.'
   if (lower.includes('supabase') || lower.includes('environment') || lower.includes('fetch')) {
-    return 'El acceso todavia no esta conectado. Revisa la configuracion privada del proyecto.'
+    return 'Authentication is not connected yet. Check the private project configuration.'
   }
-  if (lower.includes('invalid login credentials')) return 'Email o contrasena incorrectos.'
-  if (lower.includes('email not confirmed')) return 'Confirma tu email desde el correo que te hemos enviado.'
-  if (lower.includes('already') || lower.includes('registered')) return 'Ya existe una cuenta con ese email. Prueba a iniciar sesion.'
+  if (lower.includes('invalid login credentials')) return 'Email or password is incorrect.'
+  if (lower.includes('email not confirmed')) return 'Confirm your email from the message we sent you.'
+  if (lower.includes('already') || lower.includes('registered')) return 'An account already exists with that email. Try signing in.'
   return raw
 }
 
@@ -88,8 +88,8 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const nextUrl = searchParams.get('next') || '/home'
 
-  const title = mode === authModes.SIGN_IN ? 'Entra en tu cuenta.' : 'Crea tu cuenta.'
-  const subtitle = mode === authModes.SIGN_IN ? 'Vuelve a tus planes, chats y sitios guardados.' : 'Tu email es privado. Tu nombre publico ayuda a otros a reconocerte.'
+  const title = mode === authModes.SIGN_IN ? 'Sign in to your account.' : 'Create your account.'
+  const subtitle = mode === authModes.SIGN_IN ? 'Get back to your plans, chats and saved spots.' : 'Your email stays private. Your public username helps people recognize you.'
   const canSubmit = useMemo(() => Boolean(isSupabaseConfigured && !submitting), [isSupabaseConfigured, submitting])
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function AuthPage() {
     setFormError('')
     if (Object.keys(nextErrors).length) return
     if (!isSupabaseConfigured) {
-      setFormError('El acceso todavia no esta conectado. Revisa la configuracion privada del proyecto.')
+      setFormError('Authentication is not connected yet. Check the private project configuration.')
       return
     }
 
@@ -147,7 +147,7 @@ export default function AuthPage() {
       if (mode === authModes.SIGN_IN) {
         await signIn(cleanEmail(form.email), form.password)
         persistRememberChoice()
-        toast.success('Bienvenido de nuevo a Sozzial')
+        toast.success('Welcome back to Sozzial')
         navigate(nextUrl, { replace: true })
         return
       }
@@ -159,12 +159,12 @@ export default function AuthPage() {
       })
       persistRememberChoice()
       if (result?.session?.user) {
-        toast.success('Cuenta creada. Bienvenido a Sozzial')
+        toast.success('Account created. Welcome to Sozzial')
         navigate(nextUrl, { replace: true })
         return
       }
-      setSuccessMessage('Cuenta creada. Revisa tu email para confirmarla y despues inicia sesion.')
-      toast.success('Cuenta creada. Revisa tu email.')
+      setSuccessMessage('Account created. Check your email to confirm it, then sign in.')
+      toast.success('Account created. Check your email.')
       setMode(authModes.SIGN_IN)
     } catch (error) {
       const message = friendlyPageError(error)
@@ -180,13 +180,13 @@ export default function AuthPage() {
     setFormError('')
     const email = cleanEmail(form.email)
     if (!email) {
-      setErrors((current) => ({ ...current, email: 'Escribe tu email primero.' }))
+      setErrors((current) => ({ ...current, email: 'Write your email first.' }))
       return
     }
     try {
       await resetPassword(email)
-      setSuccessMessage('Te hemos enviado un email para cambiar la contrasena.')
-      toast.success('Email de recuperacion enviado.')
+      setSuccessMessage('We sent you an email to reset your password.')
+      toast.success('Recovery email sent.')
     } catch (error) {
       const message = friendlyPageError(error)
       setFormError(message)
@@ -196,7 +196,7 @@ export default function AuthPage() {
 
   const handleGoogleSignIn = async () => {
     if (!isSupabaseConfigured) {
-      setFormError('El acceso todavia no esta conectado. Revisa la configuracion privada del proyecto.')
+      setFormError('Authentication is not connected yet. Check the private project configuration.')
       return
     }
     setSubmitting(true)
@@ -218,14 +218,14 @@ export default function AuthPage() {
           <section className="hidden rounded-[30px] bg-[#111111] p-8 text-white shadow-[0_30px_90px_rgba(17,17,17,0.18)] lg:flex lg:flex-col lg:justify-between">
             <div>
               <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0bf39] text-[#111111]"><Pizza className="h-7 w-7" /></div>
-              <div className="text-[3rem] font-black leading-[0.92] tracking-tight">Planes de pizza, no perfiles vacios.</div>
+              <div className="text-[3rem] font-black leading-[0.92] tracking-tight">Pizza plans, not profile swipes.</div>
               <p className="mt-4 max-w-md text-base leading-7 text-white/70">
-                Explora el mapa como invitado. Entra solo cuando quieras unirte a planes, crear uno, valorar un sitio o hablar con el grupo.
+                Explore the map as a guest. Sign in only when you want to join plans, create one, rate a spot or chat with the group.
               </p>
             </div>
 
             <div className="grid gap-3 text-sm">
-              {['Mapa publico con precios por slice', 'Descubre planes con gestos fluidos', 'Entra en grupos y organiza por chat', 'Anade sitios y ayuda a mejorar el mapa'].map((item) => (
+              {['Public map with slice prices', 'Discover plans with smooth gestures', 'Join groups and coordinate in chat', 'Add spots and improve the map'].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white/85">
                   {item}
                 </div>
@@ -238,22 +238,22 @@ export default function AuthPage() {
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0bf39] text-[#111111]"><Pizza className="h-7 w-7" /></div>
               <div>
                 <div className="text-[2rem] font-black leading-none tracking-tight">Sozzial</div>
-                <div className="mt-1 text-sm text-[#6e6558]">Explora como invitado. Entra para unirte a planes, chatear y crear los tuyos.</div>
+                <div className="mt-1 text-sm text-[#6e6558]">Explore as a guest. Sign in to join plans, chat and create your own.</div>
               </div>
             </div>
 
             {!isSupabaseConfigured ? (
               <div className="mb-4 rounded-2xl border border-[#efc5bc] bg-[#fff0ea] p-3 text-sm text-[#b54834]">
-                El acceso todavia no esta conectado. Configura las claves privadas del proyecto antes de abrir registros reales.
+                Authentication is not connected yet. Configure the private project keys before opening real signups.
               </div>
             ) : null}
 
             <div className="mb-5 flex rounded-2xl bg-[#eee3d2] p-1">
               <button type="button" onClick={() => setMode(authModes.SIGN_UP)} className={`h-11 flex-1 rounded-xl text-sm font-bold ${mode === authModes.SIGN_UP ? 'bg-white text-[#111] shadow-sm' : 'text-[#857b6b]'}`}>
-                Crear cuenta
+                Create account
               </button>
               <button type="button" onClick={() => setMode(authModes.SIGN_IN)} className={`h-11 flex-1 rounded-xl text-sm font-bold ${mode === authModes.SIGN_IN ? 'bg-white text-[#111] shadow-sm' : 'text-[#857b6b]'}`}>
-                Entrar
+                Sign in
               </button>
             </div>
 
@@ -264,12 +264,12 @@ export default function AuthPage() {
 
             <Button type="button" variant="outline" disabled={submitting || !isSupabaseConfigured} onClick={handleGoogleSignIn} className="mb-4 h-12 w-full rounded-2xl border-black/10 bg-white text-sm font-semibold text-[#111] hover:bg-[#fbfaf7]">
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Chrome className="mr-2 h-4 w-4" />}
-              Continuar con Google
+              Continue with Google
             </Button>
 
             <div className="mb-4 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-[#9a9182]">
               <div className="h-px flex-1 bg-black/10" />
-              <span>o usa email</span>
+              <span>or use email</span>
               <div className="h-px flex-1 bg-black/10" />
             </div>
 
@@ -277,7 +277,7 @@ export default function AuthPage() {
               {mode === authModes.SIGN_UP ? (
                 <Field
                   icon={User}
-                  placeholder="Nombre publico"
+                  placeholder="Public username"
                   autoComplete="nickname"
                   value={form.username}
                   onChange={(event) => updateField('username', event.target.value)}
@@ -298,13 +298,13 @@ export default function AuthPage() {
               <Field
                 icon={Lock}
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Contrasena"
+                placeholder="Password"
                 autoComplete={mode === authModes.SIGN_IN ? 'current-password' : 'new-password'}
                 value={form.password}
                 onChange={(event) => updateField('password', event.target.value)}
                 error={errors.password}
                 rightSlot={
-                  <button type="button" onClick={() => setShowPassword((value) => !value)} className="grid h-7 w-7 place-items-center rounded-full text-[#8b836f] hover:bg-[#f1eadf] hover:text-[#111]" aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}>
+                  <button type="button" onClick={() => setShowPassword((value) => !value)} className="grid h-7 w-7 place-items-center rounded-full text-[#8b836f] hover:bg-[#f1eadf] hover:text-[#111]" aria-label={showPassword ? 'Hide password' : 'Show password'}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 }
@@ -313,10 +313,10 @@ export default function AuthPage() {
               <div className="flex items-center justify-between gap-3 px-1 pt-1 text-xs text-[#8d8577]">
                 <label className="inline-flex items-center gap-2">
                   <Checkbox checked={form.rememberMe} onCheckedChange={(value) => updateField('rememberMe', Boolean(value))} />
-                  <span>Recordarme</span>
+                  <span>Remember me</span>
                 </label>
                 <button type="button" onClick={handleForgotPassword} className="font-medium hover:text-[#111]">
-                  Recuperar contrasena
+                  Forgot password
                 </button>
               </div>
 
@@ -329,13 +329,13 @@ export default function AuthPage() {
 
               <Button type="submit" disabled={!canSubmit} className="h-12 w-full rounded-2xl border-0 bg-[#6d6cf7] text-base font-bold text-white hover:bg-[#5f5eee] disabled:opacity-55">
                 {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {mode === authModes.SIGN_IN ? 'Entrar' : 'Crear cuenta'}
+                {mode === authModes.SIGN_IN ? 'Sign in' : 'Create account'}
                 {!submitting ? <ArrowRight className="ml-2 h-4 w-4" /> : null}
               </Button>
             </form>
 
             <Link to="/home" className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-2xl border border-black/10 bg-[#f9f4eb] text-sm font-semibold text-[#111] hover:bg-[#fbfaf7]">
-              Seguir como invitado
+              Continue as guest
             </Link>
           </section>
         </div>

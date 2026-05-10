@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapContainer, Marker, TileLayer, useMapEvents, useMap } from "react-leaflet";
@@ -62,7 +62,7 @@ function MapPicker({ value, onChange }) {
           <MapEvents />
         </MapContainer>
       </div>
-      <p className="text-xs leading-5 text-stone-500">Busca primero y luego toca el mapa si quieres ajustar el pin.</p>
+      <p className="text-xs leading-5 text-stone-500">Search first, then tap the map if you want to fine-tune the pin.</p>
     </div>
   );
 }
@@ -167,9 +167,9 @@ export default function AddPinModal({ open, onClose, user }) {
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
             <MapPin className="h-7 w-7" />
           </div>
-          <h2 className="mt-5 text-2xl font-black">La edicion del mapa aun no esta conectada</h2>
-          <p className="mt-3 text-sm leading-7 text-stone-400">Configura las claves privadas del proyecto antes de publicar sitios reales.</p>
-          <button type="button" onClick={onClose} className="mt-5 h-12 w-full rounded-2xl bg-[#df5b43] font-bold text-white">Cerrar</button>
+          <h2 className="mt-5 text-2xl font-black">Map editing is not configured</h2>
+          <p className="mt-3 text-sm leading-7 text-stone-400">Add Supabase environment variables before publishing new spots.</p>
+          <button type="button" onClick={onClose} className="mt-5 h-12 w-full rounded-2xl bg-[#df5b43] font-bold text-white">Close</button>
         </div>
       </div>
     );
@@ -270,53 +270,53 @@ export default function AddPinModal({ open, onClose, user }) {
           {done ? (
             <div className="p-8 text-center">
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-[24px] bg-emerald-500/15 text-emerald-300"><CheckCircle className="h-8 w-8" /></div>
-              <h3 className="text-2xl font-black text-white">Sitio creado</h3>
-              <p className="mt-3 text-sm leading-7 text-stone-400">Se ha guardado correctamente y pasa a revision del admin. Volviendo al mapa...</p>
-              <Button onClick={handleClose} className="mt-6 h-11 w-full rounded-2xl bg-red-600 text-white hover:bg-red-500">Volver al mapa</Button>
+              <h3 className="text-2xl font-black text-white">Spot created</h3>
+              <p className="mt-3 text-sm leading-7 text-stone-400">Se ha guardado correctamente y pasa a revisión del admin. Volviendo al mapa...</p>
+              <Button onClick={handleClose} className="mt-6 h-11 w-full rounded-2xl bg-red-600 text-white hover:bg-red-500">Back to map</Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="p-6">
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-red-300">Anadir sitio</div>
-                  <h3 className="mt-1 text-2xl font-black text-white">Pin rapido, precio real</h3>
-                  <p className="mt-1 text-sm text-stone-500">Hazlo simple: ubicacion, nombre, precio y una nota si la tienes.</p>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-red-300">Add spot</div>
+                  <h3 className="mt-1 text-2xl font-black text-white">Fast pin, real slice price</h3>
+                  <p className="mt-1 text-sm text-stone-500">Keep it quick: location, name, price and a small extra if you have it.</p>
                 </div>
                 <button type="button" onClick={handleClose} className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-stone-300"><X className="h-4 w-4" /></button>
               </div>
 
               <div className="space-y-5">
                 <section className="rounded-[26px] border border-white/10 bg-white/[0.03] p-4">
-                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><Search className="h-3.5 w-3.5" />Busca el sitio</Label>
+                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><Search className="h-3.5 w-3.5" />Find the place</Label>
                   <div className="relative">
-                    <Input value={locationQuery} onChange={(e) => setLocationQuery(e.target.value)} placeholder="Busca calle, direccion o nombre" className="h-11 border-white/10 bg-white/[0.04] pl-10 text-white" />
+                    <Input value={locationQuery} onChange={(e) => setLocationQuery(e.target.value)} placeholder="Search street, address or spot name" className="h-11 border-white/10 bg-white/[0.04] pl-10 text-white" />
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
                     {searching ? <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-stone-500" /> : null}
                   </div>
                   {(matchingExisting.length || geoSuggestions.length) ? <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-[#151515]">
                     {matchingExisting.map((spot) => <button key={`existing-${spot.id}`} type="button" onClick={() => handleSelectExisting(spot)} className="flex w-full items-start justify-between gap-3 border-b border-white/6 px-4 py-3 text-left text-white hover:bg-white/[0.04]">
                       <div><div className="font-semibold">{spot.name}</div><div className="text-xs text-stone-400">{spot.address}</div></div>
-                      <span className="rounded-full bg-amber-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">Existe</span>
+                      <span className="rounded-full bg-amber-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">Existing</span>
                     </button>)}
                     {geoSuggestions.map((item) => <button key={`${item.place_id}-${item.lat}-${item.lon}`} type="button" onClick={() => handleSelectSuggestion(item)} className="flex w-full items-start gap-3 px-4 py-3 text-left text-white hover:bg-white/[0.04]"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-300" /><div className="text-sm text-stone-200">{item.display_name}</div></button>)}
                   </div> : null}
-                  {existingSpot ? <div className="mt-3 flex items-start gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-amber-100"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /><div className="text-sm leading-6">Este sitio ya existe en el mapa. Abre su ficha en vez de crear un duplicado.</div></div> : null}
+                  {existingSpot ? <div className="mt-3 flex items-start gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-amber-100"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /><div className="text-sm leading-6">This spot already exists on the map. Open it from the map instead of creating a duplicate.</div></div> : null}
                 </section>
 
                 <section className="rounded-[26px] border border-white/10 bg-white/[0.03] p-4"><MapPicker value={form} onChange={(coords) => setForm((current) => ({ ...current, ...coords }))} /></section>
 
                 <section className="rounded-[26px] border border-white/10 bg-white/[0.03] p-4 space-y-4">
-                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Nombre *</Label><Input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Joe's Pizza" className="h-11 border-white/10 bg-white/[0.04] text-white" /></div>
-                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Precio slice *</Label><Input type="number" min="0" step="0.25" value={form.slice_price} onChange={(e) => update("slice_price", e.target.value)} placeholder="3.50" className="h-11 border-white/10 bg-white/[0.04] text-white" /></div>
-                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Mejor slice</Label><Input value={form.best_slice} onChange={(e) => update("best_slice", e.target.value)} placeholder="Cheese, grandma, pepperoni..." className="h-11 border-white/10 bg-white/[0.04] text-white" /></div>
-                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Nota rapida</Label><Textarea value={form.quick_note} onChange={(e) => update("quick_note", e.target.value)} placeholder="Barato y rapido, buen sitio de noche..." className="min-h-[92px] border-white/10 bg-white/[0.04] text-white" /></div>
+                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Name *</Label><Input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Joe's Pizza" className="h-11 border-white/10 bg-white/[0.04] text-white" /></div>
+                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Slice price *</Label><Input type="number" min="0" step="0.25" value={form.slice_price} onChange={(e) => update("slice_price", e.target.value)} placeholder="3.50" className="h-11 border-white/10 bg-white/[0.04] text-white" /></div>
+                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Best known slice</Label><Input value={form.best_slice} onChange={(e) => update("best_slice", e.target.value)} placeholder="Cheese, grandma, pepperoni..." className="h-11 border-white/10 bg-white/[0.04] text-white" /></div>
+                  <div><Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Quick note</Label><Textarea value={form.quick_note} onChange={(e) => update("quick_note", e.target.value)} placeholder="Cheap and fast, good late-night stop..." className="min-h-[92px] border-white/10 bg-white/[0.04] text-white" /></div>
                 </section>
 
                 <section className="rounded-[26px] border border-white/10 bg-white/[0.03] p-4">
-                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><ImagePlus className="h-3.5 w-3.5" />Foto</Label>
+                  <Label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500"><ImagePlus className="h-3.5 w-3.5" />Photo</Label>
                   <label className="flex cursor-pointer flex-col gap-3 rounded-[22px] border border-dashed border-white/10 bg-white/[0.03] p-4 text-sm text-stone-300 hover:bg-white/[0.05]">
                     <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
-                    <span>{photoName || "Elegir de la galeria"}</span>
+                    <span>{photoName || "Choose from gallery"}</span>
                     <div className="aspect-[4/3] overflow-hidden rounded-[18px] border border-white/8 bg-[#0f0f0f]">{form.photoPreview ? <img src={form.photoPreview} alt="Preview" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-stone-600">4:3 preview</div>}</div>
                   </label>
                 </section>
@@ -325,7 +325,7 @@ export default function AddPinModal({ open, onClose, user }) {
 
               <Button type="submit" disabled={submitting || existingSpot || !form.name.trim()} className="mt-6 h-12 w-full rounded-2xl bg-red-600 text-white hover:bg-red-500">
                 {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Anadir sitio
+                Add spot
               </Button>
             </form>
           )}

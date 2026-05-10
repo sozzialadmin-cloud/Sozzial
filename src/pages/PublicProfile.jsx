@@ -98,13 +98,13 @@ export default function PublicProfile() {
       <div className="mx-auto max-w-5xl">
         <Link to={createPageUrl('Home')} className="mb-4 inline-flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-bold text-stone-200">
           <ArrowLeft className="h-4 w-4" />
-          Volver al mapa
+          Back to map
         </Link>
 
-        {isLoading ? <div className="rounded-[30px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">Cargando perfil...</div> : null}
+        {isLoading ? <div className="rounded-[30px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">Loading profile...</div> : null}
         {!isLoading && !profile ? (
           <div className="rounded-[30px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">
-            {isPrivate ? 'Este perfil es privado.' : 'Perfil no encontrado.'}
+            {isPrivate ? 'Este perfil es privado.' : 'Profile not found.'}
           </div>
         ) : null}
 
@@ -125,45 +125,45 @@ export default function PublicProfile() {
                 </div>
               </div>
 
-              <p className="mt-6 text-sm leading-7 text-stone-300">{profile.bio || 'Esta persona todavia no ha anadido una bio.'}</p>
+              <p className="mt-6 text-sm leading-7 text-stone-300">{profile.bio || 'This person has not added a bio yet.'}</p>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <FeedItem title={profile.favorite_slice || 'Sin definir'} meta="Slice favorito">
-                  <Heart className="inline h-4 w-4 text-[#efbf3a]" /> eleccion personal
+                <FeedItem title={profile.favorite_slice || 'Not set'} meta="Favorite slice">
+                  <Heart className="inline h-4 w-4 text-[#efbf3a]" /> personal pick
                 </FeedItem>
-                <FeedItem title={data.favoriteSpot?.name || 'Sin definir'} meta="Sitio favorito">
-                  {data.favoriteSpot?.address || 'Todavia no hay sitio favorito.'}
+                <FeedItem title={data.favoriteSpot?.name || 'Not set'} meta="Favorite spot">
+                  {data.favoriteSpot?.address || 'No favorite place yet.'}
                 </FeedItem>
-                <FeedItem title={profile.pizza_style || 'Sin definir'} meta="Estilo pizza" />
-                <FeedItem title={profile.dietary_notes || 'Sin definir'} meta="Notas dieta" />
+                <FeedItem title={profile.pizza_style || 'Not set'} meta="Pizza style" />
+                <FeedItem title={profile.dietary_notes || 'Not set'} meta="Dietary notes" />
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-2 sm:gap-3">
-                <Stat icon={Pizza} label="Sitios" value={data.createdSpots.length} />
-                <Stat icon={CalendarDays} label="Planes" value={data.plans.length} />
+                <Stat icon={Pizza} label="Spots" value={data.createdSpots.length} />
+                <Stat icon={CalendarDays} label="Plans" value={data.plans.length} />
                 <Stat icon={Star} label="Ratings" value={data.ratings.length} />
-                <Stat icon={MessageSquare} label="Reseñas" value={data.comments.length} />
+                <Stat icon={MessageSquare} label="Reviews" value={data.comments.length} />
               </div>
             </section>
 
             <section className="space-y-5">
               <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
-                <div className="mb-4 text-xl font-black">Actividad pizza</div>
+                <div className="mb-4 text-xl font-black">Pizza activity</div>
                 <div className="grid gap-3">
-                  {bestRating ? <FeedItem title={`${Number(bestRating.rating).toFixed(1)} estrellas en ${bestRating.spot?.name || 'Sitio de pizza'}`} meta="Mejor valoracion reciente">{bestRating.spot?.address || ''}</FeedItem> : null}
-                  {data.comments.slice(0, 5).map((comment) => <FeedItem key={comment.id} title={comment.spot?.name || 'Sitio de pizza'} meta="Reseña">{comment.content}</FeedItem>)}
-                  {data.createdSpots.slice(0, 5).map((spot) => <FeedItem key={spot.id} title={spot.name} meta="Sitio anadido">{spot.address}</FeedItem>)}
-                  {!data.comments.length && !data.createdSpots.length && !bestRating ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">Todavia no hay actividad publica.</div> : null}
+                  {bestRating ? <FeedItem title={`${Number(bestRating.rating).toFixed(1)} stars at ${bestRating.spot?.name || 'Pizza spot'}`} meta="Top recent rating">{bestRating.spot?.address || ''}</FeedItem> : null}
+                  {data.comments.slice(0, 5).map((comment) => <FeedItem key={comment.id} title={comment.spot?.name || 'Pizza spot'} meta="Review">{comment.content}</FeedItem>)}
+                  {data.createdSpots.slice(0, 5).map((spot) => <FeedItem key={spot.id} title={spot.name} meta="Added spot">{spot.address}</FeedItem>)}
+                  {!data.comments.length && !data.createdSpots.length && !bestRating ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">No public activity yet.</div> : null}
                 </div>
               </div>
 
               <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
-                <div className="mb-4 text-xl font-black">Proximos planes publicos</div>
+                <div className="mb-4 text-xl font-black">Upcoming public plans</div>
                 <div className="grid gap-3">
                   {data.plans.map((plan) => (
                     <FeedItem key={plan.id} title={plan.title} meta={`${plan.plan_date} ${String(plan.plan_time || '').slice(0, 5)}`} />
                   ))}
-                  {!data.plans.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">No hay planes publicos activos.</div> : null}
+                  {!data.plans.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">No public active plans.</div> : null}
                 </div>
               </div>
             </section>

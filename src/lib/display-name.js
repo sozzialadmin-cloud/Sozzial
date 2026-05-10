@@ -1,4 +1,4 @@
-﻿export function getPublicUsername(profileOrUser, fallback = "Usuario") {
+export function getPublicUsername(profileOrUser, fallback = "User") {
   const username = String(profileOrUser?.username || '').trim();
   if (username) return username;
   return fallback;

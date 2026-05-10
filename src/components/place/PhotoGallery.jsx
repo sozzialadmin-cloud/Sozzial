@@ -40,7 +40,7 @@ export default function PhotoGallery({ placeId, photos, user, onRequireAuth }) {
       });
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["spot-photos", placeId] });
-      alert("Foto enviada a revision.");
+      alert("Photo sent for review.");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -68,14 +68,14 @@ export default function PhotoGallery({ placeId, photos, user, onRequireAuth }) {
           disabled={uploading}
         >
           {uploading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Upload className="w-4 h-4 mr-1.5" />}
-          {uploading ? "Subiendo..." : "Anadir foto"}
+          {uploading ? "Uploading..." : "Add photo"}
         </Button>
       </div>
 
       {photos.length === 0 ? (
         <div className="text-center py-8">
           <Camera className="w-8 h-8 text-stone-700 mx-auto mb-2" />
-          <p className="text-stone-500 text-sm">Todavia no hay fotos. Anade la primera.</p>
+          <p className="text-stone-500 text-sm">No photos yet. Add the first!</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2">

@@ -1,4 +1,4 @@
-﻿import React, {
+import React, {
   createContext,
   useState,
   useContext,
@@ -16,7 +16,7 @@ function getFallbackProfile(user) {
     email: user?.email || '',
     username:
       String(user?.user_metadata?.username || user?.user_metadata?.full_name || '').trim() ||
-      'Usuario',
+      'User',
     avatar_url: user?.user_metadata?.avatar_url || '',
     role: 'user',
   };
@@ -28,25 +28,25 @@ function normalizeResolvedProfile(profile, fallbackUser = null) {
   return {
     ...(fallback || {}),
     ...(profile || {}),
-    username: String(profile?.username || fallback?.username || '').trim() || 'Usuario',
+    username: String(profile?.username || fallback?.username || '').trim() || 'User',
   };
 }
 
 function friendlyAuthError(error) {
   const raw = String(error?.message || error || '');
   const lower = raw.toLowerCase();
-  if (lower.includes('invalid login credentials')) return 'Email o contrasena incorrectos.';
-  if (lower.includes('email not confirmed')) return 'Tu email aun no esta confirmado. Revisa tu correo o pide un nuevo enlace.';
+  if (lower.includes('invalid login credentials')) return 'Email or password is incorrect.';
+  if (lower.includes('email not confirmed')) return 'Your email is not confirmed yet. Check your inbox or request a new link.';
   if (lower.includes('signup is disabled')) return 'El registro esta desactivado en este momento.';
-  if (lower.includes('user already registered') || lower.includes('already registered')) return 'Ya existe una cuenta con ese email. Inicia sesion.';
+  if (lower.includes('user already registered') || lower.includes('already registered')) return 'An account already exists with that email. Sign in instead.';
   if (lower.includes('rate limit')) return 'Demasiados intentos. Espera un minuto y prueba de nuevo.';
-  if (lower.includes('network') || lower.includes('failed to fetch')) return 'No se pudo conectar con el servicio de acceso. Revisa la configuracion privada.';
-  if (lower.includes('duplicate key') || lower.includes('unique')) return 'Ese nombre publico ya esta en uso. Prueba con otro.';
+  if (lower.includes('network') || lower.includes('failed to fetch')) return 'Could not connect to the auth service. Check the private configuration.';
+  if (lower.includes('duplicate key') || lower.includes('unique')) return 'That public username is already taken. Try another one.';
   return raw || 'No se pudo completar la autenticacion.';
 }
 
-function cleanUsername(value, fallback = 'Usuario') {
-  const base = String(value || fallback || 'Usuario')
+function cleanUsername(value, fallback = 'User') {
+  const base = String(value || fallback || 'User')
     .trim()
     .replace(/^@+/, '')
     .replace(/\s+/g, '_')
@@ -56,7 +56,7 @@ function cleanUsername(value, fallback = 'Usuario') {
 }
 
 async function getAvailableUsername(preferred) {
-  const base = cleanUsername(preferred, 'Usuario');
+  const base = cleanUsername(preferred, 'User');
   if (!supabase) return base;
 
   try {
@@ -112,7 +112,7 @@ async function fetchProfileByUserId(userId, fallbackUser = null) {
 async function ensureProfileForUser(sessionUser, cleanName = '') {
   if (!supabase || !sessionUser?.id) return getFallbackProfile(sessionUser);
   const fallback = getFallbackProfile(sessionUser);
-  const username = cleanUsername(cleanName || fallback.username, 'Usuario');
+  const username = cleanUsername(cleanName || fallback.username, 'User');
 
   const existing = await fetchProfileByUserId(sessionUser.id, sessionUser);
   if (existing?.id && existing.username) return existing;
@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }) => {
     if (!isSupabaseConfigured) {
       setAuthError({
         type: 'config_missing',
-        message: 'El acceso todavia no esta conectado.',
+        message: 'Supabase no esta configurado.',
       });
       setIsProfileReady(true);
       setIsLoadingAuth(false);
@@ -254,7 +254,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Session restore error:', error);
         clearSession();
-        setAuthError({ type: 'session_error', message: friendlyAuthError(error) || 'No se pudo restaurar la sesion.' });
+        setAuthError({ type: 'session_error', message: friendlyAuthError(error) || 'Could not restore the session.' });
       } finally {
         if (mountedRef.current) {
           setIsLoadingAuth(false);
@@ -290,7 +290,7 @@ export const AuthProvider = ({ children }) => {
   }, [clearSession, resolveProfile]);
 
   const signIn = async (email, password) => {
-    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
+    if (!supabase) throw new Error('Supabase no esta configurado.');
 
     setAuthError(null);
 
@@ -313,7 +313,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signUp = async ({ email, password, fullName }) => {
-    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
+    if (!supabase) throw new Error('Supabase no esta configurado.');
 
     const cleanName = await getAvailableUsername(fullName);
     const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
@@ -340,7 +340,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signInWithProvider = async (provider) => {
-    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
+    if (!supabase) throw new Error('Supabase no esta configurado.');
     const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
     const redirectTo = `${baseUrl.replace(/\/$/, '')}/auth/confirm`;
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -352,7 +352,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resetPassword = async (email) => {
-    if (!supabase) throw new Error('El acceso todavia no esta conectado.');
+    if (!supabase) throw new Error('Supabase no esta configurado.');
     const cleanEmail = String(email || '').trim();
     if (!cleanEmail) throw new Error('Escribe tu email primero.');
     const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
