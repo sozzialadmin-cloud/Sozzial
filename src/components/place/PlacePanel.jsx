@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, ChevronLeft, Coins, MessageCircle, Sparkles, ArrowUpRight, Plus, Star, Bookmark, Flag, ShieldCheck, UserRound, CalendarDays } from "lucide-react";
+import { MapPin, ChevronLeft, Coins, MessageCircle, Sparkles, ArrowUpRight, Plus, Star, Bookmark, Flag, ShieldCheck, UserRound, CalendarDays, Share2, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import CommentsSection from "./CommentsSection";
@@ -148,6 +148,18 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
     ratingSummary.count ? `${ratingSummary.count} ratings` : null,
     relatedPlans.length ? `${relatedPlans.length} active plans` : null,
   ].filter(Boolean);
+  const spotMood = displayRating >= 4.5
+    ? "Community favorite"
+    : relatedPlans.length
+      ? "Social spot"
+      : approvedComments.length || approvedPhotos.length
+        ? "Worth a look"
+        : "Needs explorers";
+  const priceSignal = Number(displaySlicePrice || 0) > 0 && Number(displaySlicePrice || 0) <= 3
+    ? "Budget slice"
+    : Number(displaySlicePrice || 0) > 5
+      ? "Premium stop"
+      : "Mid-price";
 
   useEffect(() => {
     setRatingSummary({
@@ -272,6 +284,20 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
     }
   };
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}${createPageUrl("Home")}?spot=${place.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: place.name, text: `Check out ${place.name} on Sozzial`, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast({ title: "Link copied", description: "Share this spot with a friend." });
+      }
+    } catch {
+      toast({ title: "Share cancelled", description: "No problem, the spot stays here." });
+    }
+  };
+
   if (!place) return null;
 
   const tabs = [
@@ -346,6 +372,21 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
               </div>
             </div>
 
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+                <div className="text-[10px] font-black uppercase tracking-[0.14em] text-stone-500">Mood</div>
+                <div className="mt-1 text-sm font-black text-white">{spotMood}</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+                <div className="text-[10px] font-black uppercase tracking-[0.14em] text-stone-500">Price</div>
+                <div className="mt-1 text-sm font-black text-white">{priceSignal}</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+                <div className="text-[10px] font-black uppercase tracking-[0.14em] text-stone-500">Trust</div>
+                <div className="mt-1 text-sm font-black text-white">{trustSignals.length || 1}/4</div>
+              </div>
+            </div>
+
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.08]">
                 <ArrowUpRight className="mr-2 h-4 w-4" />Open in maps
@@ -362,6 +403,9 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
                 <Flag className="mr-2 h-4 w-4" />Report
               </button>
             </div>
+            <button onClick={handleShare} className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-sm font-bold text-stone-200 transition hover:bg-white/[0.08]">
+              <Share2 className="mr-2 h-4 w-4" />Share spot
+            </button>
             {place.created_by ? (
               <Link to={`/profile/${place.created_by}`} className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-white/10 bg-black/25 text-sm font-bold text-stone-200 transition hover:bg-white/[0.06]">
                 <UserRound className="mr-2 h-4 w-4" />View contributor profile
@@ -412,6 +456,16 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
                   <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Address</div>
                   <div className="mt-2 text-sm leading-6 text-stone-300">{place.address || "No address yet."}</div>
+                </div>
+                <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">
+                    <Zap className="h-3.5 w-3.5" />Why it matters
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-stone-300">
+                    {spotMood === "Needs explorers"
+                      ? "This place needs the first real notes, photos and ratings from the community."
+                      : `This looks like a ${spotMood.toLowerCase()} with a ${priceSignal.toLowerCase()} profile.`}
+                  </p>
                 </div>
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
                   <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Active plans - {relatedPlans.length}</div>

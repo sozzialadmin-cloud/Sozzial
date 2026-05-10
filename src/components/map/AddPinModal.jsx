@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { searchPlaces } from "@/lib/place-search";
 
 const markerIcon = L.icon({
   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
@@ -102,11 +103,6 @@ async function reverseGeocode(lat, lng) {
   }
 }
 
-function getSuggestionName(item) {
-  const address = item?.address || {};
-  return item?.name || address.restaurant || address.cafe || address.fast_food || address.shop || address.amenity || "";
-}
-
 async function uploadSpotPhoto(file, userId) {
   if (!isSupabaseConfigured || !supabase) throw new Error("Photo storage is not configured yet.");
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
@@ -151,10 +147,7 @@ export default function AddPinModal({ open, onClose, user }) {
     const timeoutId = window.setTimeout(async () => {
       setSearching(true);
       try {
-        const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&countrycodes=us&q=${encodeURIComponent(`${query}, New York City`)}`;
-        const response = await fetch(url, { signal: controller.signal, headers: { Accept: "application/json" } });
-        const results = await response.json();
-        setGeoSuggestions(Array.isArray(results) ? results : []);
+        setGeoSuggestions(await searchPlaces(query, { signal: controller.signal }));
       } catch (error) {
         if (error?.name !== "AbortError") setGeoSuggestions([]);
       } finally {
@@ -204,8 +197,8 @@ export default function AddPinModal({ open, onClose, user }) {
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
 
   function handleSelectSuggestion(item) {
-    const addressLabel = item.display_name || "";
-    const suggestedName = getSuggestionName(item);
+    const addressLabel = item.address || "";
+    const suggestedName = item.name || "";
     setExistingSpot(null);
     setErrorMessage("");
     setForm((current) => ({
@@ -213,7 +206,7 @@ export default function AddPinModal({ open, onClose, user }) {
       name: current.name || suggestedName,
       address: addressLabel,
       lat: Number(item.lat),
-      lng: Number(item.lon),
+      lng: Number(item.lng),
     }));
     setLocationQuery(addressLabel);
     setGeoSuggestions([]);
@@ -389,11 +382,12 @@ export default function AddPinModal({ open, onClose, user }) {
                         </button>
                       ))}
                       {geoSuggestions.map((item) => (
-                        <button key={`${item.place_id}-${item.lat}-${item.lon}`} type="button" onClick={() => handleSelectSuggestion(item)} className="flex w-full items-start gap-3 border-b border-white/6 px-4 py-3 text-left text-white transition last:border-b-0 hover:bg-white/[0.04]">
+                        <button key={item.id} type="button" onClick={() => handleSelectSuggestion(item)} className="flex w-full items-start gap-3 border-b border-white/6 px-4 py-3 text-left text-white transition last:border-b-0 hover:bg-white/[0.04]">
                           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-stone-100">{getSuggestionName(item) || "Use this location"}</div>
-                            <div className="line-clamp-2 text-xs leading-5 text-stone-400">{item.display_name}</div>
+                            <div className="text-sm font-semibold text-stone-100">{item.name || "Use this location"}</div>
+                            <div className="line-clamp-2 text-xs leading-5 text-stone-400">{item.address}</div>
+                            <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-600">{item.provider === "mapbox" ? "Smart search" : "Open map data"}</div>
                           </div>
                         </button>
                       ))}

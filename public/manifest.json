@@ -9,6 +9,29 @@
   "background_color": "#060606",
   "theme_color": "#df5b43",
   "categories": ["food", "social", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Open map",
+      "short_name": "Map",
+      "description": "Find pizza spots near you.",
+      "url": "/home",
+      "icons": [{ "src": "/sozzial-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Create plan",
+      "short_name": "Plan",
+      "description": "Start a pizza plan.",
+      "url": "/crearquedada",
+      "icons": [{ "src": "/sozzial-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Passport",
+      "short_name": "Passport",
+      "description": "Track your Sozzial progress.",
+      "url": "/passport",
+      "icons": [{ "src": "/sozzial-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ],
   "icons": [
     {
       "src": "/sozzial-icon.svg",

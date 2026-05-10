@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { List, MapPin, Search, WifiOff } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -17,6 +18,7 @@ import { applySpotFilters, countPlansBySpot, fetchActivePlanCounts, fetchMapSpot
 
 export default function Home() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [previewPlace, setPreviewPlace] = useState(null);
   const [listOpen, setListOpen] = useState(false);
@@ -62,6 +64,19 @@ export default function Home() {
   );
 
   const filteredPlaces = useMemo(() => applySpotFilters(enrichedPlaces, filters), [enrichedPlaces, filters]);
+
+  useEffect(() => {
+    const spotId = searchParams.get("spot");
+    if (!spotId || !enrichedPlaces.length) return;
+    const sharedSpot = enrichedPlaces.find((place) => place.id === spotId);
+    if (!sharedSpot) return;
+    setSelectedPlace(sharedSpot);
+    setPreviewPlace(null);
+    setListOpen(false);
+    const next = new URLSearchParams(searchParams);
+    next.delete("spot");
+    setSearchParams(next, { replace: true });
+  }, [enrichedPlaces, searchParams, setSearchParams]);
 
   const handleAddPin = () => {
     if (!user) {

@@ -98,6 +98,14 @@ export default function Profile() {
     () => (bundle?.spots || []).find((spot) => spot.id === form.favorite_spot_id || spot.id === liveProfile.favorite_spot_id),
     [bundle?.spots, form.favorite_spot_id, liveProfile.favorite_spot_id],
   );
+  const profileChecklist = useMemo(() => [
+    { label: 'Add avatar', done: Boolean(liveProfile.avatar_url || user?.avatar_url) },
+    { label: 'Write bio', done: Boolean(liveProfile.bio) },
+    { label: 'Choose city', done: Boolean(liveProfile.city) },
+    { label: 'Add favorite slice', done: Boolean(liveProfile.favorite_slice) },
+    { label: 'Pick favorite spot', done: Boolean(liveProfile.favorite_spot_id) },
+  ], [liveProfile.avatar_url, liveProfile.bio, liveProfile.city, liveProfile.favorite_slice, liveProfile.favorite_spot_id, user?.avatar_url]);
+  const profileProgress = Math.round((profileChecklist.filter((item) => item.done).length / profileChecklist.length) * 100);
 
   useEffect(() => {
     resolveAvatar(liveProfile.avatar_url || user?.avatar_url).then(setAvatarPreview);
@@ -218,6 +226,28 @@ export default function Profile() {
               <div className="mt-1 font-black">{favoriteSpot?.name || 'Not set'}</div>
             </div>
           </div>
+
+          {profileProgress < 100 ? (
+            <div className="mt-5 rounded-[24px] border border-[#efbf3a]/20 bg-[#efbf3a]/10 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">Profile onboarding</div>
+                  <div className="mt-1 text-lg font-black text-white">{profileProgress}% complete</div>
+                </div>
+                <Button onClick={() => setEditing(true)} className="h-10 rounded-2xl bg-[#efbf3a] px-4 text-sm font-black text-[#111111] hover:bg-[#d9a826]">Complete</Button>
+              </div>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/35">
+                <div className="h-full rounded-full bg-[#efbf3a]" style={{ width: `${profileProgress}%` }} />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {profileChecklist.map((item) => (
+                  <span key={item.label} className={`rounded-full border px-3 py-1 text-xs font-bold ${item.done ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-black/25 text-stone-400'}`}>
+                    {item.done ? 'Done' : 'Missing'} - {item.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
               <Pizza className="h-4 w-4 text-[#efbf3a]" />
