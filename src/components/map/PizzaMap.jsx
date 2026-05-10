@@ -21,12 +21,8 @@ function formatPrice(price) {
 
 function createPriceIcon(place, isActive, isSaved = false) {
   const price = Number(place.standard_slice_price || 0);
-  const rating = Number(place.average_rating || 0);
-  const plans = Number(place.active_hangouts_count || 0);
   const { bg, shadow } = getMarkerTheme(price);
   const label = formatPrice(price);
-  const ratingLabel = rating > 0 ? rating.toFixed(1) : plans > 0 ? `${plans}` : "new";
-  const ratingText = rating > 0 ? ratingLabel : plans > 0 ? "plans" : "spot";
   const stateClass = isActive ? "is-active" : isSaved ? "is-saved" : "";
 
   return L.divIcon({
@@ -35,18 +31,13 @@ function createPriceIcon(place, isActive, isSaved = false) {
       <div class="sozzial-price-bubble ${stateClass}" style="--marker-bg:${bg}; --marker-shadow:${shadow};">
         <div class="sozzial-price-bubble__body">
           <span class="sozzial-price-bubble__price">${label}</span>
-          <span class="sozzial-price-bubble__rating">
-            <span>${ratingLabel}</span>
-            <small>${ratingText}</small>
-          </span>
         </div>
         <span class="sozzial-price-bubble__tail"></span>
-        ${plans > 0 ? '<span class="sozzial-price-bubble__dot"></span>' : ""}
       </div>
     `,
-    iconSize: [66, 64],
-    iconAnchor: [33, 60],
-    popupAnchor: [0, -58],
+    iconSize: [58, 54],
+    iconAnchor: [29, 50],
+    popupAnchor: [0, -48],
   });
 }
 function MapEvents({ onBoundsChange, onMapMove }) {
