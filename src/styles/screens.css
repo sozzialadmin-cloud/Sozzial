@@ -42,7 +42,7 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 88% 72%, rgba(239, 191, 58, 0.12), transparent 0, transparent 24%), linear-gradient(180deg, rgba(8, 8, 8, 0.04) 0%, rgba(8, 8, 8, 0.18) 100%);
+      radial-gradient(circle at 86% 72%, rgba(223, 91, 67, 0.18), transparent 0, transparent 20%), linear-gradient(180deg, rgba(8, 8, 8, 0.05) 0%, rgba(8, 8, 8, 0.18) 100%);
   }
 
   .home-map-topshade {
@@ -85,20 +85,20 @@
     align-items: center;
     justify-content: center;
     gap: 0.55rem;
-    height: 3.35rem;
-    padding: 0 1.15rem;
+    height: 3.05rem;
+    padding: 0 1rem;
     border: 0;
     border-radius: 999px;
-    background: linear-gradient(180deg, #fffaf1 0%, #f1e4d1 100%); color: #141414; box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+    background: linear-gradient(180deg, #ee6048 0%, #d94d37 100%); color: white; box-shadow: 0 16px 34px rgba(223, 91, 67, 0.30), 0 0 0 1px rgba(255, 255, 255, 0.22) inset;
     transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
   }
 
   .home-map-fab:hover {
-    background: #ffffff;
+    background: linear-gradient(180deg, #f06a52 0%, #cf4631 100%);
   }
 
   .home-map-fab-label {
-    font-size: 0.84rem;
+    font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: -0.01em;
   }

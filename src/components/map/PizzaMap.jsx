@@ -8,9 +8,9 @@ const NYC_ZOOM = 12;
 const FALLBACK_TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 function getMarkerTheme(price) {
-  if (price <= 2.5) return { accent: "#2f8f46", glow: "rgba(47,143,70,0.28)" };
-  if (price <= 5) return { accent: "#efbf3a", glow: "rgba(239,191,58,0.30)" };
-  return { accent: "#df5b43", glow: "rgba(223,91,67,0.28)" };
+  if (price <= 2.5) return { bg: "#2f8f46", shadow: "rgba(47,143,70,0.34)" };
+  if (price <= 5) return { bg: "#d7a622", shadow: "rgba(215,166,34,0.32)" };
+  return { bg: "#df5b43", shadow: "rgba(223,91,67,0.32)" };
 }
 
 function formatPrice(price) {
@@ -23,25 +23,29 @@ function createPriceIcon(place, isActive, isSaved = false) {
   const price = Number(place.standard_slice_price || 0);
   const rating = Number(place.average_rating || 0);
   const plans = Number(place.active_hangouts_count || 0);
-  const { accent, glow } = getMarkerTheme(price);
+  const { bg, shadow } = getMarkerTheme(price);
   const label = formatPrice(price);
-  const meta = rating > 0 ? rating.toFixed(1) : plans > 0 ? `${plans} plan${plans === 1 ? "" : "s"}` : "new";
+  const ratingLabel = rating > 0 ? rating.toFixed(1) : plans > 0 ? `${plans}` : "new";
+  const ratingText = rating > 0 ? ratingLabel : plans > 0 ? "plans" : "spot";
   const stateClass = isActive ? "is-active" : isSaved ? "is-saved" : "";
 
   return L.divIcon({
     className: "pizza-marker",
     html: `
-      <div class="sozzial-price-pin ${stateClass}" style="--pin-accent:${accent}; --pin-glow:${glow};">
-        <div class="sozzial-price-pin__card">
-          <span class="sozzial-price-pin__price">${label}</span>
-          <span class="sozzial-price-pin__meta">${meta}</span>
+      <div class="sozzial-price-bubble ${stateClass}" style="--marker-bg:${bg}; --marker-shadow:${shadow};">
+        <div class="sozzial-price-bubble__body">
+          <span class="sozzial-price-bubble__price">${label}</span>
+          <span class="sozzial-price-bubble__rating">
+            <span>${ratingLabel}</span>
+            <small>${ratingText}</small>
+          </span>
         </div>
-        ${plans > 0 ? '<span class="sozzial-price-pin__pulse"></span>' : ""}
-        <span class="sozzial-price-pin__stem"></span>
+        <span class="sozzial-price-bubble__tail"></span>
+        ${plans > 0 ? '<span class="sozzial-price-bubble__dot"></span>' : ""}
       </div>
     `,
-    iconSize: [72, 68],
-    iconAnchor: [36, 62],
+    iconSize: [66, 64],
+    iconAnchor: [33, 60],
     popupAnchor: [0, -58],
   });
 }
