@@ -5,6 +5,29 @@ import { Crown, MapPin, Star, Trophy, UserRound } from "lucide-react";
 import { fetchWeeklyRankings } from "@/lib/social-data";
 import { getPublicUsername } from "@/lib/display-name";
 
+function PodiumCard({ rank, title, subtitle, score, to, type }) {
+  const content = (
+    <div className={`relative overflow-hidden rounded-[28px] border p-5 ${rank === 1 ? "border-[#efbf3a]/45 bg-[#efbf3a]/15" : "border-white/10 bg-white/[0.04]"}`}>
+      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/10" />
+      <div className="relative flex items-start justify-between gap-4">
+        <div>
+          <div className="inline-flex rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-stone-300">{type}</div>
+          <div className="mt-4 text-4xl font-black text-white">#{rank}</div>
+        </div>
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414] shadow-[0_16px_34px_rgba(239,191,58,0.18)]">
+          <Crown className="h-7 w-7" />
+        </div>
+      </div>
+      <div className="relative mt-4">
+        <div className="truncate text-xl font-black text-white">{title}</div>
+        <div className="mt-1 truncate text-sm text-stone-400">{subtitle}</div>
+      </div>
+      <div className="relative mt-4 inline-flex rounded-full bg-white px-3 py-1 text-sm font-black text-[#111111]">{score} pts</div>
+    </div>
+  );
+  return to ? <Link to={to}>{content}</Link> : content;
+}
+
 function Row({ rank, icon: Icon, title, subtitle, score, to }) {
   const content = (
     <div className="soft-list-item flex items-center gap-3 rounded-[24px] p-3">
@@ -37,6 +60,13 @@ export default function Rankings() {
         </div>
 
         {isLoading ? <div className="rounded-[28px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">Loading rankings...</div> : null}
+
+        {!isLoading && (data.users[0] || data.spots[0]) ? (
+          <div className="mb-4 grid gap-4 lg:grid-cols-2">
+            {data.users[0] ? <PodiumCard rank={1} type="Top person" title={getPublicUsername(data.users[0].profile, "Sozzial user")} subtitle="Most useful activity this week" score={data.users[0].score} to={`/profile/${data.users[0].id}`} /> : null}
+            {data.spots[0] ? <PodiumCard rank={1} type="Top spot" title={data.spots[0].spot?.name || "Pizza spot"} subtitle={data.spots[0].spot?.address || "Community favorite"} score={data.spots[0].score} /> : null}
+          </div>
+        ) : null}
 
         <div className="grid gap-4 lg:grid-cols-2">
           <section className="surface-card rounded-[28px] p-4 sm:p-5">

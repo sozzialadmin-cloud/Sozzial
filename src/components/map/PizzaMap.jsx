@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, CircleMarker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -21,11 +21,14 @@ function formatPrice(price) {
 
 function createPriceIcon(place, isActive, isSaved = false) {
   const price = Number(place.standard_slice_price || 0);
+  const rating = Number(place.average_rating || 0);
+  const plans = Number(place.active_hangouts_count || 0);
   const { bg, shadow } = getMarkerTheme(price);
   const label = formatPrice(price);
-  const size = isActive ? 58 : place.active_hangouts_count > 0 ? 48 : 44;
+  const size = isActive ? 62 : plans > 0 ? 52 : 46;
   const fontSize = label.length > 4 ? "10px" : "11px";
   const ring = isActive ? `${bg}33` : isSaved ? "rgba(20,20,20,0.08)" : "transparent";
+  const badge = rating > 0 ? `${rating.toFixed(1)} star` : plans > 0 ? `${plans} plan${plans === 1 ? "" : "s"}` : "new";
 
   return L.divIcon({
     className: "pizza-marker",
@@ -44,6 +47,8 @@ function createPriceIcon(place, isActive, isSaved = false) {
           justify-content: center;
           transition: all 0.2s ease;
           transform: ${isActive ? "translateY(-2px) scale(1.08)" : "scale(1)"};
+          animation: ${isActive ? "sozzialMarkerPop 1.6s ease-in-out infinite" : "none"};
+          animation: ${isActive ? "sozzialMarkerPop 1.6s ease-in-out infinite" : "none"};
         ">
           <span style="
             color: white;
@@ -57,14 +62,61 @@ function createPriceIcon(place, isActive, isSaved = false) {
           ">${label}</span>
         </div>
         <div style="
+          margin-top: -6px;
+          min-width: ${Math.max(34, size - 12)}px;
+          max-width: 76px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          border: 1px solid rgba(255,255,255,0.92);
+          background: rgba(17,17,17,0.92);
+          color: #fff7ea;
+          border-radius: 999px;
+          padding: 3px 7px;
+          font-weight: 900;
+          font-size: 9px;
+          line-height: 1;
+          box-shadow: 0 8px 18px rgba(0,0,0,0.28);
+          font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        ">${badge}</div>
+        <div style="
+          margin-top: -6px;
+          min-width: ${Math.max(34, size - 12)}px;
+          max-width: 76px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          border: 1px solid rgba(255,255,255,0.92);
+          background: rgba(17,17,17,0.92);
+          color: #fff7ea;
+          border-radius: 999px;
+          padding: 3px 7px;
+          font-weight: 900;
+          font-size: 9px;
+          line-height: 1;
+          box-shadow: 0 8px 18px rgba(0,0,0,0.28);
+          font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        ">${badge}</div>
+        <div style="
           width: 0;
           height: 0;
           border-left: 6px solid transparent;
           border-right: 6px solid transparent;
           border-top: 9px solid ${bg};
-          margin-top: -1px;
+          margin-top: -2px;
           filter: drop-shadow(0 2px 2px ${shadow});
         "></div>
+        ${plans > 0 ? `<div style="
+          position:absolute;
+          right: 0;
+          top: -3px;
+          width: 13px;
+          height: 13px;
+          border-radius: 999px;
+          border: 2px solid white;
+          background: #efbf3a;
+          box-shadow: 0 0 0 4px rgba(239,191,58,0.18);
+        "></div>` : ""}
       </div>
     `,
     iconSize: [size, size],
