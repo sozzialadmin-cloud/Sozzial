@@ -1,7 +1,7 @@
 export const APP_SETTINGS_KEY = 'sozzial_app_settings';
 
 export const defaultAppSettings = {
-  notifications: { pushEnabled: false, messageAlerts: true, groupAlerts: true },
+  notifications: { pushEnabled: false, messageAlerts: true, groupAlerts: true, followAlerts: true },
   language: 'English',
   privacy: { showProfile: true, showJoinedPlans: true, allowMessagesFromMembers: true },
   account: { rememberMe: true },

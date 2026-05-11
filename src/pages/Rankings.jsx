@@ -1,50 +1,69 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ChefHat, Crown, MapPin, Star, ThumbsUp, Trophy, UserRound } from "lucide-react";
+import { ArrowRight, ChefHat, Crown, MapPin, Star, Trophy, UserRound } from "lucide-react";
 import { fetchRecipeRankings, fetchWeeklyRankings } from "@/lib/social-data";
 import { getPublicUsername } from "@/lib/display-name";
 
-function PodiumCard({ rank, title, subtitle, score, to, type }) {
-  const content = (
-    <div className={`relative overflow-hidden rounded-[28px] border p-5 ${rank === 1 ? "border-[#efbf3a]/45 bg-[#efbf3a]/15" : "border-white/10 bg-white/[0.04]"}`}>
-      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/10" />
-      <div className="relative flex items-start justify-between gap-4">
-        <div>
-          <div className="inline-flex rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-stone-300">{type}</div>
-          <div className="mt-4 text-4xl font-black text-white">#{rank}</div>
-        </div>
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414] shadow-[0_16px_34px_rgba(239,191,58,0.18)]">
-          <Crown className="h-7 w-7" />
-        </div>
-      </div>
-      <div className="relative mt-4">
-        <div className="truncate text-xl font-black text-white">{title}</div>
-        <div className="mt-1 truncate text-sm text-stone-400">{subtitle}</div>
-      </div>
-      <div className="relative mt-4 inline-flex rounded-full bg-white px-3 py-1 text-sm font-black text-[#111111]">{score} pts</div>
-    </div>
-  );
-  return to ? <Link to={to}>{content}</Link> : content;
+const rankingTabs = [
+  { id: "people", label: "People", icon: Trophy },
+  { id: "spots", label: "Spots", icon: Star },
+  { id: "recipes", label: "Recipes", icon: ChefHat },
+];
+
+function getScoreLabel(value, suffix = "pts") {
+  if (value === undefined || value === null || value === "") return `0 ${suffix}`;
+  return `${value} ${suffix}`;
 }
 
-function Row({ rank, icon: Icon, title, subtitle, score, to }) {
+function SummaryCard({ tab, title, subtitle, score, active, empty }) {
+  const Icon = tab.icon;
+  return (
+    <Link
+      to={`/rankings?type=${tab.id}`}
+      className={`group overflow-hidden rounded-[22px] border p-4 transition duration-300 hover:-translate-y-0.5 ${active ? "border-[#efbf3a]/55 bg-[#efbf3a]/14 shadow-[0_18px_42px_rgba(239,191,58,0.12)]" : "border-white/10 bg-white/[0.04] hover:border-white/20"}`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${active ? "bg-[#efbf3a] text-[#141414]" : "bg-white/[0.06] text-[#efbf3a]"}`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <ArrowRight className="h-4 w-4 text-stone-500 transition group-hover:translate-x-0.5 group-hover:text-white" />
+      </div>
+      <div className="mt-4 text-[11px] font-black uppercase tracking-[0.16em] text-stone-500">Top {tab.label}</div>
+      <div className="mt-1 truncate text-lg font-black text-white">{empty ? "No entries yet" : title}</div>
+      <div className="mt-1 truncate text-sm text-stone-500">{empty ? "Waiting for community activity" : subtitle}</div>
+      <div className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-xs font-black text-[#141414]">{getScoreLabel(score)}</div>
+    </Link>
+  );
+}
+
+function RankingRow({ rank, icon: Icon, title, subtitle, score, to, scoreSuffix = "pts" }) {
   const content = (
-    <div className="soft-list-item flex items-center gap-3 rounded-[24px] p-3">
-      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
+    <div className="flex min-w-0 items-center gap-3 rounded-[18px] border border-white/10 bg-white/[0.035] p-2.5 transition hover:border-white/20 hover:bg-white/[0.06]">
+      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${rank <= 3 ? "bg-[#efbf3a] text-[#141414]" : "bg-white/[0.06] text-stone-300"}`}>
         {rank <= 3 ? <Crown className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate font-black text-white">{rank}. {title}</div>
-        <div className="mt-0.5 truncate text-sm text-stone-500">{subtitle}</div>
+        <div className="truncate text-sm font-black text-white">{rank}. {title}</div>
+        <div className="mt-0.5 truncate text-xs text-stone-500">{subtitle}</div>
       </div>
-      <div className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-sm font-black text-white">{score}</div>
+      <div className="shrink-0 rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-xs font-black text-white">{getScoreLabel(score, scoreSuffix)}</div>
     </div>
   );
   return to ? <Link to={to}>{content}</Link> : content;
 }
 
+function EmptyState({ children }) {
+  return (
+    <div className="rounded-[22px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">
+      {children}
+    </div>
+  );
+}
+
 export default function Rankings() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeType = ["people", "spots", "recipes"].includes(searchParams.get("type")) ? searchParams.get("type") : "spots";
   const { data = { users: [], spots: [] }, isLoading } = useQuery({
     queryKey: ["weekly-rankings"],
     queryFn: fetchWeeklyRankings,
@@ -54,52 +73,108 @@ export default function Rankings() {
     queryFn: () => fetchRecipeRankings(),
   });
 
+  const rankingLists = useMemo(() => ({
+    people: data.users.slice(0, 10).map((item, index) => ({
+      id: item.id,
+      rank: index + 1,
+      icon: UserRound,
+      title: getPublicUsername(item.profile, "Sozzial user"),
+      subtitle: "Check-ins, reviews and plans",
+      score: item.score,
+      to: `/profile/${item.id}`,
+    })),
+    spots: data.spots.slice(0, 10).map((item, index) => ({
+      id: item.id,
+      rank: index + 1,
+      icon: MapPin,
+      title: item.spot?.name || "Pizza spot",
+      subtitle: item.source === "starter" ? item.spot?.address || "New spot to rate" : item.spot?.address || "Community activity",
+      score: item.score,
+      to: item.spot?.id ? `/home?spot=${item.spot.id}` : undefined,
+    })),
+    recipes: recipes.slice(0, 10).map((recipe, index) => ({
+      id: recipe.id,
+      rank: index + 1,
+      icon: ChefHat,
+      title: recipe.title,
+      subtitle: recipe.profiles?.username ? `By @${recipe.profiles.username}` : recipe.dough_style || "Community recipe",
+      score: recipe.likes_count || 0,
+      to: recipe.user_id ? `/profile/${recipe.user_id}` : undefined,
+      scoreSuffix: "likes",
+    })),
+  }), [data.spots, data.users, recipes]);
+
+  const activeList = rankingLists[activeType] || [];
+  const topByType = {
+    people: rankingLists.people[0],
+    spots: rankingLists.spots[0],
+    recipes: rankingLists.recipes[0],
+  };
+  const activeTab = rankingTabs.find((tab) => tab.id === activeType) || rankingTabs[1];
+  const ActiveIcon = activeTab.icon;
+
   return (
-    <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] bg-[#060606] px-3 py-4 text-white sm:px-5 sm:py-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-5">
-          <div className="inline-flex rounded-full border border-[#efbf3a]/25 bg-[#efbf3a]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#efbf3a]">Weekly rankings</div>
-          <h1 className="mt-3 text-[clamp(2rem,8vw,4rem)] font-black leading-none">Who moved Sozzial this week?</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-400">Check-ins, reviews and useful additions push people and pizza spots up the board.</p>
+    <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] bg-[#060606] px-3 py-4 pb-[calc(var(--mobile-nav-height)+1rem)] text-white sm:px-5 sm:py-6 sm:pb-6">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-4">
+          <div className="inline-flex rounded-full border border-[#efbf3a]/25 bg-[#efbf3a]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#efbf3a]">Rankings</div>
+          <h1 className="mt-3 text-[clamp(1.9rem,7vw,3.5rem)] font-black leading-none">Top 10 pizza moves</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-400">People, spots and home recipes ranked in compact lists. Tap any ranking to open its own view.</p>
         </div>
 
-        {isLoading ? <div className="rounded-[28px] border border-white/10 bg-[#101010] p-8 text-center text-stone-400">Loading rankings...</div> : null}
+        {isLoading ? <div className="rounded-[24px] border border-white/10 bg-[#101010] p-6 text-center text-stone-400">Loading rankings...</div> : null}
 
-        {!isLoading && (data.users[0] || data.spots[0]) ? (
-          <div className="mb-4 grid gap-4 lg:grid-cols-2">
-            {data.users[0] ? <PodiumCard rank={1} type="Top person" title={getPublicUsername(data.users[0].profile, "Sozzial user")} subtitle="Most useful activity this week" score={data.users[0].score} to={`/profile/${data.users[0].id}`} /> : null}
-            {data.spots[0] ? <PodiumCard rank={1} type="Top spot" title={data.spots[0].spot?.name || "Pizza spot"} subtitle={data.spots[0].source === "starter" ? "New spot to rate" : data.spots[0].spot?.address || "Community favorite"} score={data.spots[0].score} /> : null}
+        <div className="grid gap-3 sm:grid-cols-3">
+          {rankingTabs.map((tab) => {
+            const top = topByType[tab.id];
+            return (
+              <SummaryCard
+                key={tab.id}
+                tab={tab}
+                active={activeType === tab.id}
+                empty={!top}
+                title={top?.title}
+                subtitle={top?.subtitle}
+                score={top?.score}
+              />
+            );
+          })}
+        </div>
+
+        <section className="mt-4 rounded-[26px] border border-white/10 bg-[#101010] p-3 shadow-[0_18px_46px_rgba(0,0,0,0.25)] sm:p-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
+                <ActiveIcon className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-xl font-black">Top {activeTab.label}</div>
+                <div className="text-xs text-stone-500">Ordered list, best 10 first.</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-white/10 bg-black/25 p-1">
+              {rankingTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSearchParams({ type: tab.id })}
+                  className={`rounded-xl px-3 py-2 text-xs font-black transition ${activeType === tab.id ? "bg-white text-[#141414]" : "text-stone-400 hover:bg-white/[0.06] hover:text-white"}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
-        ) : null}
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <section className="surface-card rounded-[28px] p-4 sm:p-5">
-            <div className="mb-4 flex items-center gap-2 text-xl font-black"><Trophy className="h-5 w-5 text-[#efbf3a]" />Top people</div>
-            <div className="stagger-in grid gap-3">
-              {data.users.map((item, index) => (
-                <Row key={item.id} rank={index + 1} icon={UserRound} title={getPublicUsername(item.profile, "Sozzial user")} subtitle="Check-ins and reviews" score={item.score} to={`/profile/${item.id}`} />
-              ))}
-              {!data.users.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">No weekly user activity yet.</div> : null}
-            </div>
-          </section>
-
-          <section className="surface-card rounded-[28px] p-4 sm:p-5">
-            <div className="mb-4 flex items-center gap-2 text-xl font-black"><Star className="h-5 w-5 text-[#efbf3a]" />Top spots</div>
-            <div className="stagger-in grid gap-3">
-              {data.spots.map((item, index) => (
-                <Row key={item.id} rank={index + 1} icon={MapPin} title={item.spot?.name || "Pizza spot"} subtitle={item.source === "starter" ? item.spot?.address || "New spot to rate" : item.spot?.address || "Community activity"} score={item.score} />
-              ))}
-              {!data.spots.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">No spots ranked yet.</div> : null}
-            </div>
-          </section>
-        </div>
-        <section className="surface-card mt-4 rounded-[28px] p-4 sm:p-5">
-          <div className="mb-4 flex items-center gap-2 text-xl font-black"><ChefHat className="h-5 w-5 text-[#efbf3a]" />Top home recipes</div>
-          <div className="stagger-in grid gap-3 lg:grid-cols-2">
-            {recipes.map((recipe, index) => (
-              <Row key={recipe.id} rank={index + 1} icon={ThumbsUp} title={recipe.title} subtitle={recipe.profiles?.username ? `By @${recipe.profiles.username}` : recipe.dough_style || "Community recipe"} score={recipe.likes_count || 0} to={recipe.user_id ? `/profile/${recipe.user_id}` : undefined} />
+          <div className="grid gap-2">
+            {activeList.map((item) => (
+              <RankingRow key={item.id} {...item} />
             ))}
-            {!recipes.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 lg:col-span-2">No home recipes ranked yet.</div> : null}
+            {!activeList.length ? (
+              <EmptyState>
+                {activeType === "recipes" ? "No home recipes ranked yet. Publish a recipe from your profile." : `No ${activeTab.label.toLowerCase()} ranked yet.`}
+              </EmptyState>
+            ) : null}
           </div>
         </section>
       </div>

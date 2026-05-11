@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -19,8 +19,8 @@ export default function NotificationsSettings() {
     ['pushEnabled', 'Browser push alerts'],
     ['messageAlerts', 'New messages in my groups'],
     ['groupAlerts', 'New members in my plans'],
+    ['followAlerts', 'New followers'],
   ];
 
   return <div className="min-h-[calc(100vh-64px)] bg-[#060606] px-4 py-4"><div className="mx-auto max-w-md rounded-[30px] border border-white/10 bg-[#101010] p-5"><div className="mb-6 flex items-center gap-3"><Link to={createPageUrl('SettingsPage')} className="grid h-11 w-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-stone-200"><ArrowLeft className="h-4 w-4" /></Link><div><h1 className="text-3xl font-black">Notifications</h1><p className="text-sm text-stone-500">Keep only what matters.</p></div></div><div className="space-y-3">{items.map(([key, label]) => <button key={key} type="button" onClick={() => toggle(key)} className="flex w-full items-center justify-between rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-left"><div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/[0.04]"><Bell className="h-4 w-4 text-red-400" /></div><div className="text-white font-medium">{label}</div></div><div className={`h-7 w-12 rounded-full p-1 transition ${settings.notifications[key] ? 'bg-emerald-500' : 'bg-white/10'}`}><div className={`h-5 w-5 rounded-full bg-white transition ${settings.notifications[key] ? 'translate-x-5' : ''}`}></div></div></button>)}</div></div></div>;
 }
-
