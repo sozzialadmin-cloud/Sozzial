@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Award, CalendarDays, Camera, ChefHat, ChevronDown, Clock, Flame, Heart, ListChecks, LogOut, MapPin, MessageSquare, Pizza, Plus, Settings, Shield, Star, Trophy, ThumbsUp, Upload, UserRound } from 'lucide-react';
+import { Award, CalendarDays, Camera, ChefHat, Flame, Heart, LogOut, MapPin, MessageSquare, Pizza, Plus, Settings, Shield, Star, Trophy, ThumbsUp, Upload, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -53,24 +53,6 @@ function Stat({ icon: Icon, label, value }) {
       <div className="mt-3 text-2xl font-black text-white">{value}</div>
       <div className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">{label}</div>
     </div>
-  );
-}
-
-function PanelSection({ title, subtitle, icon: Icon, children, defaultOpen = false }) {
-  return (
-    <details open={defaultOpen} className="group rounded-[24px] border border-white/10 bg-[#101010] p-4 shadow-[0_14px_36px_rgba(0,0,0,0.22)]">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-        <span className="flex min-w-0 items-center gap-3">
-          {Icon ? <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#efbf3a]/12 text-[#efbf3a]"><Icon className="h-5 w-5" /></span> : null}
-          <span className="min-w-0">
-            <span className="block text-lg font-black text-white">{title}</span>
-            {subtitle ? <span className="mt-0.5 block text-xs text-stone-500">{subtitle}</span> : null}
-          </span>
-        </span>
-        <ChevronDown className="h-5 w-5 shrink-0 text-stone-500 transition group-open:rotate-180" />
-      </summary>
-      <div className="mt-4">{children}</div>
-    </details>
   );
 }
 
@@ -135,7 +117,9 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const [avatarPreview, setAvatarPreview] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [activeSection, setActiveSection] = useState('recipes');
+  const [showRecipeComposer, setShowRecipeComposer] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [recipeForm, setRecipeForm] = useState({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '', photoUrl: '', ingredients: '', preparationSteps: '', ovenTemp: '', servings: '', tags: [] });
   const [form, setForm] = useState({
     username: '',
@@ -246,7 +230,6 @@ export default function Profile() {
     },
     onSuccess: async () => {
       toast.success('Profile updated');
-      setEditing(false);
       await refreshProfile?.();
       queryClient.invalidateQueries({ queryKey: ['profile-bundle', user?.id] });
     },
@@ -342,7 +325,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#060606] px-3 py-3 text-white sm:px-4">
+    <div className="min-h-[calc(100vh-64px)] bg-[#060606] px-3 py-3 pb-[calc(var(--mobile-nav-height)+1.25rem)] text-white sm:px-4 sm:pb-6">
       <div className="mx-auto grid max-w-5xl gap-4">
         <section className="rounded-[24px] border border-white/10 bg-[#101010] p-4 shadow-[0_16px_42px_rgba(0,0,0,0.30)]">
           <div className="flex items-start justify-between gap-3">
@@ -387,24 +370,33 @@ export default function Profile() {
           </div>
 
           {profileProgress < 100 ? (
-            <div className="mt-4 rounded-[20px] border border-[#efbf3a]/20 bg-[#efbf3a]/10 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">Profile onboarding</div>
-                  <div className="mt-1 text-lg font-black text-white">{profileProgress}% complete</div>
+            <div className="mt-4 overflow-hidden rounded-[18px] border border-[#efbf3a]/20 bg-[#efbf3a]/10">
+              <button
+                type="button"
+                onClick={() => setShowOnboarding((value) => !value)}
+                className="flex w-full items-center justify-between gap-3 p-3 text-left"
+              >
+                <span>
+                  <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">Profile setup</span>
+                  <span className="mt-1 block text-sm font-black text-white">{profileProgress}% complete</span>
+                </span>
+                <span className="rounded-full bg-[#efbf3a] px-3 py-1 text-xs font-black text-[#111111]">{showOnboarding ? 'Hide' : 'Open'}</span>
+              </button>
+              {showOnboarding ? (
+                <div className="border-t border-[#efbf3a]/15 p-3 pt-2">
+                  <div className="h-2 overflow-hidden rounded-full bg-black/35">
+                    <div className="h-full rounded-full bg-[#efbf3a]" style={{ width: `${profileProgress}%` }} />
+                  </div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {profileChecklist.map((item) => (
+                      <span key={item.label} className={`rounded-2xl border px-3 py-2 text-xs font-bold ${item.done ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-black/25 text-stone-400'}`}>
+                        {item.done ? 'Done' : 'Missing'} - {item.label}
+                      </span>
+                    ))}
+                  </div>
+                  <Button onClick={() => setActiveSection('profile')} className="mt-3 h-10 rounded-2xl bg-[#efbf3a] px-4 text-sm font-black text-[#111111] hover:bg-[#d9a826]">Complete profile</Button>
                 </div>
-                <Button onClick={() => setEditing(true)} className="h-10 rounded-2xl bg-[#efbf3a] px-4 text-sm font-black text-[#111111] hover:bg-[#d9a826]">Complete</Button>
-              </div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/35">
-                <div className="h-full rounded-full bg-[#efbf3a]" style={{ width: `${profileProgress}%` }} />
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {profileChecklist.map((item) => (
-                  <span key={item.label} className={`rounded-full border px-3 py-1 text-xs font-bold ${item.done ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-black/25 text-stone-400'}`}>
-                    {item.done ? 'Done' : 'Missing'} - {item.label}
-                  </span>
-                ))}
-              </div>
+              ) : null}
             </div>
           ) : null}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -428,8 +420,8 @@ export default function Profile() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Button onClick={() => setEditing((value) => !value)} className="h-11 rounded-2xl bg-[#df5b43] font-bold text-white hover:bg-[#c84b35]">
-              {editing ? 'Close editor' : 'Edit profile'}
+            <Button onClick={() => setActiveSection('profile')} className="h-11 rounded-2xl bg-[#df5b43] font-bold text-white hover:bg-[#c84b35]">
+              Edit profile
             </Button>
             <Link to={`/profile/${user.id}`} className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-white hover:bg-white/[0.07]">
               <UserRound className="mr-2 h-4 w-4" />
@@ -450,17 +442,166 @@ export default function Profile() {
           {uploading ? <div className="mt-3 text-xs text-stone-500">Uploading avatar...</div> : null}
         </section>
 
-        <section className="grid gap-3">
-          {editing ? (
-            <PanelSection title="Edit profile" subtitle="Photo, bio, favorite slice and visibility." icon={Settings} defaultOpen={editing}>
-              <div className="text-xl font-black sr-only">Profile editor</div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <section className="rounded-[24px] border border-white/10 bg-[#101010] p-3 shadow-[0_18px_46px_rgba(0,0,0,0.28)] sm:p-4">
+          <div className="grid grid-cols-4 gap-1 rounded-[18px] border border-white/10 bg-black/25 p-1">
+            {[
+              ['recipes', ChefHat, 'Recipes'],
+              ['activity', Star, 'Activity'],
+              ['profile', Settings, 'Profile'],
+              ['reputation', Award, 'Badges'],
+            ].map(([key, Icon, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setActiveSection(key);
+                }}
+                className={`flex min-h-11 flex-col items-center justify-center gap-1 rounded-[14px] px-1 text-[11px] font-black transition ${activeSection === key ? 'bg-white text-[#141414] shadow-[0_8px_22px_rgba(0,0,0,0.22)]' : 'text-stone-400 hover:bg-white/[0.05] hover:text-white'}`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {activeSection === 'recipes' ? (
+            <div className="mt-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div className="text-xl font-black text-white">Recipes</div>
+                  <div className="mt-1 text-xs text-stone-500">Create, save and vote for home pizza recipes.</div>
+                </div>
+                <div className="flex gap-2">
+                  <Link to={createPageUrl('Rankings')} className="inline-flex h-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-xs font-black text-white hover:bg-white/[0.08]">
+                    <Trophy className="mr-2 h-4 w-4 text-[#efbf3a]" />
+                    Ranking
+                  </Link>
+                  <Button onClick={() => setShowRecipeComposer((value) => !value)} className="h-10 rounded-2xl bg-[#df5b43] px-4 text-xs font-black text-white hover:bg-[#c84b35]">
+                    <Plus className="mr-2 h-4 w-4" />
+                    {showRecipeComposer ? 'Close' : 'New recipe'}
+                  </Button>
+                </div>
+              </div>
+
+              {showRecipeComposer ? (
+                <div className="mt-4 rounded-[22px] border border-white/10 bg-black/25 p-3">
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      ['margherita', 'Margherita'],
+                      ['pepperoni', 'Pepperoni'],
+                      ['veggie', 'Veggie'],
+                    ].map(([key, label]) => (
+                      <button key={key} type="button" onClick={() => applyRecipePreset(key)} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black text-stone-200 hover:bg-white/[0.08]">
+                        {label}
+                      </button>
+                    ))}
+                    {['classic', 'crispy', 'quick', 'vegetarian', 'spicy', 'sourdough'].map((tag) => (
+                      <button key={tag} type="button" onClick={() => toggleRecipeTag(tag)} className={`rounded-full border px-3 py-2 text-xs font-black ${recipeForm.tags.includes(tag) ? 'border-[#efbf3a]/30 bg-[#efbf3a] text-[#141414]' : 'border-white/10 bg-black/20 text-stone-300'}`}>
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    <label className="flex min-h-[78px] cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-white/12 bg-white/[0.035] p-3 text-sm text-stone-300 sm:col-span-2">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/25">
+                        <Camera className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-black text-white">{recipeForm.photoUrl ? 'Photo selected' : 'Optional recipe photo'}</span>
+                        <span className="mt-1 block text-xs text-stone-500">If you skip it, no image block is shown.</span>
+                      </span>
+                      <input type="file" accept="image/*" className="hidden" onChange={onRecipePhoto} />
+                    </label>
+                    {recipeForm.photoUrl ? <img src={recipeForm.photoUrl} alt="Recipe preview" className="h-32 w-full rounded-2xl object-cover sm:col-span-2" /> : null}
+                    <Input value={recipeForm.title} onChange={(e) => setRecipeForm((prev) => ({ ...prev, title: e.target.value }))} placeholder="Recipe name" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+                    <Input value={recipeForm.doughStyle} onChange={(e) => setRecipeForm((prev) => ({ ...prev, doughStyle: e.target.value }))} placeholder="Dough style" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+                    <Input value={recipeForm.ovenTemp} onChange={(e) => setRecipeForm((prev) => ({ ...prev, ovenTemp: e.target.value }))} placeholder="Oven temp, e.g. 250 C" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+                    <Input value={recipeForm.bakeTime} onChange={(e) => setRecipeForm((prev) => ({ ...prev, bakeTime: e.target.value }))} placeholder="Bake time, e.g. 7 min" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+                    <Input value={recipeForm.servings} onChange={(e) => setRecipeForm((prev) => ({ ...prev, servings: e.target.value }))} placeholder="Servings, e.g. 2" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+                    <select value={recipeForm.difficulty} onChange={(e) => setRecipeForm((prev) => ({ ...prev, difficulty: e.target.value }))} className="h-11 rounded-2xl border border-white/10 bg-[#171717] px-3 text-sm font-bold text-white">
+                      <option>Easy</option>
+                      <option>Medium</option>
+                      <option>Advanced</option>
+                    </select>
+                    <Textarea value={recipeForm.description} onChange={(e) => setRecipeForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Short description" className="min-h-[72px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
+                    <Textarea value={recipeForm.ingredients} onChange={(e) => setRecipeForm((prev) => ({ ...prev, ingredients: e.target.value }))} placeholder="Ingredients, one per line" className="min-h-[86px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
+                    <Textarea value={recipeForm.preparationSteps} onChange={(e) => setRecipeForm((prev) => ({ ...prev, preparationSteps: e.target.value }))} placeholder="Preparation steps, one per line" className="min-h-[96px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
+                  </div>
+
+                  <Button disabled={createRecipeMutation.isPending} onClick={() => createRecipeMutation.mutate()} className="mt-4 h-11 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Publish recipe
+                  </Button>
+                </div>
+              ) : null}
+
+              <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                {(recipes.length ? recipes : recipeRankings.slice(0, 2)).map((recipe, index) => (
+                  <RecipeCard key={recipe.id} recipe={recipe} rank={index + 1} onVote={(item) => voteRecipeMutation.mutate(item)} voting={voteRecipeMutation.isPending} />
+                ))}
+                {!recipes.length && !recipeRankings.length ? (
+                  <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 lg:col-span-2">
+                    No recipes yet. Tap New recipe to publish the first one.
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
+          {activeSection === 'activity' ? (
+            <div className="mt-4">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xl font-black">Activity</div>
+                  <div className="mt-1 text-xs text-stone-500">Recent ratings, reviews and pizza plans.</div>
+                </div>
+                {isLoading ? <span className="text-xs text-stone-500">Loading...</span> : null}
+              </div>
+              <div className="grid gap-3">
+                {(bundle?.ratings || []).slice(0, 4).map((rating) => (
+                  <ActivityItem key={rating.id} title={`${Number(rating.rating).toFixed(1)} stars at ${rating.spot?.name || 'Pizza spot'}`} meta="Rating">
+                    {rating.spot?.address || 'No address'}
+                  </ActivityItem>
+                ))}
+                {(bundle?.comments || []).slice(0, 4).map((comment) => (
+                  <ActivityItem key={comment.id} title={comment.spot?.name || 'Pizza spot'} meta={`Review - ${comment.status || 'pending'}`}>
+                    {comment.content}
+                  </ActivityItem>
+                ))}
+                {(bundle?.plans || []).slice(0, 3).map((plan) => (
+                  <ActivityItem key={plan.id} title={plan.title} meta={`Plan - ${plan.status}`}>
+                    {plan.plan_date} {String(plan.plan_time || '').slice(0, 5)}
+                  </ActivityItem>
+                ))}
+                {!isLoading && !(bundle?.ratings?.length || bundle?.comments?.length || bundle?.plans?.length) ? (
+                  <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">
+                    No activity yet. Rate a spot, write a review or create a plan.
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
+          {activeSection === 'profile' ? (
+            <div className="mt-4">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xl font-black">Profile details</div>
+                  <div className="mt-1 text-xs text-stone-500">Photo, bio, favorite slice and public visibility.</div>
+                </div>
+                <Link to={`/profile/${user.id}`} className="inline-flex h-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-xs font-black text-white hover:bg-white/[0.07]">
+                  <UserRound className="mr-2 h-4 w-4" />
+                  View public
+                </Link>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Username</Label>
                   <Input value={form.username} onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))} className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">City / neighborhood</Label>
+                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">City</Label>
                   <Input value={form.city} onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value }))} className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
@@ -495,7 +636,7 @@ export default function Profile() {
                 </div>
                 <div className="sm:col-span-2">
                   <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Bio</Label>
-                  <Textarea value={form.bio} onChange={(e) => setForm((prev) => ({ ...prev, bio: e.target.value }))} className="min-h-[110px] border-white/10 bg-white/[0.04] text-white" />
+                  <Textarea value={form.bio} onChange={(e) => setForm((prev) => ({ ...prev, bio: e.target.value }))} className="min-h-[96px] border-white/10 bg-white/[0.04] text-white" />
                 </div>
                 <div>
                   <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Instagram URL</Label>
@@ -509,125 +650,25 @@ export default function Profile() {
               <Button disabled={saveProfile.isPending} onClick={() => saveProfile.mutate()} className="mt-5 h-11 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
                 Save profile
               </Button>
-            </PanelSection>
+            </div>
           ) : null}
 
-
-          <PanelSection title="Recipes" subtitle="Create recipes and vote in the ranking." icon={ChefHat} defaultOpen>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">
-                  <ChefHat className="h-3.5 w-3.5" />
-                  Home pizza lab
+          {activeSection === 'reputation' ? (
+            <div className="mt-4">
+              <div className="mb-4 flex items-center gap-2">
+                <Award className="h-5 w-5 text-[#efbf3a]" />
+                <div>
+                  <div className="text-xl font-black">Reputation</div>
+                  <div className="mt-1 text-xs text-stone-500">Visible trust signals for other pizza people.</div>
                 </div>
-                <div className="mt-3 text-2xl font-black tracking-[-0.04em] text-white">Share your homemade pizza recipe</div>
-                <p className="mt-2 text-sm leading-6 text-stone-500">Keep it simple: name, short method, dough style and bake time. People can vote and push it into the recipe ranking.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <ActivityItem title="Explorer" meta="Profile badge">Adds spots and ratings.</ActivityItem>
+                <ActivityItem title="Host" meta="Profile badge">Creates pizza plans.</ActivityItem>
+                <ActivityItem title="Reviewer" meta="Profile badge">Leaves useful notes.</ActivityItem>
               </div>
             </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {[
-                ['margherita', 'Margherita'],
-                ['pepperoni', 'Pepperoni'],
-                ['veggie', 'Veggie'],
-              ].map(([key, label]) => (
-                <button key={key} type="button" onClick={() => applyRecipePreset(key)} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black text-stone-200 hover:bg-white/[0.08]">
-                  {label}
-                </button>
-              ))}
-              {['classic', 'crispy', 'quick', 'vegetarian', 'spicy', 'sourdough'].map((tag) => (
-                <button key={tag} type="button" onClick={() => toggleRecipeTag(tag)} className={`rounded-full border px-3 py-2 text-xs font-black ${recipeForm.tags.includes(tag) ? 'border-[#efbf3a]/30 bg-[#efbf3a] text-[#141414]' : 'border-white/10 bg-black/20 text-stone-300'}`}>
-                  {tag}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <label className="flex min-h-[88px] cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-white/12 bg-white/[0.035] p-3 text-sm text-stone-300 sm:col-span-2">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/25">
-                  <Camera className="h-5 w-5" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-black text-white">{recipeForm.photoUrl ? 'Photo selected' : 'Optional recipe photo'}</span>
-                  <span className="mt-1 block text-xs text-stone-500">If you skip it, no image block is shown.</span>
-                </span>
-                <input type="file" accept="image/*" className="hidden" onChange={onRecipePhoto} />
-              </label>
-              {recipeForm.photoUrl ? <img src={recipeForm.photoUrl} alt="Recipe preview" className="h-32 w-full rounded-2xl object-cover sm:col-span-2" /> : null}
-              <Input value={recipeForm.title} onChange={(e) => setRecipeForm((prev) => ({ ...prev, title: e.target.value }))} placeholder="Recipe name" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <Input value={recipeForm.doughStyle} onChange={(e) => setRecipeForm((prev) => ({ ...prev, doughStyle: e.target.value }))} placeholder="Dough style" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <Input value={recipeForm.ovenTemp} onChange={(e) => setRecipeForm((prev) => ({ ...prev, ovenTemp: e.target.value }))} placeholder="Oven temp, e.g. 250 C" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <Input value={recipeForm.bakeTime} onChange={(e) => setRecipeForm((prev) => ({ ...prev, bakeTime: e.target.value }))} placeholder="Bake time, e.g. 7 min" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <Input value={recipeForm.servings} onChange={(e) => setRecipeForm((prev) => ({ ...prev, servings: e.target.value }))} placeholder="Servings, e.g. 2" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <select value={recipeForm.difficulty} onChange={(e) => setRecipeForm((prev) => ({ ...prev, difficulty: e.target.value }))} className="h-11 rounded-2xl border border-white/10 bg-[#171717] px-3 text-sm font-bold text-white">
-                <option>Easy</option>
-                <option>Medium</option>
-                <option>Advanced</option>
-              </select>
-              <Textarea value={recipeForm.description} onChange={(e) => setRecipeForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Short description" className="min-h-[78px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
-              <Textarea value={recipeForm.ingredients} onChange={(e) => setRecipeForm((prev) => ({ ...prev, ingredients: e.target.value }))} placeholder="Ingredients, one per line" className="min-h-[96px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
-              <Textarea value={recipeForm.preparationSteps} onChange={(e) => setRecipeForm((prev) => ({ ...prev, preparationSteps: e.target.value }))} placeholder="Preparation steps, one per line" className="min-h-[110px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
-            </div>
-
-            <Button disabled={createRecipeMutation.isPending} onClick={() => createRecipeMutation.mutate()} className="mt-4 h-11 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
-              <Plus className="mr-2 h-4 w-4" />
-              Publish recipe
-            </Button>
-
-            <div className="mt-6 grid gap-3 lg:grid-cols-2">
-              {(recipes.length ? recipes : recipeRankings.slice(0, 2)).map((recipe, index) => (
-                <RecipeCard key={recipe.id} recipe={recipe} rank={index + 1} onVote={(item) => voteRecipeMutation.mutate(item)} voting={voteRecipeMutation.isPending} />
-              ))}
-              {!recipes.length && !recipeRankings.length ? (
-                <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 lg:col-span-2">
-                  No recipes yet. Publish the first one.
-                </div>
-              ) : null}
-            </div>
-          </PanelSection>
-          <PanelSection title="Activity" subtitle="Ratings, reviews, plans and spots." icon={Star}>
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <div className="text-xl font-black">Activity</div>
-                <div className="mt-1 text-sm text-stone-500">Reviews, ratings, plans and spots attached to your profile.</div>
-              </div>
-              {isLoading ? <span className="text-xs text-stone-500">Loading...</span> : null}
-            </div>
-            <div className="grid gap-3">
-              {(bundle?.ratings || []).slice(0, 4).map((rating) => (
-                <ActivityItem key={rating.id} title={`${Number(rating.rating).toFixed(1)} stars at ${rating.spot?.name || 'Pizza spot'}`} meta="Rating">
-                  {rating.spot?.address || 'No address'}
-                </ActivityItem>
-              ))}
-              {(bundle?.comments || []).slice(0, 4).map((comment) => (
-                <ActivityItem key={comment.id} title={comment.spot?.name || 'Pizza spot'} meta={`Review - ${comment.status || 'pending'}`}>
-                  {comment.content}
-                </ActivityItem>
-              ))}
-              {(bundle?.plans || []).slice(0, 3).map((plan) => (
-                <ActivityItem key={plan.id} title={plan.title} meta={`Plan - ${plan.status}`}>
-                  {plan.plan_date} {String(plan.plan_time || '').slice(0, 5)}
-                </ActivityItem>
-              ))}
-              {!isLoading && !(bundle?.ratings?.length || bundle?.comments?.length || bundle?.plans?.length) ? (
-                <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">
-                  No activity yet. Rate a spot, write a review or create a plan.
-                </div>
-              ) : null}
-            </div>
-          </PanelSection>
-
-          <PanelSection title="Reputation" subtitle="Badges and visible trust signals." icon={Award}>
-            <div className="mb-4 flex items-center gap-2">
-              <Award className="h-5 w-5 text-[#efbf3a]" />
-              <div className="text-xl font-black">Reputation</div>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <ActivityItem title="Explorer" meta="Profile badge">Adds spots and ratings.</ActivityItem>
-              <ActivityItem title="Host" meta="Profile badge">Creates pizza plans.</ActivityItem>
-              <ActivityItem title="Reviewer" meta="Profile badge">Leaves useful notes.</ActivityItem>
-            </div>
-          </PanelSection>
+          ) : null}
         </section>
       </div>
     </div>
