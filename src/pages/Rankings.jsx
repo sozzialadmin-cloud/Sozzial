@@ -68,7 +68,7 @@ export default function Rankings() {
         {!isLoading && (data.users[0] || data.spots[0]) ? (
           <div className="mb-4 grid gap-4 lg:grid-cols-2">
             {data.users[0] ? <PodiumCard rank={1} type="Top person" title={getPublicUsername(data.users[0].profile, "Sozzial user")} subtitle="Most useful activity this week" score={data.users[0].score} to={`/profile/${data.users[0].id}`} /> : null}
-            {data.spots[0] ? <PodiumCard rank={1} type="Top spot" title={data.spots[0].spot?.name || "Pizza spot"} subtitle={data.spots[0].spot?.address || "Community favorite"} score={data.spots[0].score} /> : null}
+            {data.spots[0] ? <PodiumCard rank={1} type="Top spot" title={data.spots[0].spot?.name || "Pizza spot"} subtitle={data.spots[0].source === "starter" ? "New spot to rate" : data.spots[0].spot?.address || "Community favorite"} score={data.spots[0].score} /> : null}
           </div>
         ) : null}
 
@@ -87,9 +87,9 @@ export default function Rankings() {
             <div className="mb-4 flex items-center gap-2 text-xl font-black"><Star className="h-5 w-5 text-[#efbf3a]" />Top spots</div>
             <div className="stagger-in grid gap-3">
               {data.spots.map((item, index) => (
-                <Row key={item.id} rank={index + 1} icon={MapPin} title={item.spot?.name || "Pizza spot"} subtitle={item.spot?.address || "Community activity"} score={item.score} />
+                <Row key={item.id} rank={index + 1} icon={MapPin} title={item.spot?.name || "Pizza spot"} subtitle={item.source === "starter" ? item.spot?.address || "New spot to rate" : item.spot?.address || "Community activity"} score={item.score} />
               ))}
-              {!data.spots.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">No weekly spot activity yet.</div> : null}
+              {!data.spots.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500">No spots ranked yet.</div> : null}
             </div>
           </section>
         </div>
@@ -99,7 +99,7 @@ export default function Rankings() {
             {recipes.map((recipe, index) => (
               <Row key={recipe.id} rank={index + 1} icon={ThumbsUp} title={recipe.title} subtitle={recipe.profiles?.username ? `By @${recipe.profiles.username}` : recipe.dough_style || "Community recipe"} score={recipe.likes_count || 0} to={recipe.user_id ? `/profile/${recipe.user_id}` : undefined} />
             ))}
-            {!recipes.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 lg:col-span-2">No recipes ranked yet.</div> : null}
+            {!recipes.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 lg:col-span-2">No home recipes ranked yet.</div> : null}
           </div>
         </section>
       </div>

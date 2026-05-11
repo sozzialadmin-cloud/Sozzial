@@ -106,7 +106,7 @@ export async function fetchWeeklyRankings() {
     supabase.from("check_ins").select("id,user_id,spot_id,slice_price,created_at").gte("created_at", since.toISOString()).limit(500),
     supabase.from("spot_comments").select("id,user_id,spot_id,created_at,status").gte("created_at", since.toISOString()).limit(500),
     supabase.from("profiles").select("id,username,avatar_url").limit(500),
-    supabase.from("spots").select("id,name,address,average_rating").limit(500),
+    supabase.from("spots").select("id,name,address,average_rating,slice_price,status,created_at").order("created_at", { ascending: false }).limit(500),
   ]);
 
   const checkins = checkinsRes.error ? [] : checkinsRes.data || [];
@@ -122,17 +122,29 @@ export async function fetchWeeklyRankings() {
   checkins.forEach((row) => spotScores.set(row.spot_id, (spotScores.get(row.spot_id) || 0) + 2));
   comments.forEach((row) => spotScores.set(row.spot_id, (spotScores.get(row.spot_id) || 0) + 1));
 
+  const rankedSpots = [...spotScores.entries()]
+    .filter(([id]) => id)
+    .map(([id, score]) => ({ id, score, spot: spots.get(id) || null, source: "weekly" }))
+    .sort((a, b) => b.score - a.score);
+
+  const rankedSpotIds = new Set(rankedSpots.map((item) => item.id));
+  const starterSpots = [...spots.values()]
+    .filter((spot) => spot?.id && !rankedSpotIds.has(spot.id) && spot.status !== "rejected")
+    .map((spot) => ({
+      id: spot.id,
+      score: Number(spot.average_rating || 0) > 0 ? Number(spot.average_rating).toFixed(1) : 0,
+      spot,
+      source: "starter",
+    }))
+    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+
   return {
     users: [...userScores.entries()]
       .filter(([id]) => id)
       .map(([id, score]) => ({ id, score, profile: profiles.get(id) || null }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 20),
-    spots: [...spotScores.entries()]
-      .filter(([id]) => id)
-      .map(([id, score]) => ({ id, score, spot: spots.get(id) || null }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 20),
+    spots: [...rankedSpots, ...starterSpots].slice(0, 20),
   };
 }
 
