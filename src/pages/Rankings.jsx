@@ -16,24 +16,32 @@ function getScoreLabel(value, suffix = "pts") {
   return `${value} ${suffix}`;
 }
 
-function SummaryCard({ tab, title, subtitle, score, active, empty }) {
+function SummaryCard({ tab, title, subtitle, score, scoreSuffix = "pts", active, empty, itemTo }) {
   const Icon = tab.icon;
-  return (
-    <Link
-      to={`/rankings?type=${tab.id}`}
-      className={`group block min-w-0 overflow-hidden rounded-[22px] border p-4 transition duration-300 hover:-translate-y-0.5 ${active ? "border-[#efbf3a]/55 bg-[#efbf3a]/14 shadow-[0_18px_42px_rgba(239,191,58,0.12)]" : "border-white/10 bg-white/[0.04] hover:border-white/20"}`}
-    >
+  const cardClass = `group block min-w-0 overflow-hidden rounded-[22px] border p-4 text-left transition duration-300 hover:-translate-y-0.5 ${active ? "border-[#efbf3a]/55 bg-[#efbf3a]/14 shadow-[0_18px_42px_rgba(239,191,58,0.12)]" : "border-white/10 bg-white/[0.04] hover:border-white/20"}`;
+  const body = (
+    <>
       <div className="flex items-center justify-between gap-3">
         <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${active ? "bg-[#efbf3a] text-[#141414]" : "bg-white/[0.06] text-[#efbf3a]"}`}>
           <Icon className="h-5 w-5" />
         </div>
-        <ArrowRight className="h-4 w-4 text-stone-500 transition group-hover:translate-x-0.5 group-hover:text-white" />
+        {itemTo && !empty ? <ExternalLink className="h-4 w-4 text-stone-500 transition group-hover:text-white" /> : <ArrowRight className="h-4 w-4 text-stone-500" />}
       </div>
       <div className="mt-4 text-[11px] font-black uppercase tracking-[0.16em] text-stone-500">Top {tab.label}</div>
       <div className="mt-1 truncate text-lg font-black text-white">{empty ? "No entries yet" : title}</div>
       <div className="mt-1 truncate text-sm text-stone-500">{empty ? "Waiting for community activity" : subtitle}</div>
-      <div className="mt-3 flex items-center justify-between gap-2"><span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-black text-[#141414]">{getScoreLabel(score)}</span><span className="inline-flex items-center gap-1 text-xs font-black text-[#efbf3a]">Show ranking <ArrowRight className="h-3.5 w-3.5" /></span></div>
-    </Link>
+      <div className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-xs font-black text-[#141414]">{getScoreLabel(score, scoreSuffix)}</div>
+    </>
+  );
+
+  return (
+    <div className="min-w-0 overflow-hidden rounded-[22px]">
+      {itemTo && !empty ? <Link to={itemTo} className={cardClass}>{body}</Link> : <div className={cardClass}>{body}</div>}
+      <Link to={`/rankings?type=${tab.id}`} className={`mt-2 flex h-10 items-center justify-center gap-2 rounded-2xl border text-xs font-black transition ${active ? "border-[#efbf3a]/35 bg-[#efbf3a] text-[#141414]" : "border-white/10 bg-white/[0.04] text-[#efbf3a] hover:bg-white/[0.08]"}`}>
+        Show ranking
+        <ArrowRight className="h-3.5 w-3.5" />
+      </Link>
+    </div>
   );
 }
 
@@ -139,6 +147,8 @@ export default function Rankings() {
                 title={top?.title}
                 subtitle={top?.subtitle}
                 score={top?.score}
+                scoreSuffix={top?.scoreSuffix || "pts"}
+                itemTo={top?.to}
               />
             );
           })}

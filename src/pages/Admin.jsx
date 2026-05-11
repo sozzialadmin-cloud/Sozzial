@@ -548,7 +548,10 @@ export default function Admin() {
   const rejectedSpots = spots.filter((row) => row.status === 'rejected');
   const pendingPhotos = photos.filter((row) => row.status === 'pending');
   const pendingComments = comments.filter((row) => row.status === 'pending');
+  const publishedRecipes = recipes.filter((row) => row.status === 'published');
   const hiddenRecipes = recipes.filter((row) => row.status === 'hidden' || row.status === 'removed');
+  const recipeLikes = recipes.reduce((sum, row) => sum + Number(row.likes_count || 0), 0);
+  const averageRating = ratings.length ? (ratings.reduce((sum, row) => sum + Number(row.rating || 0), 0) / ratings.length).toFixed(1) : '0.0';
 
   const openReports = React.useMemo(() => {
     const items = [];
@@ -644,6 +647,9 @@ export default function Admin() {
     reportedMessages: dashboardStatsRow?.reported_messages ?? suspiciousMessages.length,
     pendingPhotos: dashboardStatsRow?.pending_photos ?? pendingPhotos.length,
     recipes: recipes.length,
+    publishedRecipes: publishedRecipes.length,
+    recipeLikes,
+    averageRating,
     newUsersToday: dashboardStatsRow?.new_users_today ?? usersToday.length,
     newUsersWeek: dashboardStatsRow?.new_users_week ?? usersWeek.length,
     urgentItems: dashboardStatsRow?.urgent_items ?? urgentItems.length,
@@ -860,7 +866,7 @@ export default function Admin() {
           </div>
         </header>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-7">
           <StatCard label="Pending spots" value={overviewStats.pendingSpots} note="Waiting for review" icon={Pizza} accent="text-[#df5b43]" />
           <StatCard label="Active plans" value={overviewStats.activePlans} note="Ongoing or upcoming" icon={CalendarDays} accent="text-[#216b33]" />
           <StatCard label="Open reports" value={overviewStats.openReports} note={overviewStats.urgentItems ? `${overviewStats.urgentItems} urgent` : 'No urgent items'} icon={ShieldAlert} accent="text-[#df5b43]" />
@@ -869,6 +875,29 @@ export default function Admin() {
           <StatCard label="Pending photos" value={overviewStats.pendingPhotos} note="Waiting for approval" icon={Camera} accent="text-[#216b33]" />
           <StatCard label="Recipes" value={overviewStats.recipes} note={`${hiddenRecipes.length} hidden/removed`} icon={ChefHat} accent="text-[#df5b43]" />
         </div>
+                <section className="grid gap-3 lg:grid-cols-4">
+          <div className="rounded-[26px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_18px_42px_rgba(34,25,11,0.07)]">
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Content health</div>
+            <div className="mt-3 text-2xl font-black text-[#111111]">{approvedSpots.length}/{spots.length || 0}</div>
+            <div className="mt-1 text-sm text-[#6d665b]">approved spots</div>
+          </div>
+          <div className="rounded-[26px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_18px_42px_rgba(34,25,11,0.07)]">
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Recipe layer</div>
+            <div className="mt-3 text-2xl font-black text-[#111111]">{overviewStats.publishedRecipes}</div>
+            <div className="mt-1 text-sm text-[#6d665b]">{overviewStats.recipeLikes} total likes</div>
+          </div>
+          <div className="rounded-[26px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_18px_42px_rgba(34,25,11,0.07)]">
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Taste data</div>
+            <div className="mt-3 text-2xl font-black text-[#111111]">{overviewStats.averageRating}</div>
+            <div className="mt-1 text-sm text-[#6d665b]">{ratings.length} ratings</div>
+          </div>
+          <div className="rounded-[26px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_18px_42px_rgba(34,25,11,0.07)]">
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a8174]">Backlog</div>
+            <div className="mt-3 text-2xl font-black text-[#111111]">{pendingSpots.length + pendingPhotos.length + pendingComments.length}</div>
+            <div className="mt-1 text-sm text-[#6d665b]">items waiting</div>
+          </div>
+        </section>
+
         <div className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
           <section className="attention-glow rounded-[30px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_70px_rgba(17,17,17,0.18)]">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -945,7 +974,7 @@ export default function Admin() {
 
         {!isLoading && activeTab === 'overview' ? (
           <div className="space-y-5">
-            <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
+            <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-6">
               <ActionBlock icon={Pizza} title="Review pending spots" text={`${overviewStats.pendingSpots} waiting for approval or rejection.`} cta="Open spots" onClick={() => goTo('spots', { spotFilter: 'pending' })} />
               <ActionBlock icon={CalendarDays} title="Review recent plans" text={`${overviewStats.activePlans} active plans and ${plans.filter((row) => (toTs(row.created_at) || 0) >= todayStart).length} created today.`} cta="Open plans" onClick={() => goTo('plans', { planFilter: 'today' })} />
               <ActionBlock icon={ShieldAlert} title="Review urgent reports" text={`${overviewStats.urgentItems} strong risk signals right now.`} cta="Go to reports" onClick={() => goTo('reports')} />
@@ -1215,9 +1244,7 @@ export default function Admin() {
 
             <Shell title="Plan profile" subtitle="Core info, chat, members, reports and control actions.">
               {selectedPlan ? (
-                <div className="space-y-5">
-                  <div className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
-                    <div>
+                <div className="space-y-5"><div>
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-3xl font-black tracking-[-0.05em] text-[#111111]">{selectedPlan.title}</h3>
                         <StatusPill tone={selectedPlan.status === 'active' ? 'success' : selectedPlan.status === 'cancelled' ? 'danger' : 'warn'}>{selectedPlan.status}</StatusPill>
@@ -1230,7 +1257,6 @@ export default function Admin() {
                       <DetailMetric label="Miembros" value={`${selectedPlan.joinedCount}/${selectedPlan.max_people || 0}`} tone={selectedPlan.seatsOver ? 'danger' : 'neutral'} />
                       <DetailMetric label="Flags" value={selectedPlan.reportCount || 0} tone={selectedPlan.reportCount ? 'danger' : 'neutral'} />
                     </div>
-                  </div>
 
                   <div className="grid gap-5 xl:grid-cols-[1fr,1fr]">
                     <div className="space-y-5">
@@ -1587,7 +1613,7 @@ export default function Admin() {
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <DetailMetric label="Total users" value={users.length} />
                 <DetailMetric label="Profile completeness" value={`${profileCompleteness.score}%`} tone={profileCompleteness.score > 60 ? 'success' : 'warn'} />
-                <DetailMetric label="Total content" value={spots.length + plans.length + messages.length + comments.length + photos.length} />
+                <DetailMetric label="Total content" value={spots.length + plans.length + messages.length + comments.length + photos.length + recipes.length} />
                 <DetailMetric label="Open alerts" value={openReports.length} tone={openReports.length ? 'danger' : 'success'} />
               </div>
 
