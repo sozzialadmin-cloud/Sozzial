@@ -1,4 +1,4 @@
-﻿-- Sozzial social-plus features: check-ins, passport progress and public activity feed.
+-- Sozzial social-plus features: check-ins, passport progress and public activity feed.
 -- Run after the auth/profile/product SQL files.
 
 create table if not exists public.check_ins (
@@ -36,6 +36,28 @@ create table if not exists public.passport_badges (
 
 create index if not exists check_ins_user_created_idx on public.check_ins(user_id, created_at desc);
 create index if not exists check_ins_spot_created_idx on public.check_ins(spot_id, created_at desc);
+
+do $$
+declare
+  constraint_name text;
+begin
+  for constraint_name in
+    select conname
+    from pg_constraint
+    where conrelid = 'public.activity_events'::regclass
+      and contype = 'c'
+      and pg_get_constraintdef(oid) ilike '%event_type%'
+  loop
+    execute format('alter table public.activity_events drop constraint if exists %I', constraint_name);
+  end loop;
+
+  alter table public.activity_events
+  add constraint activity_events_event_type_check
+  check (event_type in ('check_in', 'review', 'plan_created', 'badge_awarded', 'spot_added', 'recipe_posted'));
+exception
+  when duplicate_object then null;
+end;
+$$;
 create index if not exists activity_events_created_idx on public.activity_events(created_at desc);
 create index if not exists activity_events_user_idx on public.activity_events(user_id, created_at desc);
 create index if not exists passport_badges_user_idx on public.passport_badges(user_id);
