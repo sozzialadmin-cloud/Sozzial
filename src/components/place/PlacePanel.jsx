@@ -315,7 +315,7 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 30, stiffness: 300 }}
-          className="fixed right-0 top-[var(--header-height)] bottom-[var(--mobile-nav-height)] w-full overflow-y-auto border-l border-white/5 bg-[#0d0d0d] sm:bottom-0 sm:w-[470px]"
+          className="absolute inset-0 w-full overflow-y-auto border-l border-white/5 bg-[#0d0d0d] md:fixed md:inset-auto md:bottom-0 md:right-0 md:top-[var(--header-height)] md:w-[470px]"
           style={{ zIndex: ZINDEX.PLACE_PANEL }}
         >
           <div className="border-b border-white/5 bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.22),transparent_34%),linear-gradient(180deg,#131313_0%,#0d0d0d_100%)] px-5 pb-6 pt-5">
@@ -329,12 +329,12 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
             <button onClick={onClose} className="mb-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white transition hover:bg-black/60">
               <ChevronLeft className="h-4 w-4" />
             </button>
-<div className="mb-3 flex flex-wrap items-center gap-2">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-red-300">Spot</span>
               {displayBestSlice ? <span className="inline-flex items-center rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-300">Best slice - {displayBestSlice}</span> : null}
             </div>
 
-            <h2 className="text-[2rem] font-black leading-tight text-white">{place.name}</h2>
+            <h2 className="text-[clamp(1.65rem,8vw,2rem)] font-black leading-tight text-white">{place.name}</h2>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-stone-400">
               <MapPin className="h-4 w-4" />
               {place.address || "Location pinned on map"}
@@ -437,9 +437,9 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
             </div>
           </div>
 
-          <div className="min-h-[calc(100dvh-var(--header-height)-var(--mobile-nav-height)-56px)] bg-[#0d0d0d] px-5 py-5 pb-[calc(var(--mobile-nav-height)+1.25rem)] sm:min-h-0 sm:pb-8">
+          <div className="bg-[#0d0d0d] px-5 py-5 pb-6 md:pb-8">
             {activeTab === "info" ? (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
                   <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500">Your rating</div>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
