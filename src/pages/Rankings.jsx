@@ -34,15 +34,7 @@ function SummaryCard({ tab, title, subtitle, score, scoreSuffix = "pts", active,
     </>
   );
 
-  return (
-    <div className="min-w-0 overflow-hidden rounded-[22px]">
-      {itemTo && !empty ? <Link to={itemTo} className={cardClass}>{body}</Link> : <div className={cardClass}>{body}</div>}
-      <Link to={`/rankings?type=${tab.id}`} className={`mt-2 flex h-10 items-center justify-center gap-2 rounded-2xl border text-xs font-black transition ${active ? "border-[#efbf3a]/35 bg-[#efbf3a] text-[#141414]" : "border-white/10 bg-white/[0.04] text-[#efbf3a] hover:bg-white/[0.08]"}`}>
-        Show ranking
-        <ArrowRight className="h-3.5 w-3.5" />
-      </Link>
-    </div>
-  );
+  return itemTo && !empty ? <Link to={itemTo} className={cardClass}>{body}</Link> : <div className={cardClass}>{body}</div>;
 }
 
 function RankingRow({ rank, icon: Icon, title, subtitle, score, to, scoreSuffix = "pts" }) {
@@ -130,7 +122,7 @@ export default function Rankings() {
         <div className="mb-4">
           <div className="inline-flex rounded-full border border-[#efbf3a]/25 bg-[#efbf3a]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#efbf3a]">Rankings</div>
           <h1 className="mt-3 text-[clamp(1.9rem,7vw,3.5rem)] font-black leading-none">Top 10 pizza moves</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-400">People, spots and home recipes ranked in compact lists. Tap any ranking to open its own view.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-400">People, spots and home recipes ranked in compact lists. Tap a top card to open that item, or use the selector below to switch ranking lists.</p>
         </div>
 
         {isLoading ? <div className="rounded-[24px] border border-white/10 bg-[#101010] p-6 text-center text-stone-400">Loading rankings...</div> : null}
@@ -165,7 +157,7 @@ export default function Rankings() {
                 <div className="text-xs text-stone-500">Ordered list, best 10 first.</div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-white/10 bg-black/25 p-1">
+            <div className="grid w-full grid-cols-3 gap-1 rounded-2xl border border-white/10 bg-black/25 p-1 sm:w-auto">
               {rankingTabs.map((tab) => (
                 <button
                   key={tab.id}
