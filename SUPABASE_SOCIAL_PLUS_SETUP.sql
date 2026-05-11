@@ -14,7 +14,7 @@ create table if not exists public.check_ins (
 create table if not exists public.activity_events (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete set null,
-  event_type text not null check (event_type in ('check_in', 'review', 'plan_created', 'badge_awarded', 'spot_added', 'recipe_posted')),
+  event_type text not null check (event_type in ('check_in', 'review', 'plan_created', 'badge_awarded', 'spot_added', 'recipe_posted', 'profile_follow')),
   entity_type text,
   entity_id uuid,
   metadata jsonb not null default '{}'::jsonb,
@@ -53,7 +53,7 @@ begin
 
   alter table public.activity_events
   add constraint activity_events_event_type_check
-  check (event_type in ('check_in', 'review', 'plan_created', 'badge_awarded', 'spot_added', 'recipe_posted'));
+  check (event_type in ('check_in', 'review', 'plan_created', 'badge_awarded', 'spot_added', 'recipe_posted', 'profile_follow'));
 exception
   when duplicate_object then null;
 end;
@@ -167,6 +167,34 @@ on public.home_recipes for update
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
+
+drop policy if exists "Admins can read all recipes" on public.home_recipes;
+create policy "Admins can read all recipes"
+on public.home_recipes for select
+using (exists (
+  select 1 from public.profiles p
+  where p.id = auth.uid() and p.role = 'admin'
+));
+
+drop policy if exists "Admins can moderate recipes" on public.home_recipes;
+create policy "Admins can moderate recipes"
+on public.home_recipes for update
+using (exists (
+  select 1 from public.profiles p
+  where p.id = auth.uid() and p.role = 'admin'
+))
+with check (exists (
+  select 1 from public.profiles p
+  where p.id = auth.uid() and p.role = 'admin'
+));
+
+drop policy if exists "Admins can delete recipes" on public.home_recipes;
+create policy "Admins can delete recipes"
+on public.home_recipes for delete
+using (exists (
+  select 1 from public.profiles p
+  where p.id = auth.uid() and p.role = 'admin'
+));
 drop policy if exists "Public can read recipe votes" on public.home_recipe_votes;
 create policy "Public can read recipe votes"
 on public.home_recipe_votes for select

@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ChefHat, Crown, MapPin, Star, Trophy, UserRound } from "lucide-react";
+import { ArrowRight, ChefHat, Crown, ExternalLink, MapPin, Star, Trophy, UserRound } from "lucide-react";
 import { fetchRecipeRankings, fetchWeeklyRankings } from "@/lib/social-data";
 import { getPublicUsername } from "@/lib/display-name";
 
@@ -21,7 +21,7 @@ function SummaryCard({ tab, title, subtitle, score, active, empty }) {
   return (
     <Link
       to={`/rankings?type=${tab.id}`}
-      className={`group overflow-hidden rounded-[22px] border p-4 transition duration-300 hover:-translate-y-0.5 ${active ? "border-[#efbf3a]/55 bg-[#efbf3a]/14 shadow-[0_18px_42px_rgba(239,191,58,0.12)]" : "border-white/10 bg-white/[0.04] hover:border-white/20"}`}
+      className={`group block min-w-0 overflow-hidden rounded-[22px] border p-4 transition duration-300 hover:-translate-y-0.5 ${active ? "border-[#efbf3a]/55 bg-[#efbf3a]/14 shadow-[0_18px_42px_rgba(239,191,58,0.12)]" : "border-white/10 bg-white/[0.04] hover:border-white/20"}`}
     >
       <div className="flex items-center justify-between gap-3">
         <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${active ? "bg-[#efbf3a] text-[#141414]" : "bg-white/[0.06] text-[#efbf3a]"}`}>
@@ -32,25 +32,28 @@ function SummaryCard({ tab, title, subtitle, score, active, empty }) {
       <div className="mt-4 text-[11px] font-black uppercase tracking-[0.16em] text-stone-500">Top {tab.label}</div>
       <div className="mt-1 truncate text-lg font-black text-white">{empty ? "No entries yet" : title}</div>
       <div className="mt-1 truncate text-sm text-stone-500">{empty ? "Waiting for community activity" : subtitle}</div>
-      <div className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-xs font-black text-[#141414]">{getScoreLabel(score)}</div>
+      <div className="mt-3 flex items-center justify-between gap-2"><span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-black text-[#141414]">{getScoreLabel(score)}</span><span className="inline-flex items-center gap-1 text-xs font-black text-[#efbf3a]">Show ranking <ArrowRight className="h-3.5 w-3.5" /></span></div>
     </Link>
   );
 }
 
 function RankingRow({ rank, icon: Icon, title, subtitle, score, to, scoreSuffix = "pts" }) {
   const content = (
-    <div className="flex min-w-0 items-center gap-3 rounded-[18px] border border-white/10 bg-white/[0.035] p-2.5 transition hover:border-white/20 hover:bg-white/[0.06]">
+    <div className="grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-3 rounded-[18px] border border-white/10 bg-white/[0.035] p-2.5 transition hover:border-white/20 hover:bg-white/[0.06] sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]">
       <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${rank <= 3 ? "bg-[#efbf3a] text-[#141414]" : "bg-white/[0.06] text-stone-300"}`}>
         {rank <= 3 ? <Crown className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0">
         <div className="truncate text-sm font-black text-white">{rank}. {title}</div>
         <div className="mt-0.5 truncate text-xs text-stone-500">{subtitle}</div>
       </div>
-      <div className="shrink-0 rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-xs font-black text-white">{getScoreLabel(score, scoreSuffix)}</div>
+      <div className="col-span-2 flex min-w-0 items-center justify-between gap-2 sm:col-span-1 sm:justify-end">
+        <span className="shrink-0 rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-xs font-black text-white">{getScoreLabel(score, scoreSuffix)}</span>
+        {to ? <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-black text-[#141414]">Open <ExternalLink className="h-3.5 w-3.5" /></span> : null}
+      </div>
     </div>
   );
-  return to ? <Link to={to}>{content}</Link> : content;
+  return to ? <Link to={to} className="block min-w-0">{content}</Link> : content;
 }
 
 function EmptyState({ children }) {
@@ -114,8 +117,8 @@ export default function Rankings() {
   const ActiveIcon = activeTab.icon;
 
   return (
-    <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] bg-[#060606] px-3 py-4 pb-[calc(var(--mobile-nav-height)+1rem)] text-white sm:px-5 sm:py-6 sm:pb-6">
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] overflow-x-hidden bg-[#060606] px-3 py-4 pb-[calc(var(--mobile-nav-height)+1rem)] text-white sm:px-5 sm:py-6 sm:pb-6">
+      <div className="mx-auto w-full max-w-5xl overflow-hidden">
         <div className="mb-4">
           <div className="inline-flex rounded-full border border-[#efbf3a]/25 bg-[#efbf3a]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#efbf3a]">Rankings</div>
           <h1 className="mt-3 text-[clamp(1.9rem,7vw,3.5rem)] font-black leading-none">Top 10 pizza moves</h1>
@@ -124,7 +127,7 @@ export default function Rankings() {
 
         {isLoading ? <div className="rounded-[24px] border border-white/10 bg-[#101010] p-6 text-center text-stone-400">Loading rankings...</div> : null}
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-3">
           {rankingTabs.map((tab) => {
             const top = topByType[tab.id];
             return (
@@ -141,7 +144,7 @@ export default function Rankings() {
           })}
         </div>
 
-        <section className="mt-4 rounded-[26px] border border-white/10 bg-[#101010] p-3 shadow-[0_18px_46px_rgba(0,0,0,0.25)] sm:p-4">
+        <section className="mt-4 min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#101010] p-3 shadow-[0_18px_46px_rgba(0,0,0,0.25)] sm:p-4">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#efbf3a] text-[#141414]">
@@ -166,7 +169,7 @@ export default function Rankings() {
             </div>
           </div>
 
-          <div className="grid gap-2">
+          <div className="grid min-w-0 gap-2">
             {activeList.map((item) => (
               <RankingRow key={item.id} {...item} />
             ))}

@@ -6,6 +6,7 @@ import {
   Ban,
   CalendarDays,
   Camera,
+  ChefHat,
   CheckCircle2,
   ChevronRight,
   Clock3,
@@ -310,6 +311,7 @@ function useAdminData(enabled) {
         ratingsRes,
         commentsRes,
         photosRes,
+        recipesRes,
         dashboardStatsRes,
         attentionNowRes,
       ] = await Promise.all([
@@ -321,6 +323,7 @@ function useAdminData(enabled) {
         safeFetchRows('spot_ratings', 'id,spot_id,user_id,rating,created_at,updated_at', { orderBy: 'updated_at' }),
         safeFetchRows('spot_comments', 'id,spot_id,user_id,content,status,created_at,updated_at,reviewed_by,reviewed_at', { orderBy: 'created_at' }),
         safeFetchRows('spot_photos', 'id,spot_id,user_id,photo_url,status,created_at,updated_at,reviewed_by,reviewed_at', { orderBy: 'created_at' }),
+        safeFetchRows('home_recipes', 'id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,status,likes_count,created_at,updated_at', { orderBy: 'created_at' }),
         safeRpcRows('admin_get_dashboard_stats'),
         safeRpcRows('admin_get_attention_now'),
       ]);
@@ -334,11 +337,13 @@ function useAdminData(enabled) {
         ratings: ratingsRes.data,
         comments: commentsRes.data,
         photos: photosRes.data,
+        recipes: recipesRes.data,
         dashboardStats: dashboardStatsRes.data,
         attentionNow: attentionNowRes.data,
         diagnostics: [
           { table: 'spot_comments', available: !commentsRes.error, error: commentsRes.error?.message || null },
           { table: 'spot_photos', available: !photosRes.error, error: photosRes.error?.message || null },
+          { table: 'home_recipes', available: !recipesRes.error, error: recipesRes.error?.message || null },
         ],
       };
     },
@@ -438,6 +443,7 @@ export default function Admin() {
   const ratings = data?.ratings || [];
   const comments = data?.comments || [];
   const photos = data?.photos || [];
+  const recipes = data?.recipes || [];
   const diagnostics = data?.diagnostics || [];
   const dashboardStatsRow = data?.dashboardStats?.[0] || null;
   const attentionNowRows = data?.attentionNow || [];
@@ -542,6 +548,7 @@ export default function Admin() {
   const rejectedSpots = spots.filter((row) => row.status === 'rejected');
   const pendingPhotos = photos.filter((row) => row.status === 'pending');
   const pendingComments = comments.filter((row) => row.status === 'pending');
+  const hiddenRecipes = recipes.filter((row) => row.status === 'hidden' || row.status === 'removed');
 
   const openReports = React.useMemo(() => {
     const items = [];
@@ -636,6 +643,7 @@ export default function Admin() {
     openReports: dashboardStatsRow?.open_reports ?? openReports.length,
     reportedMessages: dashboardStatsRow?.reported_messages ?? suspiciousMessages.length,
     pendingPhotos: dashboardStatsRow?.pending_photos ?? pendingPhotos.length,
+    recipes: recipes.length,
     newUsersToday: dashboardStatsRow?.new_users_today ?? usersToday.length,
     newUsersWeek: dashboardStatsRow?.new_users_week ?? usersWeek.length,
     urgentItems: dashboardStatsRow?.urgent_items ?? urgentItems.length,
@@ -716,6 +724,8 @@ export default function Admin() {
     return rows;
   }, [plans, memberCountMap, spotMap, openReports, planFilter, includesSearch, nowTs, todayStart]);
 
+  const recipeRows = React.useMemo(() => recipes.filter((row) => includesSearch(row.title, row.description, row.dough_style, row.status, userMap.get(row.user_id)?.username, userMap.get(row.user_id)?.email)).sort((a, b) => (toTs(b.created_at) || 0) - (toTs(a.created_at) || 0)), [recipes, includesSearch, userMap]);
+
   const userRows = React.useMemo(() => {
     let rows = users.map((person) => {
       const signals = openReports.filter((item) => item.type === 'user' && item.entityId === person.id).length;
@@ -787,6 +797,10 @@ export default function Admin() {
     mutationFn: ({ id, payload }) => updateRow('spot_photos', id, payload),
     onSuccess: invalidateAll,
   });
+  const recipeMutation = useMutation({
+    mutationFn: ({ id, payload }) => updateRow('home_recipes', id, payload),
+    onSuccess: invalidateAll,
+  });
   const deleteMutation = useMutation({
     mutationFn: ({ table, id }) => deleteRow(table, id),
     onSuccess: invalidateAll,
@@ -853,6 +867,7 @@ export default function Admin() {
           <StatCard label="New users" value={overviewStats.newUsersToday} note={`${overviewStats.newUsersWeek} this week`} icon={Users} accent="text-[#111111]" />
           <StatCard label="Reported messages" value={overviewStats.reportedMessages} note="Automatic signals" icon={MessageSquare} accent="text-[#df5b43]" />
           <StatCard label="Pending photos" value={overviewStats.pendingPhotos} note="Waiting for approval" icon={Camera} accent="text-[#216b33]" />
+          <StatCard label="Recipes" value={overviewStats.recipes} note={`${hiddenRecipes.length} hidden/removed`} icon={ChefHat} accent="text-[#df5b43]" />
         </div>
         <div className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
           <section className="attention-glow rounded-[30px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_70px_rgba(17,17,17,0.18)]">
@@ -1296,6 +1311,44 @@ export default function Admin() {
           </div>
         ) : null}
 
+        {!isLoading && activeTab === 'recipes' ? (
+          <Shell title="Recipes" subtitle="Moderate home recipes, hide low quality posts and open the author profile.">
+            {recipeRows.length ? (
+              <div className="grid gap-3">
+                {recipeRows.map((recipe) => {
+                  const author = userMap.get(recipe.user_id);
+                  return (
+                    <div key={recipe.id} className="rounded-[24px] border border-black/8 bg-white px-4 py-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <StatusPill tone={recipe.status === 'published' ? 'success' : recipe.status === 'hidden' ? 'warn' : 'danger'}>{recipe.status || 'published'}</StatusPill>
+                            <StatusPill tone="neutral">{recipe.likes_count || 0} likes</StatusPill>
+                            {recipe.photo_url ? <StatusPill tone="info">photo</StatusPill> : <StatusPill tone="warn">no photo</StatusPill>}
+                          </div>
+                          <div className="mt-3 truncate text-lg font-black text-[#111111]">{recipe.title}</div>
+                          <div className="mt-1 line-clamp-2 text-sm leading-6 text-[#6d665b]">{recipe.description}</div>
+                          <div className="mt-3 flex flex-wrap gap-2 text-xs text-[#8a8174]">
+                            <span>By {getPublicUsername(author, 'Sozzial user')}</span>
+                            <span>{recipe.dough_style || 'No dough style'}</span>
+                            <span>{formatDateOnly(recipe.created_at)}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 lg:justify-end">
+                          <AdminActionButton variant="success" onClick={() => recipeMutation.mutate({ id: recipe.id, payload: { status: 'published', updated_at: new Date().toISOString() } })}>Publish</AdminActionButton>
+                          <AdminActionButton variant="dark" onClick={() => recipeMutation.mutate({ id: recipe.id, payload: { status: 'hidden', updated_at: new Date().toISOString() } })}><EyeOff className="mr-2 h-4 w-4" />Hide</AdminActionButton>
+                          <AdminActionButton variant="warn" onClick={() => recipeMutation.mutate({ id: recipe.id, payload: { status: 'removed', updated_at: new Date().toISOString() } })}>Remove</AdminActionButton>
+                          <AdminActionButton variant="neutral" onClick={() => window.open(`/profile/${recipe.user_id}`, '_blank')}><Users className="mr-2 h-4 w-4" />Author</AdminActionButton>
+                          <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: 'home_recipes', id: recipe.id })}><Trash2 className="mr-2 h-4 w-4" />Delete</AdminActionButton>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : <EmptyState icon={ChefHat} title="No recipes yet" text="When users publish home pizza recipes, you will moderate them here." />}
+          </Shell>
+        ) : null}
         {!isLoading && activeTab === 'reports' ? (
           <Shell title="Reports / moderation" subtitle="Until a formal reports table exists, this inbox uses real content signals to prioritize review.">
             {attentionQueue.length ? (
@@ -1527,6 +1580,7 @@ export default function Admin() {
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-users.csv', users)}><Download className="mr-2 h-4 w-4" />Users CSV</AdminActionButton>
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-spots.csv', spots)}><Download className="mr-2 h-4 w-4" />Spots CSV</AdminActionButton>
                   <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-plans.csv', plans)}><Download className="mr-2 h-4 w-4" />Plans CSV</AdminActionButton>
+                  <AdminActionButton variant="neutral" onClick={() => downloadCsv('sozzial-recipes.csv', recipes)}><Download className="mr-2 h-4 w-4" />Recipes CSV</AdminActionButton>
                 </>
               }
             >
@@ -1605,7 +1659,3 @@ function MergeIcon() {
     </svg>
   );
 }
-
-
-
-
