@@ -326,12 +326,9 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
                 </div>
               </div>
             ) : null}
-            <div className="sticky top-3 z-30 -mt-1 mb-4 flex justify-start">
-              <button onClick={onClose} className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-black/75 px-3 pr-4 text-sm font-black text-white shadow-[0_12px_34px_rgba(0,0,0,0.35)] backdrop-blur-xl transition hover:bg-black/90">
-                <ChevronLeft className="h-4 w-4" />
-                Map
-              </button>
-            </div>
+            <button onClick={onClose} className="mb-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white transition hover:bg-black/60">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
 <div className="mb-3 flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-red-300">Spot</span>
               {displayBestSlice ? <span className="inline-flex items-center rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-300">Best slice - {displayBestSlice}</span> : null}

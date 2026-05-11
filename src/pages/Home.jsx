@@ -56,6 +56,16 @@ export default function Home() {
     setSavedPlaceIds(readSavedSpotIds(user?.id));
   }, [user?.id]);
 
+  useEffect(() => {
+    const closeMapPanels = () => {
+      setSelectedPlace(null);
+      setPreviewPlace(null);
+      setListOpen(false);
+    };
+    window.addEventListener('sozzial:close-map-panels', closeMapPanels);
+    return () => window.removeEventListener('sozzial:close-map-panels', closeMapPanels);
+  }, []);
+
   const hangoutsByPlace = useMemo(() => countPlansBySpot(activePlans), [activePlans]);
 
   const enrichedPlaces = useMemo(
