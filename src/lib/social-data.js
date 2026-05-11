@@ -1,4 +1,4 @@
-﻿import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const LOCAL_CHECKINS = "sozzial_local_checkins";
 const LOCAL_ACTIVITY = "sozzial_local_activity";
@@ -220,7 +220,7 @@ export async function fetchProfileRecipes(profileId, viewerId) {
   if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
       .from("home_recipes")
-      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,likes_count,created_at")
+      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,likes_count,created_at")
       .eq("user_id", profileId)
       .eq("status", "published")
       .order("likes_count", { ascending: false })
@@ -245,7 +245,7 @@ export async function fetchRecipeRankings(viewerId) {
   if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
       .from("home_recipes")
-      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,likes_count,created_at,profiles(id,username,avatar_url)")
+      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,likes_count,created_at,profiles(id,username,avatar_url)")
       .eq("status", "published")
       .order("likes_count", { ascending: false })
       .order("created_at", { ascending: false })
@@ -262,7 +262,7 @@ export async function fetchRecipeRankings(viewerId) {
   return readLocal(LOCAL_RECIPES).sort((a, b) => Number(b.likes_count || 0) - Number(a.likes_count || 0)).slice(0, 20);
 }
 
-export async function createHomeRecipe({ userId, title, description, doughStyle, difficulty, bakeTime }) {
+export async function createHomeRecipe({ userId, title, description, doughStyle, difficulty, bakeTime, photoUrl, ingredients, preparationSteps, ovenTemp, servings, tags }) {
   const payload = {
     user_id: userId,
     title: title.trim(),
@@ -270,6 +270,12 @@ export async function createHomeRecipe({ userId, title, description, doughStyle,
     dough_style: doughStyle.trim() || null,
     difficulty: difficulty || "Easy",
     bake_time: bakeTime.trim() || null,
+    photo_url: photoUrl || null,
+    ingredients: ingredients.trim() || null,
+    preparation_steps: preparationSteps.trim() || null,
+    oven_temp: ovenTemp.trim() || null,
+    servings: servings.trim() || null,
+    tags: Array.isArray(tags) ? tags.filter(Boolean).slice(0, 8) : [],
     status: "published",
   };
   if (!payload.user_id || !payload.title || !payload.description) throw new Error("Add a recipe name and a short description.");

@@ -142,6 +142,12 @@ create index if not exists home_recipes_user_idx on public.home_recipes(user_id,
 create index if not exists home_recipes_rank_idx on public.home_recipes(status, likes_count desc, created_at desc);
 create index if not exists home_recipe_votes_user_idx on public.home_recipe_votes(user_id, created_at desc);
 
+
+alter table public.home_recipes add column if not exists ingredients text;
+alter table public.home_recipes add column if not exists preparation_steps text;
+alter table public.home_recipes add column if not exists oven_temp text;
+alter table public.home_recipes add column if not exists servings text;
+alter table public.home_recipes add column if not exists tags text[] not null default '{}'::text[];
 alter table public.home_recipes enable row level security;
 alter table public.home_recipe_votes enable row level security;
 

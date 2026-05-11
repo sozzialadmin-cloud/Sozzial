@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Bookmark, CalendarDays, CheckCircle2, ChefHat, Heart, MapPin, MessageSquare, Pizza, Star, ThumbsUp, Trophy, UserCheck, UserPlus } from 'lucide-react';
@@ -66,22 +66,22 @@ function CompactStat({ value, label }) {
   );
 }
 
-function QuickTab({ icon: Icon, label, value, href }) {
+function QuickTab({ icon: Icon, label, value, active, onClick }) {
   return (
-    <a href={href} className="block rounded-[18px] border border-black/8 bg-white/82 p-2.5 text-center shadow-[0_10px_22px_rgba(65,42,18,0.06)] transition hover:-translate-y-0.5 hover:bg-white">
-      <div className="mx-auto grid h-9 w-9 place-items-center rounded-2xl bg-[#27231f] text-[#efbf3a]">
+    <button type="button" onClick={onClick} className={`block rounded-[18px] border p-2.5 text-center shadow-[0_10px_22px_rgba(65,42,18,0.06)] transition hover:-translate-y-0.5 ${active ? 'border-[#d82424]/25 bg-[#d82424] text-white' : 'border-black/8 bg-white/82 text-[#27231f] hover:bg-white'}`}>
+      <div className={`mx-auto grid h-9 w-9 place-items-center rounded-2xl ${active ? 'bg-white/15 text-white' : 'bg-[#27231f] text-[#efbf3a]'}`}>
         <Icon className="h-5 w-5" />
       </div>
-      <div className="mt-1.5 text-[13px] font-black text-[#27231f]">{label}</div>
-      <div className="mt-0.5 text-[11px] font-bold text-[#7b7166]">{value}</div>
-    </a>
+      <div className="mt-1.5 text-[13px] font-black">{label}</div>
+      <div className={`mt-0.5 text-[11px] font-bold ${active ? 'text-white/75' : 'text-[#7b7166]'}`}>{value}</div>
+    </button>
   );
 }
 
 function RecipeCard({ recipe, featured = false, onVote, voting }) {
   return (
-    <div className={`group overflow-hidden rounded-[22px] border border-black/8 bg-white shadow-[0_12px_28px_rgba(65,42,18,0.08)] transition duration-300 hover:-translate-y-0.5 ${featured ? 'sm:grid sm:grid-cols-[0.85fr,1fr]' : ''}`}>
-      <div className={`${featured ? 'h-24 sm:h-auto' : 'h-24'} bg-[radial-gradient(circle_at_28%_30%,#fff2c7_0_13%,transparent_14%),radial-gradient(circle_at_65%_46%,#d82424_0_9%,transparent_10%),radial-gradient(circle_at_76%_30%,#297b45_0_6%,transparent_7%),linear-gradient(135deg,#f1ba58,#9d3d20)]`} />
+    <div className={`group overflow-hidden rounded-[22px] border border-black/8 bg-white shadow-[0_12px_28px_rgba(65,42,18,0.08)] transition duration-300 hover:-translate-y-0.5 ${featured && recipe.photo_url ? 'sm:grid sm:grid-cols-[0.85fr,1fr]' : ''}`}>
+      {recipe.photo_url ? <img src={recipe.photo_url} alt={recipe.title} className={`${featured ? 'h-32 sm:h-full' : 'h-28'} w-full object-cover`} /> : null}
       <div className="p-3.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -125,6 +125,7 @@ export default function PublicProfile() {
   }, [userId]);
 
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('recipes');
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ['public-profile', userId, user?.id],
@@ -243,73 +244,70 @@ export default function PublicProfile() {
             </section>
 
             <section className="grid grid-cols-4 gap-2">
-              <QuickTab icon={ChefHat} label="Recipes" value={recipes.length} href="#recipes" />
-              <QuickTab icon={Pizza} label="Spots" value={data.createdSpots.length} href="#spots" />
-              <QuickTab icon={MessageSquare} label="Reviews" value={data.comments.length} href="#activity" />
-              <QuickTab icon={Bookmark} label="Favorite" value={data.favoriteSpot ? 'Set' : 'None'} href="#spots" />
+              <QuickTab icon={ChefHat} label="Recipes" value={recipes.length} active={activeTab === 'recipes'} onClick={() => setActiveTab('recipes')} />
+              <QuickTab icon={Pizza} label="Spots" value={data.createdSpots.length} active={activeTab === 'spots'} onClick={() => setActiveTab('spots')} />
+              <QuickTab icon={MessageSquare} label="Reviews" value={data.comments.length} active={activeTab === 'activity'} onClick={() => setActiveTab('activity')} />
+              <QuickTab icon={Bookmark} label="Favorite" value={data.favoriteSpot ? 'Set' : 'None'} active={activeTab === 'spots'} onClick={() => setActiveTab('spots')} />
             </section>
 
-            {featuredRecipe ? (
-              <RecipeCard recipe={featuredRecipe} featured onVote={(recipe) => voteRecipeMutation.mutate(recipe)} voting={voteRecipeMutation.isPending} />
-            ) : (
-              <EmptyBox>{isOwnProfile ? 'Publish your first recipe from your profile editor.' : 'This profile has not published recipes yet.'}</EmptyBox>
-            )}
-
-            <section id="recipes" className="grid gap-3 lg:grid-cols-[1fr,0.82fr]">
-              <div className="rounded-[28px] bg-white/72 p-4 shadow-[0_18px_42px_rgba(65,42,18,0.10)]">
+            {activeTab === 'recipes' ? (
+              <section id="recipes" className="rounded-[28px] bg-white/72 p-4 shadow-[0_18px_42px_rgba(65,42,18,0.10)]">
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <h2 className="font-serif text-2xl font-black">Recipes</h2>
                   <Link to={createPageUrl('Rankings')} className="text-sm font-black text-[#d82424]">View ranking</Link>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
+                  {featuredRecipe ? <RecipeCard recipe={featuredRecipe} featured onVote={(recipe) => voteRecipeMutation.mutate(recipe)} voting={voteRecipeMutation.isPending} /> : null}
                   {recipes.slice(1, 5).map((recipe) => (
                     <RecipeCard key={recipe.id} recipe={recipe} onVote={(item) => voteRecipeMutation.mutate(item)} voting={voteRecipeMutation.isPending} />
                   ))}
-                  {!recipes.slice(1, 5).length ? <EmptyBox>No more recipes yet.</EmptyBox> : null}
+                  {!recipes.length ? <EmptyBox>{isOwnProfile ? 'Publish your first recipe from your profile editor.' : 'This profile has not published recipes yet.'}</EmptyBox> : null}
                 </div>
-              </div>
+              </section>
+            ) : null}
 
-              <div className="grid gap-3">
-                <section id="activity" className="rounded-[28px] bg-[#27231f] p-4 text-white shadow-[0_18px_42px_rgba(65,42,18,0.15)]">
-                  <div className="mb-3 flex items-center gap-2">
-                    <Star className="h-5 w-5 fill-[#efbf3a] text-[#efbf3a]" />
-                    <h2 className="text-xl font-black tracking-[-0.04em]">Taste notes</h2>
-                  </div>
-                  <div className="grid gap-2">
-                    {bestRating ? (
-                      <div className="rounded-[20px] bg-white/8 p-3">
-                        <div className="font-black">{Number(bestRating.rating).toFixed(1)} stars</div>
-                        <div className="mt-1 line-clamp-2 text-sm text-white/60">{bestRating.spot?.name || 'Pizza spot'}</div>
-                      </div>
-                    ) : null}
-                    {(data.comments || []).slice(0, 2).map((comment) => (
-                      <div key={comment.id} className="rounded-[20px] bg-white/8 p-3">
-                        <div className="font-black">{comment.spot?.name || 'Pizza spot'}</div>
-                        <div className="mt-1 line-clamp-2 text-sm leading-5 text-white/60">{comment.content}</div>
-                      </div>
-                    ))}
-                    {!bestRating && !(data.comments || []).length ? <div className="text-sm text-white/55">No public taste notes yet.</div> : null}
-                  </div>
-                </section>
+            {activeTab === 'activity' ? (
+              <section id="activity" className="rounded-[28px] bg-[#27231f] p-4 text-white shadow-[0_18px_42px_rgba(65,42,18,0.15)]">
+                <div className="mb-3 flex items-center gap-2">
+                  <Star className="h-5 w-5 fill-[#efbf3a] text-[#efbf3a]" />
+                  <h2 className="text-xl font-black tracking-[-0.04em]">Taste notes</h2>
+                </div>
+                <div className="grid gap-2">
+                  {bestRating ? (
+                    <div className="rounded-[20px] bg-white/8 p-3">
+                      <div className="font-black">{Number(bestRating.rating).toFixed(1)} stars</div>
+                      <div className="mt-1 line-clamp-2 text-sm text-white/60">{bestRating.spot?.name || 'Pizza spot'}</div>
+                    </div>
+                  ) : null}
+                  {(data.comments || []).slice(0, 4).map((comment) => (
+                    <div key={comment.id} className="rounded-[20px] bg-white/8 p-3">
+                      <div className="font-black">{comment.spot?.name || 'Pizza spot'}</div>
+                      <div className="mt-1 line-clamp-2 text-sm leading-5 text-white/60">{comment.content}</div>
+                    </div>
+                  ))}
+                  {!bestRating && !(data.comments || []).length ? <div className="text-sm text-white/55">No public taste notes yet.</div> : null}
+                </div>
+              </section>
+            ) : null}
 
-                <section className="rounded-[28px] bg-white/72 p-4 shadow-[0_18px_42px_rgba(65,42,18,0.10)]">
-                  <div className="mb-3 flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-[#d82424]" />
-                    <h2 className="font-serif text-2xl font-black">Recommended spots</h2>
-                  </div>
-                  <div className="grid gap-2">
-                    {recommendedSpots.map((spot) => (
-                      <div key={spot.id} className="rounded-[20px] border border-black/8 bg-white p-3">
-                        <div className="line-clamp-1 font-black">{spot.name}</div>
-                        <div className="mt-1 text-xs font-black text-[#d82424]">{spot.reason}</div>
-                        <div className="mt-1 line-clamp-2 text-sm text-[#6c6257]">{spot.address}</div>
-                      </div>
-                    ))}
-                    {!recommendedSpots.length ? <div className="text-sm font-semibold text-[#7b7166]">No recommendations yet.</div> : null}
-                  </div>
-                </section>
-              </div>
-            </section>
+            {activeTab === 'spots' ? (
+              <section id="spots" className="rounded-[28px] bg-white/72 p-4 shadow-[0_18px_42px_rgba(65,42,18,0.10)]">
+                <div className="mb-3 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-[#d82424]" />
+                  <h2 className="font-serif text-2xl font-black">Recommended spots</h2>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {recommendedSpots.map((spot) => (
+                    <div key={spot.id} className="rounded-[20px] border border-black/8 bg-white p-3">
+                      <div className="line-clamp-1 font-black">{spot.name}</div>
+                      <div className="mt-1 text-xs font-black text-[#d82424]">{spot.reason}</div>
+                      <div className="mt-1 line-clamp-2 text-sm text-[#6c6257]">{spot.address}</div>
+                    </div>
+                  ))}
+                  {!recommendedSpots.length ? <div className="text-sm font-semibold text-[#7b7166]">No recommendations yet.</div> : null}
+                </div>
+              </section>
+            ) : null}
           </main>
         ) : null}
       </div>

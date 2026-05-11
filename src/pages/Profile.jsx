@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Award, CalendarDays, ChefHat, ChevronDown, Flame, Heart, LogOut, MapPin, MessageSquare, Pizza, Plus, Settings, Shield, Star, Trophy, ThumbsUp, Upload, UserRound } from 'lucide-react';
+import { Award, CalendarDays, Camera, ChefHat, ChevronDown, Clock, Flame, Heart, ListChecks, LogOut, MapPin, MessageSquare, Pizza, Plus, Settings, Shield, Star, Trophy, ThumbsUp, Upload, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -86,32 +86,43 @@ function ActivityItem({ title, meta, children }) {
 
 
 function RecipeCard({ recipe, rank, onVote, voting }) {
+  const hasDetails = Boolean(recipe.ingredients || recipe.preparation_steps || recipe.oven_temp || recipe.servings);
   return (
-    <div className="group relative overflow-hidden rounded-[26px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-[#efbf3a]/35 hover:bg-white/[0.08]">
-      <div className="absolute -right-10 -top-12 h-28 w-28 rounded-full bg-[#efbf3a]/10 blur-2xl transition duration-500 group-hover:bg-[#efbf3a]/20" />
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">
-            <Flame className="h-3 w-3" />
-            {rank ? `#${rank} recipe` : recipe.difficulty || 'Easy'}
+    <div className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04] transition duration-300 hover:-translate-y-0.5 hover:border-[#efbf3a]/35 hover:bg-white/[0.07]">
+      {recipe.photo_url ? <img src={recipe.photo_url} alt={recipe.title} className="h-32 w-full object-cover" /> : null}
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">
+              <Flame className="h-3 w-3" />
+              {rank ? `#${rank} recipe` : recipe.difficulty || 'Easy'}
+            </div>
+            <div className="break-words text-lg font-black leading-tight text-white">{recipe.title}</div>
+            <p className="mt-2 line-clamp-2 text-sm leading-6 text-stone-400">{recipe.description}</p>
           </div>
-          <div className="break-words text-lg font-black leading-tight text-white">{recipe.title}</div>
-          <p className="mt-2 line-clamp-3 text-sm leading-6 text-stone-400">{recipe.description}</p>
+          <button
+            type="button"
+            disabled={voting}
+            onClick={() => onVote?.(recipe)}
+            className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border transition ${recipe.viewer_liked ? 'border-[#efbf3a]/30 bg-[#efbf3a] text-[#141414]' : 'border-white/10 bg-black/25 text-white hover:bg-white/10'}`}
+            aria-label="Vote recipe"
+          >
+            <ThumbsUp className="h-5 w-5" />
+          </button>
         </div>
-        <button
-          type="button"
-          disabled={voting}
-          onClick={() => onVote?.(recipe)}
-          className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl border transition ${recipe.viewer_liked ? 'border-[#efbf3a]/30 bg-[#efbf3a] text-[#141414]' : 'border-white/10 bg-black/25 text-white hover:bg-white/10'}`}
-          aria-label="Vote recipe"
-        >
-          <ThumbsUp className="h-5 w-5" />
-        </button>
-      </div>
-      <div className="relative mt-4 flex flex-wrap gap-2">
-        <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.likes_count || 0} likes</span>
-        {recipe.dough_style ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.dough_style}</span> : null}
-        {recipe.bake_time ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.bake_time}</span> : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.likes_count || 0} likes</span>
+          {recipe.dough_style ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.dough_style}</span> : null}
+          {recipe.bake_time ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.bake_time}</span> : null}
+          {recipe.oven_temp ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.oven_temp}</span> : null}
+        </div>
+        {hasDetails ? (
+          <details className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+            <summary className="cursor-pointer text-sm font-black text-white">Recipe details</summary>
+            {recipe.ingredients ? <p className="mt-3 whitespace-pre-line text-sm leading-6 text-stone-400"><b className="text-stone-200">Ingredients:</b> {recipe.ingredients}</p> : null}
+            {recipe.preparation_steps ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-400"><b className="text-stone-200">Steps:</b> {recipe.preparation_steps}</p> : null}
+          </details>
+        ) : null}
       </div>
     </div>
   );
@@ -125,7 +136,7 @@ export default function Profile() {
   const [avatarPreview, setAvatarPreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [recipeForm, setRecipeForm] = useState({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '' });
+  const [recipeForm, setRecipeForm] = useState({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '', photoUrl: '', ingredients: '', preparationSteps: '', ovenTemp: '', servings: '', tags: [] });
   const [form, setForm] = useState({
     username: '',
     bio: '',
@@ -162,7 +173,7 @@ export default function Profile() {
     mutationFn: () => createHomeRecipe({ userId: user.id, ...recipeForm }),
     onSuccess: () => {
       toast.success('Recipe published');
-      setRecipeForm({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '' });
+      setRecipeForm({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '', photoUrl: '', ingredients: '', preparationSteps: '', ovenTemp: '', servings: '', tags: [] });
       queryClient.invalidateQueries({ queryKey: ['profile-recipes', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['recipe-rankings'] });
     },
@@ -246,6 +257,68 @@ export default function Profile() {
 
   if (!user) return <div className="min-h-[calc(100vh-64px)] bg-[#060606]" />;
 
+
+  const applyRecipePreset = (preset) => {
+    const presets = {
+      margherita: {
+        title: 'Margherita',
+        description: 'Tomato, mozzarella, basil and olive oil.',
+        doughStyle: 'Neapolitan',
+        bakeTime: '7 min',
+        ovenTemp: '250 C',
+        servings: '2',
+        ingredients: 'Pizza dough\nTomato sauce\nFresh mozzarella\nBasil\nOlive oil',
+        preparationSteps: 'Stretch the dough.\nAdd tomato and mozzarella.\nBake hot until the crust is spotted.\nFinish with basil and olive oil.',
+        tags: ['classic', 'vegetarian'],
+      },
+      pepperoni: {
+        title: 'Pepperoni pan pizza',
+        description: 'Crispy edges, melted cheese and pepperoni.',
+        doughStyle: 'Pan',
+        bakeTime: '14 min',
+        ovenTemp: '230 C',
+        servings: '2-3',
+        ingredients: 'Pan pizza dough\nMozzarella\nPepperoni\nTomato sauce\nOregano',
+        preparationSteps: 'Oil the pan.\nPress the dough to the edges.\nAdd sauce, cheese and pepperoni.\nBake until the edges are crisp.',
+        tags: ['crispy', 'pepperoni'],
+      },
+      veggie: {
+        title: 'Veggie slice',
+        description: 'Easy colorful pizza with vegetables.',
+        doughStyle: 'Thin crust',
+        bakeTime: '10 min',
+        ovenTemp: '240 C',
+        servings: '2',
+        ingredients: 'Pizza dough\nTomato sauce\nMozzarella\nPeppers\nMushrooms\nOlives',
+        preparationSteps: 'Stretch the dough thin.\nAdd sauce, cheese and vegetables.\nBake until the base is crisp.',
+        tags: ['vegetarian', 'easy'],
+      },
+    };
+    setRecipeForm((prev) => ({ ...prev, ...presets[preset] }));
+  };
+
+  const toggleRecipeTag = (tag) => {
+    setRecipeForm((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag) ? prev.tags.filter((item) => item !== tag) : [...prev.tags, tag],
+    }));
+  };
+
+  const onRecipePhoto = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Choose an image file.');
+      return;
+    }
+    if (file.size > 900000) {
+      toast.error('Choose a smaller photo, under 900 KB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setRecipeForm((prev) => ({ ...prev, photoUrl: String(reader.result || '') }));
+    reader.readAsDataURL(file);
+  };
   const onUploadAvatar = async (event) => {
     const file = event.target.files?.[0];
     if (!file || !user?.id) return;
@@ -452,16 +525,48 @@ export default function Profile() {
               </div>
             </div>
 
+            <div className="mt-4 flex flex-wrap gap-2">
+              {[
+                ['margherita', 'Margherita'],
+                ['pepperoni', 'Pepperoni'],
+                ['veggie', 'Veggie'],
+              ].map(([key, label]) => (
+                <button key={key} type="button" onClick={() => applyRecipePreset(key)} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black text-stone-200 hover:bg-white/[0.08]">
+                  {label}
+                </button>
+              ))}
+              {['classic', 'crispy', 'quick', 'vegetarian', 'spicy', 'sourdough'].map((tag) => (
+                <button key={tag} type="button" onClick={() => toggleRecipeTag(tag)} className={`rounded-full border px-3 py-2 text-xs font-black ${recipeForm.tags.includes(tag) ? 'border-[#efbf3a]/30 bg-[#efbf3a] text-[#141414]' : 'border-white/10 bg-black/20 text-stone-300'}`}>
+                  {tag}
+                </button>
+              ))}
+            </div>
+
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <label className="flex min-h-[88px] cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-white/12 bg-white/[0.035] p-3 text-sm text-stone-300 sm:col-span-2">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/25">
+                  <Camera className="h-5 w-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-black text-white">{recipeForm.photoUrl ? 'Photo selected' : 'Optional recipe photo'}</span>
+                  <span className="mt-1 block text-xs text-stone-500">If you skip it, no image block is shown.</span>
+                </span>
+                <input type="file" accept="image/*" className="hidden" onChange={onRecipePhoto} />
+              </label>
+              {recipeForm.photoUrl ? <img src={recipeForm.photoUrl} alt="Recipe preview" className="h-32 w-full rounded-2xl object-cover sm:col-span-2" /> : null}
               <Input value={recipeForm.title} onChange={(e) => setRecipeForm((prev) => ({ ...prev, title: e.target.value }))} placeholder="Recipe name" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
               <Input value={recipeForm.doughStyle} onChange={(e) => setRecipeForm((prev) => ({ ...prev, doughStyle: e.target.value }))} placeholder="Dough style" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Input value={recipeForm.ovenTemp} onChange={(e) => setRecipeForm((prev) => ({ ...prev, ovenTemp: e.target.value }))} placeholder="Oven temp, e.g. 250 C" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
               <Input value={recipeForm.bakeTime} onChange={(e) => setRecipeForm((prev) => ({ ...prev, bakeTime: e.target.value }))} placeholder="Bake time, e.g. 7 min" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Input value={recipeForm.servings} onChange={(e) => setRecipeForm((prev) => ({ ...prev, servings: e.target.value }))} placeholder="Servings, e.g. 2" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
               <select value={recipeForm.difficulty} onChange={(e) => setRecipeForm((prev) => ({ ...prev, difficulty: e.target.value }))} className="h-11 rounded-2xl border border-white/10 bg-[#171717] px-3 text-sm font-bold text-white">
                 <option>Easy</option>
                 <option>Medium</option>
                 <option>Advanced</option>
               </select>
-              <Textarea value={recipeForm.description} onChange={(e) => setRecipeForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Short recipe: ingredients, oven temperature, little trick..." className="min-h-[110px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
+              <Textarea value={recipeForm.description} onChange={(e) => setRecipeForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Short description" className="min-h-[78px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
+              <Textarea value={recipeForm.ingredients} onChange={(e) => setRecipeForm((prev) => ({ ...prev, ingredients: e.target.value }))} placeholder="Ingredients, one per line" className="min-h-[96px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
+              <Textarea value={recipeForm.preparationSteps} onChange={(e) => setRecipeForm((prev) => ({ ...prev, preparationSteps: e.target.value }))} placeholder="Preparation steps, one per line" className="min-h-[110px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
             </div>
 
             <Button disabled={createRecipeMutation.isPending} onClick={() => createRecipeMutation.mutate()} className="mt-4 h-11 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
