@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Bookmark, CalendarDays, CheckCircle2, ChefHat, Heart, MapPin, MessageSquare, Pizza, Star, ThumbsUp, Trophy, UserCheck, UserPlus } from 'lucide-react';
@@ -66,23 +66,23 @@ function CompactStat({ value, label }) {
   );
 }
 
-function QuickTab({ icon: Icon, label, value }) {
+function QuickTab({ icon: Icon, label, value, href }) {
   return (
-    <div className="rounded-[20px] border border-black/8 bg-white/78 p-3 text-center shadow-[0_12px_28px_rgba(65,42,18,0.07)]">
-      <div className="mx-auto grid h-10 w-10 place-items-center rounded-2xl bg-[#27231f] text-[#efbf3a]">
+    <a href={href} className="block rounded-[18px] border border-black/8 bg-white/82 p-2.5 text-center shadow-[0_10px_22px_rgba(65,42,18,0.06)] transition hover:-translate-y-0.5 hover:bg-white">
+      <div className="mx-auto grid h-9 w-9 place-items-center rounded-2xl bg-[#27231f] text-[#efbf3a]">
         <Icon className="h-5 w-5" />
       </div>
-      <div className="mt-2 text-sm font-black text-[#27231f]">{label}</div>
-      <div className="mt-0.5 text-xs font-bold text-[#7b7166]">{value}</div>
-    </div>
+      <div className="mt-1.5 text-[13px] font-black text-[#27231f]">{label}</div>
+      <div className="mt-0.5 text-[11px] font-bold text-[#7b7166]">{value}</div>
+    </a>
   );
 }
 
 function RecipeCard({ recipe, featured = false, onVote, voting }) {
   return (
-    <div className={`group overflow-hidden rounded-[24px] border border-black/8 bg-white shadow-[0_16px_36px_rgba(65,42,18,0.10)] transition duration-300 hover:-translate-y-0.5 ${featured ? 'sm:grid sm:grid-cols-[0.85fr,1fr]' : ''}`}>
-      <div className={`${featured ? 'h-36 sm:h-auto' : 'h-28'} bg-[radial-gradient(circle_at_28%_30%,#fff2c7_0_13%,transparent_14%),radial-gradient(circle_at_65%_46%,#d82424_0_9%,transparent_10%),radial-gradient(circle_at_76%_30%,#297b45_0_6%,transparent_7%),linear-gradient(135deg,#f1ba58,#9d3d20)]`} />
-      <div className="p-4">
+    <div className={`group overflow-hidden rounded-[22px] border border-black/8 bg-white shadow-[0_12px_28px_rgba(65,42,18,0.08)] transition duration-300 hover:-translate-y-0.5 ${featured ? 'sm:grid sm:grid-cols-[0.85fr,1fr]' : ''}`}>
+      <div className={`${featured ? 'h-24 sm:h-auto' : 'h-24'} bg-[radial-gradient(circle_at_28%_30%,#fff2c7_0_13%,transparent_14%),radial-gradient(circle_at_65%_46%,#d82424_0_9%,transparent_10%),radial-gradient(circle_at_76%_30%,#297b45_0_6%,transparent_7%),linear-gradient(135deg,#f1ba58,#9d3d20)]`} />
+      <div className="p-3.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {featured ? <span className="mb-2 inline-flex rounded-full bg-[#ffe1d9] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#c82120]">Featured</span> : null}
@@ -112,7 +112,7 @@ function RecipeCard({ recipe, featured = false, onVote, voting }) {
 
 function EmptyBox({ children }) {
   return (
-    <div className="rounded-[24px] border border-dashed border-black/12 bg-white/58 p-5 text-center text-sm font-semibold leading-6 text-[#7b7166]">
+    <div className="rounded-[20px] border border-dashed border-black/12 bg-white/58 p-4 text-center text-sm font-semibold leading-6 text-[#7b7166]">
       {children}
     </div>
   );
@@ -166,12 +166,12 @@ export default function PublicProfile() {
   return (
     <div className="min-h-screen bg-[#fff8ee] text-[#27231f]">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_92%_0%,rgba(216,36,36,0.12),transparent_20%),radial-gradient(circle_at_8%_8%,rgba(94,132,62,0.10),transparent_20%),linear-gradient(180deg,#fff8ee_0%,#f4eadb_100%)]" />
-      <div className="relative mx-auto max-w-5xl px-3 pb-28 pt-3 sm:px-5 sm:pb-10">
-        <header className="mb-3 flex items-center justify-between">
+      <div className="relative mx-auto max-w-5xl px-3 pb-24 pt-2 sm:px-5 sm:pb-8">
+        <header className="mb-2 flex items-center justify-between">
           <Link to={createPageUrl('Home')} className="grid h-11 w-11 place-items-center rounded-2xl bg-white/82 shadow-[0_10px_24px_rgba(65,42,18,0.10)]">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <div className="font-serif text-2xl font-black">Profile</div>
+          <div className="font-serif text-xl font-black">Profile</div>
           <Link to={createPageUrl('Rankings')} className="inline-flex h-11 items-center gap-2 rounded-2xl bg-white/82 px-3 text-sm font-black text-[#d82424] shadow-[0_10px_24px_rgba(65,42,18,0.10)]">
             <Trophy className="h-4 w-4" />
             Ranking
@@ -187,55 +187,55 @@ export default function PublicProfile() {
 
         {profile ? (
           <main className="grid gap-4">
-            <section className="rounded-[32px] bg-white/72 p-4 shadow-[0_22px_55px_rgba(65,42,18,0.12)] backdrop-blur sm:p-5">
-              <div className="grid gap-4 sm:grid-cols-[132px,1fr] sm:items-center">
-                <div className="mx-auto h-28 w-28 rounded-full bg-[conic-gradient(from_220deg,#efbf3a,#d82424,#73994f,#efbf3a)] p-1.5 sm:h-32 sm:w-32">
-                  <div className="grid h-full w-full place-items-center overflow-hidden rounded-full border-[5px] border-white bg-gradient-to-br from-[#efbf3a] to-[#d82424] text-4xl font-black text-white">
+            <section className="rounded-[28px] bg-white/76 p-3.5 shadow-[0_22px_55px_rgba(65,42,18,0.12)] backdrop-blur sm:p-4">
+              <div className="grid grid-cols-[76px,1fr] gap-3 sm:grid-cols-[96px,1fr] sm:items-center">
+                <div className="mx-auto h-20 w-20 rounded-full bg-[conic-gradient(from_220deg,#efbf3a,#d82424,#73994f,#efbf3a)] p-1.5 sm:h-24 sm:w-24">
+                  <div className="grid h-full w-full place-items-center overflow-hidden rounded-full border-[5px] border-white bg-gradient-to-br from-[#efbf3a] to-[#d82424] text-2xl font-black text-white">
                     {profile.avatar_resolved ? <img src={profile.avatar_resolved} alt={displayName} className="h-full w-full object-cover" /> : getAvatarLetter(profile, '?')}
                   </div>
                 </div>
 
-                <div className="min-w-0 text-center sm:text-left">
-                  <div className="flex min-w-0 items-center justify-center gap-2 sm:justify-start">
-                    <h1 className="truncate font-serif text-[clamp(2rem,9vw,3.2rem)] font-black leading-none tracking-[-0.055em]">{displayName}</h1>
+                <div className="min-w-0 min-w-0 text-left">
+                  <div className="flex min-w-0 items-center justify-start gap-2">
+                    <h1 className="truncate font-serif text-[clamp(1.55rem,7vw,2.35rem)] font-black leading-none tracking-[-0.055em]">{displayName}</h1>
                     <CheckCircle2 className="h-6 w-6 shrink-0 fill-[#d82424] text-white" />
                   </div>
-                  <div className="mt-1 text-lg font-black text-[#d82424]">@{handle}</div>
-                  <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4c443d] sm:mx-0 sm:text-base">
+                  <div className="mt-0.5 text-sm font-black text-[#d82424]">@{handle}</div>
+                  <p className="mt-2 max-w-2xl text-sm leading-5 text-[#4c443d] sm:text-sm">
                     {profile.bio || 'No bio yet.'}
                   </p>
                   {hasTasteTags ? (
-                    <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
-                      {profile.city || profile.neighborhood ? <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e9eadb] px-3 py-1.5 text-sm font-black text-[#3f4630]"><MapPin className="h-4 w-4" />{profile.city || profile.neighborhood}</span> : null}
-                      {profile.pizza_style ? <span className="rounded-full bg-white px-3 py-1.5 text-sm font-black text-[#675e53]">{profile.pizza_style}</span> : null}
-                      {profile.favorite_slice ? <span className="rounded-full bg-white px-3 py-1.5 text-sm font-black text-[#675e53]">{profile.favorite_slice}</span> : null}
+                    <div className="mt-3 flex flex-wrap justify-start gap-2">
+                      {profile.city || profile.neighborhood ? <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e9eadb] px-2.5 py-1 text-xs font-black text-[#3f4630]"><MapPin className="h-4 w-4" />{profile.city || profile.neighborhood}</span> : null}
+                      {profile.pizza_style ? <span className="rounded-full bg-white px-2.5 py-1 text-xs font-black text-[#675e53]">{profile.pizza_style}</span> : null}
+                      {profile.favorite_slice ? <span className="rounded-full bg-white px-2.5 py-1 text-xs font-black text-[#675e53]">{profile.favorite_slice}</span> : null}
                     </div>
                   ) : null}
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="mt-3 grid grid-cols-3 gap-2">
                 <CompactStat value={social.followersCount || 0} label="Followers" />
                 <CompactStat value={social.followingCount || 0} label="Following" />
                 <CompactStat value={recipes.length} label="Recipes" />
               </div>
 
-              <div className="mt-4 grid grid-cols-[1fr,1fr] gap-2">
+              <div className="mt-3 grid grid-cols-[1fr,1fr] gap-2">
                 {isOwnProfile ? (
-                  <Link to={createPageUrl('Profile')} className="inline-flex h-12 items-center justify-center rounded-[18px] bg-[#d82424] text-base font-black text-white shadow-[0_14px_30px_rgba(216,36,36,0.18)]">Edit profile</Link>
+                  <Link to={createPageUrl('Profile')} className="inline-flex h-12 items-center justify-center rounded-[18px] bg-[#d82424] text-sm font-black text-white shadow-[0_14px_30px_rgba(216,36,36,0.18)]">Edit profile</Link>
                 ) : user?.id ? (
                   <button
                     type="button"
                     disabled={followMutation.isPending}
                     onClick={() => followMutation.mutate()}
-                    className={`h-12 rounded-[18px] text-base font-black shadow-[0_14px_30px_rgba(216,36,36,0.18)] ${social.isFollowing ? 'bg-[#27231f] text-white' : 'bg-[#d82424] text-white'}`}
+                    className={`h-11 rounded-[17px] text-sm font-black shadow-[0_14px_30px_rgba(216,36,36,0.18)] ${social.isFollowing ? 'bg-[#27231f] text-white' : 'bg-[#d82424] text-white'}`}
                   >
                     <span className="inline-flex items-center gap-2">{social.isFollowing ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}{social.isFollowing ? 'Following' : 'Follow'}</span>
                   </button>
                 ) : (
-                  <Link to={createPageUrl('Auth')} className="inline-flex h-12 items-center justify-center rounded-[18px] bg-[#d82424] text-base font-black text-white shadow-[0_14px_30px_rgba(216,36,36,0.18)]">Log in to follow</Link>
+                  <Link to={createPageUrl('Auth')} className="inline-flex h-12 items-center justify-center rounded-[18px] bg-[#d82424] text-sm font-black text-white shadow-[0_14px_30px_rgba(216,36,36,0.18)]">Log in to follow</Link>
                 )}
-                <Link to={createPageUrl('Rankings')} className="inline-flex h-12 items-center justify-center gap-2 rounded-[18px] border border-black/8 bg-white text-base font-black shadow-[0_14px_30px_rgba(65,42,18,0.08)]">
+                <Link to={createPageUrl('Rankings')} className="inline-flex h-12 items-center justify-center gap-2 rounded-[18px] border border-black/8 bg-white text-sm font-black shadow-[0_14px_30px_rgba(65,42,18,0.08)]">
                   <Trophy className="h-4 w-4" />
                   Recipe ranking
                 </Link>
@@ -243,10 +243,10 @@ export default function PublicProfile() {
             </section>
 
             <section className="grid grid-cols-4 gap-2">
-              <QuickTab icon={ChefHat} label="Recipes" value={recipes.length} />
-              <QuickTab icon={Pizza} label="Spots" value={data.createdSpots.length} />
-              <QuickTab icon={MessageSquare} label="Reviews" value={data.comments.length} />
-              <QuickTab icon={Bookmark} label="Favorite" value={data.favoriteSpot ? 'Set' : 'None'} />
+              <QuickTab icon={ChefHat} label="Recipes" value={recipes.length} href="#recipes" />
+              <QuickTab icon={Pizza} label="Spots" value={data.createdSpots.length} href="#spots" />
+              <QuickTab icon={MessageSquare} label="Reviews" value={data.comments.length} href="#activity" />
+              <QuickTab icon={Bookmark} label="Favorite" value={data.favoriteSpot ? 'Set' : 'None'} href="#spots" />
             </section>
 
             {featuredRecipe ? (
@@ -255,9 +255,9 @@ export default function PublicProfile() {
               <EmptyBox>{isOwnProfile ? 'Publish your first recipe from your profile editor.' : 'This profile has not published recipes yet.'}</EmptyBox>
             )}
 
-            <section className="grid gap-3 lg:grid-cols-[1fr,0.82fr]">
+            <section id="recipes" className="grid gap-3 lg:grid-cols-[1fr,0.82fr]">
               <div className="rounded-[28px] bg-white/72 p-4 shadow-[0_18px_42px_rgba(65,42,18,0.10)]">
-                <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="mb-2 flex items-center justify-between gap-3">
                   <h2 className="font-serif text-2xl font-black">Recipes</h2>
                   <Link to={createPageUrl('Rankings')} className="text-sm font-black text-[#d82424]">View ranking</Link>
                 </div>
@@ -270,7 +270,7 @@ export default function PublicProfile() {
               </div>
 
               <div className="grid gap-3">
-                <section className="rounded-[28px] bg-[#27231f] p-4 text-white shadow-[0_18px_42px_rgba(65,42,18,0.15)]">
+                <section id="activity" className="rounded-[28px] bg-[#27231f] p-4 text-white shadow-[0_18px_42px_rgba(65,42,18,0.15)]">
                   <div className="mb-3 flex items-center gap-2">
                     <Star className="h-5 w-5 fill-[#efbf3a] text-[#efbf3a]" />
                     <h2 className="text-xl font-black tracking-[-0.04em]">Taste notes</h2>

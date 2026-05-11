@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Award, CalendarDays, ChefHat, Flame, Heart, LogOut, MapPin, MessageSquare, Pizza, Plus, Settings, Shield, Star, ThumbsUp, Upload, UserRound } from 'lucide-react';
+import { Award, CalendarDays, ChefHat, ChevronDown, Flame, Heart, LogOut, MapPin, MessageSquare, Pizza, Plus, Settings, Shield, Star, Trophy, ThumbsUp, Upload, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,11 +48,29 @@ async function fetchProfileBundle(userId) {
 
 function Stat({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
+    <div className="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
       <Icon className="h-4 w-4 text-[#efbf3a]" />
       <div className="mt-3 text-2xl font-black text-white">{value}</div>
       <div className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">{label}</div>
     </div>
+  );
+}
+
+function PanelSection({ title, subtitle, icon: Icon, children, defaultOpen = false }) {
+  return (
+    <details open={defaultOpen} className="group rounded-[24px] border border-white/10 bg-[#101010] p-4 shadow-[0_14px_36px_rgba(0,0,0,0.22)]">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+        <span className="flex min-w-0 items-center gap-3">
+          {Icon ? <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#efbf3a]/12 text-[#efbf3a]"><Icon className="h-5 w-5" /></span> : null}
+          <span className="min-w-0">
+            <span className="block text-lg font-black text-white">{title}</span>
+            {subtitle ? <span className="mt-0.5 block text-xs text-stone-500">{subtitle}</span> : null}
+          </span>
+        </span>
+        <ChevronDown className="h-5 w-5 shrink-0 text-stone-500 transition group-open:rotate-180" />
+      </summary>
+      <div className="mt-4">{children}</div>
+    </details>
   );
 }
 
@@ -251,20 +269,20 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#060606] px-4 py-4 text-white">
-      <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[0.9fr,1.1fr]">
-        <section className="rounded-[26px] border border-white/10 bg-[#101010] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:rounded-[30px] sm:p-5">
+    <div className="min-h-[calc(100vh-64px)] bg-[#060606] px-3 py-3 text-white sm:px-4">
+      <div className="mx-auto grid max-w-5xl gap-4">
+        <section className="rounded-[24px] border border-white/10 bg-[#101010] p-4 shadow-[0_16px_42px_rgba(0,0,0,0.30)]">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-col gap-4 min-[380px]:flex-row min-[380px]:items-center">
-              <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-[#efbf3a] to-[#df5b43] text-3xl font-black text-white sm:h-24 sm:w-24 sm:rounded-[28px]">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-[#efbf3a] to-[#df5b43] text-3xl font-black text-white sm:h-20 sm:w-20 sm:rounded-[22px]">
                 {avatarPreview ? <img src={avatarPreview} alt={displayName} className="h-full w-full object-cover" /> : displayName.slice(0, 1).toUpperCase()}
-                <label className="absolute bottom-2 right-2 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-black/75 text-white">
+                <label className="absolute bottom-1 right-1 grid h-7 w-7 cursor-pointer place-items-center rounded-full bg-black/75 text-white">
                   <Upload className="h-4 w-4" />
                   <input type="file" accept="image/*" className="hidden" onChange={onUploadAvatar} />
                 </label>
               </div>
               <div className="min-w-0">
-                <div className="break-words text-[clamp(1.65rem,9vw,2rem)] font-black tracking-tight text-white">{displayName}</div>
+                <div className="break-words text-[clamp(1.35rem,7vw,1.75rem)] font-black tracking-tight text-white">{displayName}</div>
                 <div className="text-sm text-stone-500">@{handle}</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {role === 'admin' ? <span className="rounded-full bg-[#efbf3a] px-3 py-1 text-xs font-black text-[#141414]">Admin</span> : null}
@@ -278,17 +296,17 @@ export default function Profile() {
             </Link>
           </div>
 
-          <p className="mt-6 text-sm leading-7 text-stone-300">
+          <p className="mt-4 text-sm leading-6 text-stone-300">
             {liveProfile.bio || 'Add a short bio so other pizza people know your style.'}
           </p>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
               <Heart className="h-4 w-4 text-[#efbf3a]" />
               <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Favorite slice</div>
               <div className="mt-1 font-black">{liveProfile.favorite_slice || 'Not set'}</div>
             </div>
-            <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
+            <div className="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
               <MapPin className="h-4 w-4 text-[#efbf3a]" />
               <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Favorite spot</div>
               <div className="mt-1 font-black">{favoriteSpot?.name || 'Not set'}</div>
@@ -296,7 +314,7 @@ export default function Profile() {
           </div>
 
           {profileProgress < 100 ? (
-            <div className="mt-5 rounded-[24px] border border-[#efbf3a]/20 bg-[#efbf3a]/10 p-4">
+            <div className="mt-4 rounded-[20px] border border-[#efbf3a]/20 bg-[#efbf3a]/10 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">Profile onboarding</div>
@@ -317,52 +335,52 @@ export default function Profile() {
             </div>
           ) : null}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
+            <div className="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
               <Pizza className="h-4 w-4 text-[#efbf3a]" />
               <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Pizza style</div>
               <div className="mt-1 font-black">{liveProfile.pizza_style || 'Not set'}</div>
             </div>
-            <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
+            <div className="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
               <Award className="h-4 w-4 text-[#efbf3a]" />
               <div className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Dietary notes</div>
               <div className="mt-1 font-black">{liveProfile.dietary_notes || 'Not set'}</div>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-4 gap-2">
             <Stat icon={MapPin} label="Spots" value={bundle?.createdSpots?.length || 0} />
             <Stat icon={CalendarDays} label="Plans" value={bundle?.plans?.length || 0} />
             <Stat icon={Star} label="Ratings" value={bundle?.ratings?.length || 0} />
             <Stat icon={MessageSquare} label="Reviews" value={bundle?.comments?.length || 0} />
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <Button onClick={() => setEditing((value) => !value)} className="h-12 rounded-2xl bg-[#df5b43] font-bold text-white hover:bg-[#c84b35]">
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Button onClick={() => setEditing((value) => !value)} className="h-11 rounded-2xl bg-[#df5b43] font-bold text-white hover:bg-[#c84b35]">
               {editing ? 'Close editor' : 'Edit profile'}
             </Button>
             <Link to={`/profile/${user.id}`} className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-white hover:bg-white/[0.07]">
               <UserRound className="mr-2 h-4 w-4" />
-              Public view
+              Public
             </Link>
             {role === 'admin' ? (
               <Link to={createPageUrl('Admin')} className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#efbf3a]/30 bg-[#17130a] text-sm font-bold text-[#efbf3a]">
                 <Shield className="mr-2 h-4 w-4" />
-                Admin panel
+                Admin
               </Link>
             ) : null}
             <button type="button" onClick={logout} className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-stone-200">
               <LogOut className="mr-2 h-4 w-4" />
-              Log out
+              Exit
             </button>
           </div>
 
           {uploading ? <div className="mt-3 text-xs text-stone-500">Uploading avatar...</div> : null}
         </section>
 
-        <section className="space-y-5">
+        <section className="grid gap-3">
           {editing ? (
-            <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
-              <div className="text-xl font-black">Profile editor</div>
+            <PanelSection title="Edit profile" subtitle="Photo, bio, favorite slice and visibility." icon={Settings} defaultOpen={editing}>
+              <div className="text-xl font-black sr-only">Profile editor</div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Username</Label>
@@ -415,14 +433,14 @@ export default function Profile() {
                   <Input value={form.website_url} onChange={(e) => setForm((prev) => ({ ...prev, website_url: e.target.value }))} className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
               </div>
-              <Button disabled={saveProfile.isPending} onClick={() => saveProfile.mutate()} className="mt-5 h-12 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
+              <Button disabled={saveProfile.isPending} onClick={() => saveProfile.mutate()} className="mt-5 h-11 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
                 Save profile
               </Button>
-            </div>
+            </PanelSection>
           ) : null}
 
 
-          <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+          <PanelSection title="Recipes" subtitle="Create recipes and vote in the ranking." icon={ChefHat} defaultOpen>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">
@@ -434,11 +452,11 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Input value={recipeForm.title} onChange={(e) => setRecipeForm((prev) => ({ ...prev, title: e.target.value }))} placeholder="Recipe name" className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <Input value={recipeForm.doughStyle} onChange={(e) => setRecipeForm((prev) => ({ ...prev, doughStyle: e.target.value }))} placeholder="Dough style" className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <Input value={recipeForm.bakeTime} onChange={(e) => setRecipeForm((prev) => ({ ...prev, bakeTime: e.target.value }))} placeholder="Bake time, e.g. 7 min" className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
-              <select value={recipeForm.difficulty} onChange={(e) => setRecipeForm((prev) => ({ ...prev, difficulty: e.target.value }))} className="h-12 rounded-2xl border border-white/10 bg-[#171717] px-3 text-sm font-bold text-white">
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Input value={recipeForm.title} onChange={(e) => setRecipeForm((prev) => ({ ...prev, title: e.target.value }))} placeholder="Recipe name" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Input value={recipeForm.doughStyle} onChange={(e) => setRecipeForm((prev) => ({ ...prev, doughStyle: e.target.value }))} placeholder="Dough style" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Input value={recipeForm.bakeTime} onChange={(e) => setRecipeForm((prev) => ({ ...prev, bakeTime: e.target.value }))} placeholder="Bake time, e.g. 7 min" className="h-11 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <select value={recipeForm.difficulty} onChange={(e) => setRecipeForm((prev) => ({ ...prev, difficulty: e.target.value }))} className="h-11 rounded-2xl border border-white/10 bg-[#171717] px-3 text-sm font-bold text-white">
                 <option>Easy</option>
                 <option>Medium</option>
                 <option>Advanced</option>
@@ -446,7 +464,7 @@ export default function Profile() {
               <Textarea value={recipeForm.description} onChange={(e) => setRecipeForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Short recipe: ingredients, oven temperature, little trick..." className="min-h-[110px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
             </div>
 
-            <Button disabled={createRecipeMutation.isPending} onClick={() => createRecipeMutation.mutate()} className="mt-4 h-12 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
+            <Button disabled={createRecipeMutation.isPending} onClick={() => createRecipeMutation.mutate()} className="mt-4 h-11 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
               <Plus className="mr-2 h-4 w-4" />
               Publish recipe
             </Button>
@@ -461,8 +479,8 @@ export default function Profile() {
                 </div>
               ) : null}
             </div>
-          </div>
-          <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
+          </PanelSection>
+          <PanelSection title="Activity" subtitle="Ratings, reviews, plans and spots." icon={Star}>
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <div className="text-xl font-black">Activity</div>
@@ -492,9 +510,9 @@ export default function Profile() {
                 </div>
               ) : null}
             </div>
-          </div>
+          </PanelSection>
 
-          <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
+          <PanelSection title="Reputation" subtitle="Badges and visible trust signals." icon={Award}>
             <div className="mb-4 flex items-center gap-2">
               <Award className="h-5 w-5 text-[#efbf3a]" />
               <div className="text-xl font-black">Reputation</div>
@@ -504,7 +522,7 @@ export default function Profile() {
               <ActivityItem title="Host" meta="Profile badge">Creates pizza plans.</ActivityItem>
               <ActivityItem title="Reviewer" meta="Profile badge">Leaves useful notes.</ActivityItem>
             </div>
-          </div>
+          </PanelSection>
         </section>
       </div>
     </div>
