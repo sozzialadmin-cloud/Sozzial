@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CalendarDays, Heart, MapPin, MessageSquare, Pizza, Star, Trophy, UserCheck, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChefHat, Flame, Heart, MapPin, MessageSquare, Pizza, Star, ThumbsUp, Trophy, UserCheck, UserPlus, Users } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { createPageUrl } from '@/utils';
 import { getAvatarLetter, getPublicUsername } from '@/lib/display-name';
 import { useAuth } from '@/lib/AuthContext';
-import { fetchProfileSocialState, setProfileFollow } from '@/lib/social-data';
+import { fetchProfileRecipes, fetchProfileSocialState, setProfileFollow, voteHomeRecipe } from '@/lib/social-data';
 
 async function resolveAvatar(value) {
   if (!value || !isSupabaseConfigured || !supabase) return '';
@@ -15,7 +15,7 @@ async function resolveAvatar(value) {
   return data?.signedUrl || '';
 }
 
-async function fetchPublicProfile(userId) {
+async function fetchPublicProfile(userId, viewerId) {
   if (!isSupabaseConfigured || !supabase || !userId) return null;
   const looksLikeUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
   const profileQuery = looksLikeUuid
@@ -31,7 +31,7 @@ async function fetchPublicProfile(userId) {
   if (profileRes.error) throw profileRes.error;
   const profile = profileRes.data || null;
   if (profile?.profile_visibility === 'private') {
-    return { profile: null, privateProfile: true, favoriteSpot: null, createdSpots: [], plans: [], ratings: [], comments: [] };
+    return { profile: null, privateProfile: true, favoriteSpot: null, createdSpots: [], plans: [], ratings: [], comments: [], recipes: [] };
   }
   const resolvedId = profile?.id || userId;
   const [plansRes2, ratingsRes2, commentsRes2] = profile
@@ -98,9 +98,9 @@ export default function PublicProfile() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
-    queryKey: ['public-profile', userId],
+    queryKey: ['public-profile', userId, user?.id],
     enabled: Boolean(userId && isSupabaseConfigured && supabase),
-    queryFn: () => fetchPublicProfile(userId),
+    queryFn: () => fetchPublicProfile(userId, user?.id),
   });
 
   const profile = data?.profile;
@@ -117,6 +117,10 @@ export default function PublicProfile() {
   const followMutation = useMutation({
     mutationFn: () => setProfileFollow({ viewerId: user.id, profileId: profile.id, follow: !social.isFollowing }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: socialQueryKey }),
+  });
+  const voteRecipeMutation = useMutation({
+    mutationFn: (recipe) => voteHomeRecipe({ userId: user.id, recipeId: recipe.id, liked: recipe.viewer_liked }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['public-profile', userId] }),
   });
   const recommendedSpots = useMemo(() => {
     const map = new Map();

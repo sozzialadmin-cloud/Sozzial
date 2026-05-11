@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+﻿import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const LOCAL_CHECKINS = "sozzial_local_checkins";
 const LOCAL_ACTIVITY = "sozzial_local_activity";
@@ -210,6 +210,116 @@ export async function fetchSocialDiscovery(viewerId) {
   return { people, spots: recommendedSpots, followingIds };
 }
 
+
+const LOCAL_RECIPES = "sozzial_local_home_recipes";
+const LOCAL_RECIPE_VOTES = "sozzial_local_recipe_votes";
+
+export async function fetchProfileRecipes(profileId, viewerId) {
+  if (!profileId) return [];
+
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from("home_recipes")
+      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,likes_count,created_at")
+      .eq("user_id", profileId)
+      .eq("status", "published")
+      .order("likes_count", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(12);
+    if (!error) {
+      const ids = (data || []).map((recipe) => recipe.id);
+      const votes = viewerId && ids.length
+        ? await supabase.from("home_recipe_votes").select("recipe_id").eq("user_id", viewerId).in("recipe_id", ids)
+        : { data: [] };
+      const liked = new Set((votes.data || []).map((vote) => vote.recipe_id));
+      return (data || []).map((recipe) => ({ ...recipe, viewer_liked: liked.has(recipe.id) }));
+    }
+  }
+
+  return readLocal(LOCAL_RECIPES)
+    .filter((recipe) => recipe.user_id === profileId)
+    .map((recipe) => ({ ...recipe, viewer_liked: readLocal(LOCAL_RECIPE_VOTES).some((vote) => vote.recipe_id === recipe.id && vote.user_id === viewerId) }));
+}
+
+export async function fetchRecipeRankings(viewerId) {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from("home_recipes")
+      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,likes_count,created_at,profiles(id,username,avatar_url)")
+      .eq("status", "published")
+      .order("likes_count", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (!error) {
+      const ids = (data || []).map((recipe) => recipe.id);
+      const votes = viewerId && ids.length
+        ? await supabase.from("home_recipe_votes").select("recipe_id").eq("user_id", viewerId).in("recipe_id", ids)
+        : { data: [] };
+      const liked = new Set((votes.data || []).map((vote) => vote.recipe_id));
+      return (data || []).map((recipe) => ({ ...recipe, viewer_liked: liked.has(recipe.id) }));
+    }
+  }
+  return readLocal(LOCAL_RECIPES).sort((a, b) => Number(b.likes_count || 0) - Number(a.likes_count || 0)).slice(0, 20);
+}
+
+export async function createHomeRecipe({ userId, title, description, doughStyle, difficulty, bakeTime }) {
+  const payload = {
+    user_id: userId,
+    title: title.trim(),
+    description: description.trim(),
+    dough_style: doughStyle.trim() || null,
+    difficulty: difficulty || "Easy",
+    bake_time: bakeTime.trim() || null,
+    status: "published",
+  };
+  if (!payload.user_id || !payload.title || !payload.description) throw new Error("Add a recipe name and a short description.");
+
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase.from("home_recipes").insert(payload).select().single();
+    if (!error) {
+      await supabase.from("activity_events").insert({
+        user_id: userId,
+        event_type: "recipe_posted",
+        entity_type: "recipe",
+        entity_id: data.id,
+        metadata: { title: payload.title },
+      });
+      return data;
+    }
+    if (!String(error.message || "").includes("home_recipes")) throw error;
+  }
+
+  const recipe = {
+    id: window.crypto?.randomUUID?.() || String(Date.now()),
+    ...payload,
+    likes_count: 0,
+    created_at: new Date().toISOString(),
+  };
+  writeLocal(LOCAL_RECIPES, [recipe, ...readLocal(LOCAL_RECIPES)]);
+  return recipe;
+}
+
+export async function voteHomeRecipe({ userId, recipeId, liked }) {
+  if (!userId || !recipeId) throw new Error("Log in to vote for recipes.");
+
+  if (isSupabaseConfigured && supabase) {
+    if (liked) {
+      const { error } = await supabase.from("home_recipe_votes").delete().eq("user_id", userId).eq("recipe_id", recipeId);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase.from("home_recipe_votes").upsert({ user_id: userId, recipe_id: recipeId });
+      if (error) throw error;
+    }
+    return { liked: !liked };
+  }
+
+  const votes = readLocal(LOCAL_RECIPE_VOTES);
+  const nextVotes = liked ? votes.filter((vote) => !(vote.user_id === userId && vote.recipe_id === recipeId)) : [{ user_id: userId, recipe_id: recipeId }, ...votes];
+  writeLocal(LOCAL_RECIPE_VOTES, nextVotes);
+  const recipes = readLocal(LOCAL_RECIPES).map((recipe) => recipe.id === recipeId ? { ...recipe, likes_count: Math.max(0, Number(recipe.likes_count || 0) + (liked ? -1 : 1)) } : recipe);
+  writeLocal(LOCAL_RECIPES, recipes);
+  return { liked: !liked };
+}
 export async function fetchProfileSocialState({ viewerId, profileId }) {
   if (!viewerId || !profileId || !isSupabaseConfigured || !supabase) {
     return { isFollowing: false, followersCount: 0, followingCount: 0 };

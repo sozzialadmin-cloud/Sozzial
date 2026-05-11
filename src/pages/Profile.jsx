@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Award, CalendarDays, Camera, Heart, LogOut, MapPin, MessageSquare, Pizza, Settings, Shield, Star, Upload, UserRound } from 'lucide-react';
+import { Award, CalendarDays, ChefHat, Flame, Heart, LogOut, MapPin, MessageSquare, Pizza, Plus, Settings, Shield, Star, ThumbsUp, Upload, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { createPageUrl } from '@/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { createHomeRecipe, fetchProfileRecipes, fetchRecipeRankings, voteHomeRecipe } from '@/lib/social-data';
 
 async function resolveAvatar(value) {
   if (!value || !isSupabaseConfigured || !supabase) return '';
@@ -65,6 +66,38 @@ function ActivityItem({ title, meta, children }) {
   );
 }
 
+
+function RecipeCard({ recipe, rank, onVote, voting }) {
+  return (
+    <div className="group relative overflow-hidden rounded-[26px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-[#efbf3a]/35 hover:bg-white/[0.08]">
+      <div className="absolute -right-10 -top-12 h-28 w-28 rounded-full bg-[#efbf3a]/10 blur-2xl transition duration-500 group-hover:bg-[#efbf3a]/20" />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">
+            <Flame className="h-3 w-3" />
+            {rank ? `#${rank} recipe` : recipe.difficulty || 'Easy'}
+          </div>
+          <div className="break-words text-lg font-black leading-tight text-white">{recipe.title}</div>
+          <p className="mt-2 line-clamp-3 text-sm leading-6 text-stone-400">{recipe.description}</p>
+        </div>
+        <button
+          type="button"
+          disabled={voting}
+          onClick={() => onVote?.(recipe)}
+          className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl border transition ${recipe.viewer_liked ? 'border-[#efbf3a]/30 bg-[#efbf3a] text-[#141414]' : 'border-white/10 bg-black/25 text-white hover:bg-white/10'}`}
+          aria-label="Vote recipe"
+        >
+          <ThumbsUp className="h-5 w-5" />
+        </button>
+      </div>
+      <div className="relative mt-4 flex flex-wrap gap-2">
+        <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.likes_count || 0} likes</span>
+        {recipe.dough_style ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.dough_style}</span> : null}
+        {recipe.bake_time ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.bake_time}</span> : null}
+      </div>
+    </div>
+  );
+}
 export default function Profile() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -74,6 +107,7 @@ export default function Profile() {
   const [avatarPreview, setAvatarPreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [recipeForm, setRecipeForm] = useState({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '' });
   const [form, setForm] = useState({
     username: '',
     bio: '',
@@ -94,6 +128,37 @@ export default function Profile() {
     queryFn: () => fetchProfileBundle(user.id),
   });
 
+
+  const { data: recipes = [] } = useQuery({
+    queryKey: ['profile-recipes', user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: () => fetchProfileRecipes(user.id, user.id),
+  });
+
+  const { data: recipeRankings = [] } = useQuery({
+    queryKey: ['recipe-rankings', user?.id],
+    queryFn: () => fetchRecipeRankings(user?.id),
+  });
+
+  const createRecipeMutation = useMutation({
+    mutationFn: () => createHomeRecipe({ userId: user.id, ...recipeForm }),
+    onSuccess: () => {
+      toast.success('Recipe published');
+      setRecipeForm({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '' });
+      queryClient.invalidateQueries({ queryKey: ['profile-recipes', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['recipe-rankings'] });
+    },
+    onError: (error) => toast.error(error?.message || 'Recipe could not be published.'),
+  });
+
+  const voteRecipeMutation = useMutation({
+    mutationFn: (recipe) => voteHomeRecipe({ userId: user.id, recipeId: recipe.id, liked: recipe.viewer_liked }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile-recipes', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['recipe-rankings'] });
+    },
+    onError: (error) => toast.error(error?.message || 'Could not vote this recipe.'),
+  });
   const liveProfile = bundle?.profile || profile || user || {};
   const displayName = liveProfile.username || user?.username || user?.full_name || 'User';
   const handle = displayName.toLowerCase().replace(/\s+/g, '_');
@@ -356,6 +421,47 @@ export default function Profile() {
             </div>
           ) : null}
 
+
+          <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-[#efbf3a]">
+                  <ChefHat className="h-3.5 w-3.5" />
+                  Home pizza lab
+                </div>
+                <div className="mt-3 text-2xl font-black tracking-[-0.04em] text-white">Share your homemade pizza recipe</div>
+                <p className="mt-2 text-sm leading-6 text-stone-500">Keep it simple: name, short method, dough style and bake time. People can vote and push it into the recipe ranking.</p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <Input value={recipeForm.title} onChange={(e) => setRecipeForm((prev) => ({ ...prev, title: e.target.value }))} placeholder="Recipe name" className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Input value={recipeForm.doughStyle} onChange={(e) => setRecipeForm((prev) => ({ ...prev, doughStyle: e.target.value }))} placeholder="Dough style" className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <Input value={recipeForm.bakeTime} onChange={(e) => setRecipeForm((prev) => ({ ...prev, bakeTime: e.target.value }))} placeholder="Bake time, e.g. 7 min" className="h-12 rounded-2xl border-white/10 bg-white/[0.04] text-white" />
+              <select value={recipeForm.difficulty} onChange={(e) => setRecipeForm((prev) => ({ ...prev, difficulty: e.target.value }))} className="h-12 rounded-2xl border border-white/10 bg-[#171717] px-3 text-sm font-bold text-white">
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Advanced</option>
+              </select>
+              <Textarea value={recipeForm.description} onChange={(e) => setRecipeForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Short recipe: ingredients, oven temperature, little trick..." className="min-h-[110px] rounded-2xl border-white/10 bg-white/[0.04] text-white sm:col-span-2" />
+            </div>
+
+            <Button disabled={createRecipeMutation.isPending} onClick={() => createRecipeMutation.mutate()} className="mt-4 h-12 rounded-2xl bg-[#efbf3a] px-5 font-black text-[#141414] hover:bg-[#dbab23]">
+              <Plus className="mr-2 h-4 w-4" />
+              Publish recipe
+            </Button>
+
+            <div className="mt-6 grid gap-3 lg:grid-cols-2">
+              {(recipes.length ? recipes : recipeRankings.slice(0, 2)).map((recipe, index) => (
+                <RecipeCard key={recipe.id} recipe={recipe} rank={index + 1} onVote={(item) => voteRecipeMutation.mutate(item)} voting={voteRecipeMutation.isPending} />
+              ))}
+              {!recipes.length && !recipeRankings.length ? (
+                <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 lg:col-span-2">
+                  No recipes yet. Publish the first one.
+                </div>
+              ) : null}
+            </div>
+          </div>
           <div className="rounded-[30px] border border-white/10 bg-[#101010] p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>

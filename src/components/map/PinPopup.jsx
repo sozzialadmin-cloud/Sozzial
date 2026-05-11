@@ -27,7 +27,7 @@ export default function PinPopup({ place, onClose, onViewDetails }) {
         exit={{ opacity: 0, y: 12, scale: 0.98 }}
         transition={{ type: "spring", damping: 28, stiffness: 320 }}
         style={{ zIndex: ZINDEX.PIN_POPUP }}
-        className="fixed left-3 right-3 bottom-[34vh] sm:left-1/2 sm:right-auto sm:w-[380px] sm:-translate-x-1/2 sm:bottom-8"
+        className="fixed left-3 right-3 top-1/2 max-h-[calc(100dvh-var(--header-height)-1.5rem)] -translate-y-1/2 overflow-y-auto sm:left-1/2 sm:right-auto sm:w-[380px] sm:-translate-x-1/2"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#101010] shadow-[0_20px_60px_rgba(0,0,0,0.58)]">
@@ -94,4 +94,3 @@ export default function PinPopup({ place, onClose, onViewDetails }) {
     </AnimatePresence>
   );
 }
-

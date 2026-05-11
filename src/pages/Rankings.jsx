@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Crown, MapPin, Star, Trophy, UserRound } from "lucide-react";
-import { fetchWeeklyRankings } from "@/lib/social-data";
+import { ChefHat, Crown, MapPin, Star, ThumbsUp, Trophy, UserRound } from "lucide-react";
+import { fetchRecipeRankings, fetchWeeklyRankings } from "@/lib/social-data";
 import { getPublicUsername } from "@/lib/display-name";
 
 function PodiumCard({ rank, title, subtitle, score, to, type }) {
@@ -49,6 +49,10 @@ export default function Rankings() {
     queryKey: ["weekly-rankings"],
     queryFn: fetchWeeklyRankings,
   });
+  const { data: recipes = [] } = useQuery({
+    queryKey: ["recipe-rankings"],
+    queryFn: () => fetchRecipeRankings(),
+  });
 
   return (
     <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] bg-[#060606] px-3 py-4 text-white sm:px-5 sm:py-6">
@@ -89,6 +93,15 @@ export default function Rankings() {
             </div>
           </section>
         </div>
+        <section className="surface-card mt-4 rounded-[28px] p-4 sm:p-5">
+          <div className="mb-4 flex items-center gap-2 text-xl font-black"><ChefHat className="h-5 w-5 text-[#efbf3a]" />Top home recipes</div>
+          <div className="stagger-in grid gap-3 lg:grid-cols-2">
+            {recipes.map((recipe, index) => (
+              <Row key={recipe.id} rank={index + 1} icon={ThumbsUp} title={recipe.title} subtitle={recipe.profiles?.username ? `By @${recipe.profiles.username}` : recipe.dough_style || "Community recipe"} score={recipe.likes_count || 0} to={recipe.user_id ? `/profile/${recipe.user_id}` : undefined} />
+            ))}
+            {!recipes.length ? <div className="rounded-[24px] border border-dashed border-white/10 p-8 text-center text-sm text-stone-500 lg:col-span-2">No recipes ranked yet.</div> : null}
+          </div>
+        </section>
       </div>
     </div>
   );
