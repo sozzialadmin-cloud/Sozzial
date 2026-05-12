@@ -1,12 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Bookmark, CalendarDays, CheckCircle2, ChefHat, Heart, MapPin, MessageSquare, Pizza, Star, ThumbsUp, Trophy, UserCheck, UserPlus } from 'lucide-react';
+import { toast } from 'sonner';
+import { ArrowLeft, Bookmark, CalendarDays, CheckCircle2, ChefHat, Flag, Heart, MapPin, MessageSquare, Pizza, Star, ThumbsUp, Trophy, UserCheck, UserPlus, X } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { createPageUrl } from '@/utils';
 import { getAvatarLetter, getPublicUsername } from '@/lib/display-name';
 import { useAuth } from '@/lib/AuthContext';
 import { fetchProfileRecipes, fetchProfileSocialState, setProfileFollow, voteHomeRecipe } from '@/lib/social-data';
+
+const REPORT_REASONS = [
+  ['spam', 'Spam or scam'],
+  ['fake_profile', 'Fake profile'],
+  ['harassment', 'Harassment'],
+  ['hate', 'Hate or abusive content'],
+  ['sexual_content', 'Sexual content'],
+  ['dangerous', 'Dangerous behavior'],
+  ['wrong_info', 'Wrong or misleading info'],
+  ['other', 'Other reason'],
+];
 
 async function resolveAvatar(value) {
   if (!value || !isSupabaseConfigured || !supabase) return '';
@@ -100,6 +112,7 @@ function RecipeCard({ recipe, featured = false, onVote, voting }) {
           {recipe.dough_style ? <span className="rounded-full bg-[#f1e5d5] px-2.5 py-1 text-[#6c6257]">{recipe.dough_style}</span> : null}
           {recipe.bake_time ? <span className="rounded-full bg-[#f1e5d5] px-2.5 py-1 text-[#6c6257]">{recipe.bake_time}</span> : null}
           <span className="rounded-full bg-[#f1e5d5] px-2.5 py-1 text-[#6c6257]">{recipe.difficulty || 'Easy'}</span>
+          <Link to={`/recipe/${recipe.id}`} className="rounded-full bg-[#27231f] px-2.5 py-1 text-white">View recipe</Link>
         </div>
       </div>
     </div>
@@ -122,6 +135,8 @@ export default function PublicProfile() {
 
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('recipes');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportForm, setReportForm] = useState({ reason: 'spam', details: '' });
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ['public-profile', userId, user?.id],
@@ -148,6 +163,27 @@ export default function PublicProfile() {
   const voteRecipeMutation = useMutation({
     mutationFn: (recipe) => voteHomeRecipe({ userId: user.id, recipeId: recipe.id, liked: recipe.viewer_liked }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['public-profile', userId, user?.id] }),
+  });
+  const reportMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('Log in to report a profile.');
+      if (!profile?.id || !isSupabaseConfigured || !supabase) throw new Error('Reports are not connected yet.');
+      const { error } = await supabase.from('reports').insert({
+        reporter_id: user.id,
+        entity_type: 'profile',
+        entity_id: profile.id,
+        reason: reportForm.reason,
+        details: reportForm.details.trim() || null,
+        status: 'open',
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Profile reported. Thank you for keeping Sozzial safe.');
+      setReportOpen(false);
+      setReportForm({ reason: 'spam', details: '' });
+    },
+    onError: (error) => toast.error(error?.message || 'Report could not be sent.'),
   });
   const recommendedSpots = useMemo(() => {
     const map = new Map();
@@ -182,6 +218,7 @@ export default function PublicProfile() {
         ) : null}
 
         {profile ? (
+          <>
           <main className="grid gap-4">
             <section className="rounded-[28px] bg-white/76 p-3.5 shadow-[0_22px_55px_rgba(65,42,18,0.12)] backdrop-blur sm:p-4">
               <div className="grid grid-cols-[76px,1fr] gap-3 sm:grid-cols-[96px,1fr] sm:items-center">
@@ -235,6 +272,12 @@ export default function PublicProfile() {
                   <Trophy className="h-4 w-4" />
                   Recipe ranking
                 </Link>
+                {!isOwnProfile ? (
+                  <button type="button" onClick={() => user?.id ? setReportOpen(true) : toast.error('Log in to report a profile.')} className="inline-flex h-12 items-center justify-center gap-2 rounded-[18px] border border-black/8 bg-white text-sm font-black text-[#6c6257] shadow-[0_14px_30px_rgba(65,42,18,0.08)]">
+                    <Flag className="h-4 w-4 text-[#d82424]" />
+                    Report
+                  </button>
+                ) : null}
               </div>
             </section>
 
@@ -304,6 +347,31 @@ export default function PublicProfile() {
               </section>
             ) : null}
           </main>
+            {reportOpen ? (
+              <div className="fixed inset-0 z-[80] grid place-items-end bg-black/35 px-3 py-4 backdrop-blur-sm sm:place-items-center" onClick={() => setReportOpen(false)}>
+                <div className="w-full max-w-md rounded-[28px] border border-black/8 bg-[#fffaf1] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.28)]" onClick={(event) => event.stopPropagation()}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-xl font-black tracking-[-0.04em]">Report profile</div>
+                      <p className="mt-1 text-sm leading-6 text-[#6c6257]">Choose the closest reason. Admins will review it with context.</p>
+                    </div>
+                    <button type="button" onClick={() => setReportOpen(false)} className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-[#27231f]"><X className="h-5 w-5" /></button>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    {REPORT_REASONS.map(([value, label]) => (
+                      <button key={value} type="button" onClick={() => setReportForm((prev) => ({ ...prev, reason: value }))} className={`rounded-2xl border px-3 py-2 text-left text-xs font-black transition ${reportForm.reason === value ? 'border-[#d82424] bg-[#d82424] text-white' : 'border-black/8 bg-white text-[#5f584d]'}`}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <textarea value={reportForm.details} onChange={(event) => setReportForm((prev) => ({ ...prev, details: event.target.value }))} placeholder="Add context for the admin team" className="mt-3 min-h-[96px] w-full rounded-[20px] border border-black/8 bg-white px-3 py-3 text-sm outline-none focus:border-[#d82424]" />
+                  <button type="button" disabled={reportMutation.isPending} onClick={() => reportMutation.mutate()} className="mt-3 h-12 w-full rounded-[18px] bg-[#d82424] text-sm font-black text-white disabled:opacity-60">
+                    Send report
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
         ) : null}
       </div>
     </div>

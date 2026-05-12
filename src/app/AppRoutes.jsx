@@ -11,6 +11,7 @@ const AuthPage = lazy(() => import('@/pages/Auth'));
 const AuthConfirm = lazy(() => import('@/pages/AuthConfirm'));
 const Admin = lazy(() => import('@/pages/Admin'));
 const PublicProfile = lazy(() => import('@/pages/PublicProfile'));
+const RecipeDetail = lazy(() => import('@/pages/RecipeDetail'));
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -71,6 +72,7 @@ export default function AppRoutes() {
         <Route path="/auth/confirm" element={<AuthConfirm />} />
         <Route path="/profile/:userId" element={<PublicProfile />} />
         <Route path="/u/:userId" element={<PublicProfile />} />
+        <Route path="/recipe/:recipeId" element={<LayoutWrapper currentPageName="Recipe"><RecipeDetail /></LayoutWrapper>} />
         <Route path="/" element={<Navigate to={lowerAlias(mainPageKey)} replace />} />
         <Route path={lowerAlias(mainPageKey)} element={<PublicOrProtectedPage pageName={mainPageKey} Component={MainPage} />} />
         <Route path={`/${mainPageKey}`} element={<Navigate to={lowerAlias(mainPageKey)} replace />} />

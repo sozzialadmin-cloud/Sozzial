@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   AlertTriangle,
   ArrowRight,
@@ -46,6 +47,7 @@ const TABS = [
   { id: 'users', label: 'Users', icon: UserCog },
   { id: 'messages', label: 'Chat', icon: MessageSquare },
   { id: 'photos', label: 'Photos', icon: ImageIcon },
+  { id: 'recipes', label: 'Recipes', icon: ChefHat },
   { id: 'operations', label: 'Operations', icon: Database },
   { id: 'settings', label: 'Settings', icon: Settings2 },
 ];
@@ -312,6 +314,7 @@ function useAdminData(enabled) {
         commentsRes,
         photosRes,
         recipesRes,
+        reportsRes,
         dashboardStatsRes,
         attentionNowRes,
       ] = await Promise.all([
@@ -324,6 +327,7 @@ function useAdminData(enabled) {
         safeFetchRows('spot_comments', 'id,spot_id,user_id,content,status,created_at,updated_at,reviewed_by,reviewed_at', { orderBy: 'created_at' }),
         safeFetchRows('spot_photos', 'id,spot_id,user_id,photo_url,status,created_at,updated_at,reviewed_by,reviewed_at', { orderBy: 'created_at' }),
         safeFetchRows('home_recipes', 'id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,status,likes_count,created_at,updated_at', { orderBy: 'created_at' }),
+        safeFetchRows('reports', 'id,reporter_id,entity_type,entity_id,reason,details,status,admin_note,resolved_by,resolved_at,created_at', { orderBy: 'created_at' }),
         safeRpcRows('admin_get_dashboard_stats'),
         safeRpcRows('admin_get_attention_now'),
       ]);
@@ -338,12 +342,14 @@ function useAdminData(enabled) {
         comments: commentsRes.data,
         photos: photosRes.data,
         recipes: recipesRes.data,
+        reports: reportsRes.data,
         dashboardStats: dashboardStatsRes.data,
         attentionNow: attentionNowRes.data,
         diagnostics: [
           { table: 'spot_comments', available: !commentsRes.error, error: commentsRes.error?.message || null },
           { table: 'spot_photos', available: !photosRes.error, error: photosRes.error?.message || null },
           { table: 'home_recipes', available: !recipesRes.error, error: recipesRes.error?.message || null },
+          { table: 'reports', available: !reportsRes.error, error: reportsRes.error?.message || null },
         ],
       };
     },
@@ -444,6 +450,7 @@ export default function Admin() {
   const comments = data?.comments || [];
   const photos = data?.photos || [];
   const recipes = data?.recipes || [];
+  const reports = data?.reports || [];
   const diagnostics = data?.diagnostics || [];
   const dashboardStatsRow = data?.dashboardStats?.[0] || null;
   const attentionNowRows = data?.attentionNow || [];
@@ -556,6 +563,21 @@ export default function Admin() {
   const openReports = React.useMemo(() => {
     const items = [];
 
+    reports.filter((report) => report.status === 'open' || report.status === 'reviewing').forEach((report) => {
+      const linkedUser = report.entity_type === 'profile' ? userMap.get(report.entity_id) : null;
+      const linkedSpot = report.entity_type === 'spot' ? spotMap.get(report.entity_id) : null;
+      items.push({
+        id: `report-${report.id}`,
+        type: report.entity_type || 'report',
+        severity: 'danger',
+        label: `User report: ${String(report.reason || 'report').replace(/_/g, ' ')}`,
+        entityTitle: linkedUser ? getPublicUsername(linkedUser) : linkedSpot?.name || report.entity_type || 'Reported content',
+        entityId: report.entity_id,
+        subtitle: report.details || 'No extra details.',
+        createdAt: report.created_at,
+      });
+    });
+
     approvedSpots.forEach((spot) => {
       if (!spot.photo_url) {
         items.push({
@@ -636,7 +658,7 @@ export default function Admin() {
     });
 
     return items.sort((a, b) => (toTs(b.createdAt) || 0) - (toTs(a.createdAt) || 0));
-  }, [approvedSpots, suspiciousPlans, suspiciousMessages, users, duplicatePairs, planMap]);
+  }, [reports, approvedSpots, suspiciousPlans, suspiciousMessages, users, duplicatePairs, planMap, userMap, spotMap]);
 
   const urgentItems = openReports.filter((item) => item.severity === 'danger');
 
@@ -801,11 +823,13 @@ export default function Admin() {
   });
   const photoMutation = useMutation({
     mutationFn: ({ id, payload }) => updateRow('spot_photos', id, payload),
-    onSuccess: invalidateAll,
+    onSuccess: async () => { toast.success('Photo moderation updated'); await invalidateAll(); },
+    onError: (error) => toast.error(error?.message || 'Photo action failed'),
   });
   const recipeMutation = useMutation({
     mutationFn: ({ id, payload }) => updateRow('home_recipes', id, payload),
-    onSuccess: invalidateAll,
+    onSuccess: async () => { toast.success('Recipe moderation updated'); await invalidateAll(); },
+    onError: (error) => toast.error(error?.message || 'Recipe action failed'),
   });
   const deleteMutation = useMutation({
     mutationFn: ({ table, id }) => deleteRow(table, id),

@@ -102,7 +102,7 @@ export default function Rankings() {
       title: recipe.title,
       subtitle: recipe.profiles?.username ? `By @${recipe.profiles.username}` : recipe.dough_style || "Community recipe",
       score: recipe.likes_count || 0,
-      to: recipe.user_id ? `/profile/${recipe.user_id}` : undefined,
+      to: recipe.id ? `/recipe/${recipe.id}` : undefined,
       scoreSuffix: "likes",
     })),
   }), [data.spots, data.users, recipes]);

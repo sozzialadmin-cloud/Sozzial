@@ -253,6 +253,27 @@ export async function fetchProfileRecipes(profileId, viewerId) {
     .map((recipe) => ({ ...recipe, viewer_liked: readLocal(LOCAL_RECIPE_VOTES).some((vote) => vote.recipe_id === recipe.id && vote.user_id === viewerId) }));
 }
 
+export async function fetchHomeRecipeById(recipeId, viewerId) {
+  if (!recipeId) return null;
+
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from("home_recipes")
+      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,likes_count,status,created_at,updated_at,profiles(id,username,avatar_url,bio,city)")
+      .eq("id", recipeId)
+      .maybeSingle();
+    if (!error && data && data.status !== "removed") {
+      const vote = viewerId
+        ? await supabase.from("home_recipe_votes").select("recipe_id").eq("user_id", viewerId).eq("recipe_id", recipeId).maybeSingle()
+        : { data: null };
+      return { ...data, viewer_liked: Boolean(vote.data) };
+    }
+  }
+
+  const recipe = readLocal(LOCAL_RECIPES).find((item) => item.id === recipeId);
+  if (!recipe) return null;
+  return { ...recipe, viewer_liked: readLocal(LOCAL_RECIPE_VOTES).some((vote) => vote.recipe_id === recipeId && vote.user_id === viewerId) };
+}
 export async function fetchRecipeRankings(viewerId) {
   if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase

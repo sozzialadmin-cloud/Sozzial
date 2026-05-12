@@ -97,6 +97,7 @@ function RecipeCard({ recipe, rank, onVote, voting }) {
           {recipe.dough_style ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.dough_style}</span> : null}
           {recipe.bake_time ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.bake_time}</span> : null}
           {recipe.oven_temp ? <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-bold text-stone-300">{recipe.oven_temp}</span> : null}
+          <Link to={`/recipe/${recipe.id}`} className="rounded-full bg-white px-3 py-1 text-xs font-black text-[#141414]">Open recipe</Link>
         </div>
         {hasDetails ? (
           <details className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
