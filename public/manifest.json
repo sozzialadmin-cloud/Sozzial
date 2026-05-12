@@ -15,34 +15,34 @@
       "short_name": "Map",
       "description": "Find pizza spots near you.",
       "url": "/home",
-      "icons": [{ "src": "/sozzial-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/mobile-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
     },
     {
       "name": "Create plan",
       "short_name": "Plan",
       "description": "Start a pizza plan.",
       "url": "/crearquedada",
-      "icons": [{ "src": "/sozzial-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/mobile-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
     },
     {
       "name": "Passport",
       "short_name": "Passport",
       "description": "Track your Sozzial progress.",
       "url": "/passport",
-      "icons": [{ "src": "/sozzial-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/mobile-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
     }
   ],
   "icons": [
     {
-      "src": "/sozzial-icon.svg",
+      "src": "/mobile-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.ico",
+      "src": "/favicon.svg",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/svg+xml"
     }
   ]
 }

@@ -240,7 +240,19 @@ export default function Profile() {
     },
   });
 
-  if (!user) return <div className="min-h-[calc(100vh-64px)] bg-[#060606]" />;
+  if (!user) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-[#060606] px-4 py-8 text-white">
+        <div className="mx-auto max-w-md rounded-[28px] border border-white/10 bg-[#101010] p-6 text-center">
+          <div className="text-2xl font-black">Sign in to open your profile</div>
+          <p className="mt-2 text-sm leading-6 text-stone-400">Your profile, recipes and social tools are available once you log in.</p>
+          <Link to="/auth" className="mt-4 inline-flex h-11 items-center justify-center rounded-2xl bg-[#df5b43] px-5 text-sm font-black text-white hover:bg-[#c84b35]">
+            Open login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
 
   const applyRecipePreset = (preset) => {

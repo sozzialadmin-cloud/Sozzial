@@ -9,6 +9,7 @@ export default function SearchFilters({
   filters,
   onFiltersChange,
   onLocateMe,
+  onSearchArea,
   resultCount = 0,
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -67,6 +68,9 @@ export default function SearchFilters({
           <button type="button" onClick={onLocateMe} className={buttonClass(false)} aria-label="Locate me">
             <Compass className="h-4 w-4" />
           </button>
+          <button type="submit" className={buttonClass(false)} aria-label="Search area">
+            <Search className="h-4 w-4" />
+          </button>
         </form>
       </div>
 
@@ -76,4 +80,3 @@ export default function SearchFilters({
     </div>
   );
 }
-

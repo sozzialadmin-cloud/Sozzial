@@ -93,16 +93,16 @@ export default function ActivityFeed() {
         <main>
           <div className="mb-5 overflow-hidden rounded-[32px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_70px_rgba(34,25,11,0.16)]">
             <div className="inline-flex rounded-full border border-[#2f8f46]/30 bg-[#2f8f46]/18 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#bdf3c8]">Live pizza network</div>
-            <h1 className="mt-3 text-[clamp(2rem,8vw,4rem)] font-black leading-none tracking-[-0.07em]">A feed that feels alive.</h1>
+            <h1 className="mt-3 text-[clamp(1.7rem,7vw,3rem)] font-black leading-none tracking-[-0.07em]">A feed that feels alive.</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-white/62">Recipes, follows, comments, check-ins and plans in one readable stream, with clear actions on every card.</p>
-            <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="mt-4 grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.uniqueUsers}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">people</div></div>
               <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.recipes}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">recipes</div></div>
               <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.social}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">social</div></div>
             </div>
           </div>
 
-          <div className="mb-4 flex gap-2 overflow-x-auto no-scrollbar">
+          <div className="mb-4 flex gap-2 overflow-x-auto no-scrollbar pb-1">
             {filters.map((filter) => (
               <button key={filter.id} type="button" onClick={() => setActiveFilter(filter.id)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${activeFilter === filter.id ? "bg-[#2f8f46] text-white" : "border border-black/10 bg-[#fffaf1] text-[#5f584d] hover:bg-white"}`}>
                 {filter.label}
@@ -120,7 +120,7 @@ export default function ActivityFeed() {
                 const cheered = cheeredIds.has(itemId);
                 const route = eventRoute(item);
                 return (
-                  <div key={itemId} className="rounded-[26px] border border-black/10 bg-white/78 p-4 shadow-[0_12px_28px_rgba(34,25,11,0.06)]">
+                  <div key={itemId} className="rounded-[22px] border border-black/10 bg-white/78 p-3.5 shadow-[0_12px_28px_rgba(34,25,11,0.06)]">
                     <div className="flex gap-3">
                       <Avatar profile={profile} />
                       <div className="min-w-0 flex-1">

@@ -1,4 +1,4 @@
-﻿import { lazy } from 'react';
+import { lazy } from 'react';
 import __Layout from './Layout.jsx';
 
 const Landing = lazy(() => import('./pages/Landing'));
@@ -13,7 +13,6 @@ const Profile = lazy(() => import('./pages/Profile'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const NotificationsSettings = lazy(() => import('./pages/NotificationsSettings'));
 const LanguageSettings = lazy(() => import('./pages/LanguageSettings'));
-const PrivacySettings = lazy(() => import('./pages/PrivacySettings'));
 const AccountSettings = lazy(() => import('./pages/AccountSettings'));
 
 export const PAGES = {
@@ -29,7 +28,6 @@ export const PAGES = {
   SettingsPage,
   NotificationsSettings,
   LanguageSettings,
-  PrivacySettings,
   AccountSettings,
 };
 
@@ -38,4 +36,3 @@ export const pagesConfig = {
   Pages: PAGES,
   Layout: __Layout,
 };
-

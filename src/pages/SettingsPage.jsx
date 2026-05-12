@@ -1,12 +1,11 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Bell, Globe, Shield, UserCog } from 'lucide-react';
+import { ArrowLeft, Bell, Globe, UserCog } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 
 const settings = [
   { icon: Bell, title: 'Notifications', desc: 'Only messages and new joins in your plans.', page: 'NotificationsSettings' },
   { icon: Globe, title: 'Language', desc: 'Keep the public app in English.', page: 'LanguageSettings' },
-  { icon: Shield, title: 'Privacy', desc: 'Username public, email private.', page: 'PrivacySettings' },
   { icon: UserCog, title: 'Account', desc: 'Remember-me and session basics.', page: 'AccountSettings' },
 ];
 
@@ -45,4 +44,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

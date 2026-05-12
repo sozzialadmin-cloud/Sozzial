@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Coffee, Download, Flame, Map, Pizza, Plus, Smartphone, Sparkles, Users, X } from 'lucide-react';
+import { ArrowRight, Coffee, Download, Flame, Map, Plus, Smartphone, Sparkles, Users, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 
@@ -11,7 +11,7 @@ const slides = [
     title: 'Create plans and groups.',
     text: 'Publish places, save plans, join groups and keep the social layer organized from one account.',
     icon: Users,
-    tone: 'from-[#0f3d27] via-[#1f7a42] to-[#52b36a]',
+    tone: 'bg-[#2f8f46]',
     accent: 'text-[#eaffd7]',
     summary: 'Account + groups',
   },
@@ -20,7 +20,7 @@ const slides = [
     title: 'Swipe into plans you want.',
     text: 'Join real pizza meetups in seconds with a swipe experience that stays quick and focused.',
     icon: Flame,
-    tone: 'from-[#2a140f] via-[#571d16] to-[#8f2c21]',
+    tone: 'bg-[#df5b43]',
     accent: 'text-[#ffd6c9]',
     summary: 'Social swipe',
   },
@@ -29,18 +29,12 @@ const slides = [
     title: 'Great slices, faster.',
     text: 'Open the map, compare price, rating and best slice, and find the spots worth your time.',
     icon: Map,
-    tone: 'from-[#111111] via-[#181818] to-[#2b2b28]',
+    tone: 'bg-[#1a1a1a]',
     accent: 'text-[#f3be35]',
     summary: 'Price + map',
   },
 ];
 
-const floatingSlices = [
-  'left-[10%] top-[14%] h-10 w-10 rotate-[-10deg]',
-  'right-[9%] top-[22%] h-7 w-7 rotate-[14deg]',
-  'left-[17%] bottom-[28%] h-6 w-6 rotate-[22deg]',
-  'right-[15%] bottom-[18%] h-9 w-9 rotate-[-18deg]',
-];
 
 export default function Landing() {
   const [index, setIndex] = useState(0);
@@ -109,29 +103,12 @@ export default function Landing() {
 
   return (
     <div className="relative h-dvh overflow-hidden bg-[#f5f0e7] text-[#111111]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(47,143,70,0.24),transparent_34%),linear-gradient(180deg,#f4fff0_0%,#fff4e7_55%,#efe3d1_100%)]" />
-      {floatingSlices.slice(0, 2).map((className, i) => (
-        <motion.div
-          key={className}
-          aria-hidden="true"
-          className={`pointer-events-none absolute rounded-[14px] border border-black/8 bg-[#fffaf1]/70 text-[#df5b43] shadow-[0_18px_38px_rgba(34,25,11,0.10)] backdrop-blur-sm ${className}`}
-          animate={{ y: [0, i % 2 ? 12 : -10, 0], rotate: [0, i % 2 ? 8 : -7, 0] }}
-          transition={{ duration: 5 + i, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <Pizza className="m-auto h-full w-[55%]" />
-        </motion.div>
-      ))}
+      <div className="pointer-events-none absolute inset-0 bg-[#f4efe4]" />
 
       <div className="relative z-10 mx-auto flex h-dvh w-full max-w-[430px] flex-col overflow-y-auto overflow-x-hidden px-4 pb-3 pt-3">
         <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="shrink-0 pb-2">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-[#f0bf39] text-[#111111] shadow-[0_16px_32px_rgba(240,191,57,0.22)]">
-              <Pizza className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-[clamp(1.65rem,6.6vw,2.1rem)] font-black leading-none tracking-tight">Sozzial</div>
-              <div className="mt-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#8a8174]">spots, plans and passport</div>
-            </div>
+          <div className="flex items-center">
+            <img src="/logo.svg" alt="Sozzial" className="h-12 w-auto max-w-[190px] object-contain" />
           </div>
         </motion.div>
 
@@ -154,17 +131,17 @@ export default function Landing() {
               initial={{ opacity: 0, x: 22, scale: 0.985 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-              className={`relative flex min-h-[310px] flex-col overflow-hidden rounded-[22px] bg-gradient-to-br ${slide.tone} p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] min-[390px]:min-h-[336px]`}
+              className={`relative flex min-h-[310px] flex-col overflow-hidden rounded-[22px] ${slide.tone} p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] min-[390px]:min-h-[336px]`}
             >
               <motion.div
                 aria-hidden="true"
-                className="absolute -right-12 -top-12 h-28 w-28 rounded-full border border-white/10 bg-white/10 blur-[1px] min-[390px]:h-32 min-[390px]:w-32"
+                className="hidden"
                 animate={{ scale: [1, 1.08, 1], opacity: [0.45, 0.7, 0.45] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               />
               <motion.div
                 aria-hidden="true"
-                className="absolute -bottom-16 left-8 h-28 w-28 rounded-full border border-white/10 bg-black/20 min-[390px]:h-36 min-[390px]:w-36"
+                className="hidden"
                 animate={{ y: [0, -10, 0], opacity: [0.35, 0.5, 0.35] }}
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, LogOut, Menu, Pizza } from 'lucide-react';
+import { ChevronRight, LogOut, Menu } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -10,17 +10,13 @@ import { adminNavItem, desktopNavItems, mobileNavItems, PUBLIC_PAGE_NAMES, VIEWP
 
 function Brand({ compact = false }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="app-brand-mark">
-        <Pizza className="h-5 w-5" />
-      </div>
-      <div className="min-w-0">
-        <div className={compact ? 'text-2xl font-black' : 'app-brand-title'}>Sozzial</div>
-        <div className={compact ? 'text-[11px] uppercase tracking-[0.18em] text-[#8a8174]' : 'app-brand-subtitle'}>
-          {compact ? 'Pizza social app' : 'Real pizza, real plans'}
-        </div>
-      </div>
-    </div>
+    <img
+      src="/logo.svg"
+      alt="Sozzial"
+      className={compact ? 'h-11 w-auto object-contain' : 'h-10 w-auto object-contain'}
+      loading="eager"
+      decoding="async"
+    />
   );
 }
 
