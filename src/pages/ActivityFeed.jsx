@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, BadgeCheck, Heart, MapPin, MessageSquare, Pizza, Sparkles, Star, Trophy, UserPlus, UserRound, Users } from "lucide-react";
+import { Activity, ArrowRight, BadgeCheck, ChefHat, Heart, MapPin, MessageSquare, Pizza, Sparkles, Star, Trophy, UserPlus, Users } from "lucide-react";
 import { fetchActivityFeed, fetchSocialDiscovery } from "@/lib/social-data";
 import { getAvatarLetter, getPublicUsername } from "@/lib/display-name";
 import { useAuth } from "@/lib/AuthContext";
@@ -9,10 +9,11 @@ import { formatPrice } from "@/lib/place-helpers";
 
 const filters = [
   { id: "all", label: "All" },
+  { id: "recipe_posted", label: "Recipes" },
   { id: "check_in", label: "Check-ins" },
   { id: "review", label: "Reviews" },
   { id: "plan_created", label: "Plans" },
-  { id: "badge_awarded", label: "Badges" },
+  { id: "profile_followed", label: "Follows" },
 ];
 
 function eventCopy(item) {
@@ -20,13 +21,25 @@ function eventCopy(item) {
   if (item.event_type === "review") return "recommended a spot";
   if (item.event_type === "plan_created") return "created a pizza plan";
   if (item.event_type === "badge_awarded") return "earned a badge";
+  if (item.event_type === "recipe_posted") return "published a home recipe";
+  if (item.event_type === "profile_followed") return `followed ${getPublicUsername(item.target_profile, "someone")}`;
+  if (item.event_type === "comment_added") return "commented on a recipe";
   return "updated Sozzial";
+}
+
+function eventRoute(item) {
+  if (item.entity_type === "recipe" && item.entity_id) return `/recipe/${item.entity_id}`;
+  if (item.entity_type === "profile" && item.entity_id) return `/profile/${item.entity_id}`;
+  if (item.entity_type === "spot" && item.entity_id) return `/?spot=${item.entity_id}`;
+  return null;
 }
 
 function EventIcon({ type }) {
   if (type === "check_in") return <BadgeCheck className="h-5 w-5" />;
-  if (type === "review") return <MessageSquare className="h-5 w-5" />;
+  if (type === "review" || type === "comment_added") return <MessageSquare className="h-5 w-5" />;
   if (type === "plan_created") return <Pizza className="h-5 w-5" />;
+  if (type === "recipe_posted") return <ChefHat className="h-5 w-5" />;
+  if (type === "profile_followed") return <UserPlus className="h-5 w-5" />;
   return <Activity className="h-5 w-5" />;
 }
 
@@ -60,9 +73,9 @@ export default function ActivityFeed() {
 
   const feedStats = useMemo(() => {
     const uniqueUsers = new Set(items.map((item) => item.user_id).filter(Boolean)).size;
-    const reviews = items.filter((item) => item.event_type === "review").length;
-    const checkins = items.filter((item) => item.event_type === "check_in").length;
-    return { uniqueUsers, reviews, checkins };
+    const recipes = items.filter((item) => item.event_type === "recipe_posted").length;
+    const social = items.filter((item) => item.event_type === "profile_followed" || item.event_type === "comment_added").length;
+    return { uniqueUsers, recipes, social };
   }, [items]);
 
   const toggleCheer = (itemId) => {
@@ -78,38 +91,20 @@ export default function ActivityFeed() {
     <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] bg-[#f4efe6] px-3 py-4 text-[#141414] sm:px-5 sm:py-6">
       <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[1fr,360px]">
         <main>
-          <div className="mb-5 rounded-[32px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_70px_rgba(34,25,11,0.16)]">
-            <div className="inline-flex rounded-full border border-[#efbf3a]/25 bg-[#efbf3a]/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#efbf3a]">Social feed</div>
-            <h1 className="mt-3 text-[clamp(2.1rem,9vw,4.2rem)] font-black leading-none tracking-[-0.07em]">Follow the best slice hunters.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/62">See who is eating where, which spots people recommend, and who has taste worth following.</p>
-          </div>
-
-          <div className="mb-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[24px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_12px_30px_rgba(34,25,11,0.07)]">
-              <Users className="h-4 w-4 text-[#df5b43]" />
-              <div className="mt-2 text-3xl font-black">{feedStats.uniqueUsers}</div>
-              <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">People active</div>
-            </div>
-            <div className="rounded-[24px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_12px_30px_rgba(34,25,11,0.07)]">
-              <Star className="h-4 w-4 text-[#df5b43]" />
-              <div className="mt-2 text-3xl font-black">{feedStats.reviews}</div>
-              <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Recommendations</div>
-            </div>
-            <div className="rounded-[24px] border border-black/10 bg-[#fffaf1] p-4 shadow-[0_12px_30px_rgba(34,25,11,0.07)]">
-              <BadgeCheck className="h-4 w-4 text-[#df5b43]" />
-              <div className="mt-2 text-3xl font-black">{feedStats.checkins}</div>
-              <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Check-ins</div>
+          <div className="mb-5 overflow-hidden rounded-[32px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_70px_rgba(34,25,11,0.16)]">
+            <div className="inline-flex rounded-full border border-[#2f8f46]/30 bg-[#2f8f46]/18 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#bdf3c8]">Live pizza network</div>
+            <h1 className="mt-3 text-[clamp(2rem,8vw,4rem)] font-black leading-none tracking-[-0.07em]">A feed that feels alive.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/62">Recipes, follows, comments, check-ins and plans in one readable stream, with clear actions on every card.</p>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.uniqueUsers}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">people</div></div>
+              <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.recipes}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">recipes</div></div>
+              <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.social}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">social</div></div>
             </div>
           </div>
 
           <div className="mb-4 flex gap-2 overflow-x-auto no-scrollbar">
             {filters.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                onClick={() => setActiveFilter(filter.id)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${activeFilter === filter.id ? "bg-[#efbf3a] text-[#111111]" : "border border-black/10 bg-[#fffaf1] text-[#5f584d] hover:bg-white"}`}
-              >
+              <button key={filter.id} type="button" onClick={() => setActiveFilter(filter.id)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${activeFilter === filter.id ? "bg-[#2f8f46] text-white" : "border border-black/10 bg-[#fffaf1] text-[#5f584d] hover:bg-white"}`}>
                 {filter.label}
               </button>
             ))}
@@ -123,30 +118,28 @@ export default function ActivityFeed() {
                 const title = getPublicUsername(profile, item.metadata?.username || "Someone");
                 const itemId = item.id || item.created_at;
                 const cheered = cheeredIds.has(itemId);
+                const route = eventRoute(item);
                 return (
-                  <div key={itemId} className="rounded-[26px] border border-black/10 bg-white/75 p-4 shadow-[0_12px_28px_rgba(34,25,11,0.06)]">
+                  <div key={itemId} className="rounded-[26px] border border-black/10 bg-white/78 p-4 shadow-[0_12px_28px_rgba(34,25,11,0.06)]">
                     <div className="flex gap-3">
                       <Avatar profile={profile} />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          {item.user_id ? (
-                            <Link to={`/profile/${item.user_id}`} className="font-black text-[#141414] hover:text-[#df5b43]">{title}</Link>
-                          ) : (
-                            <span className="font-black text-[#141414]">{title}</span>
-                          )}
+                          {item.user_id ? <Link to={`/profile/${item.user_id}`} className="font-black text-[#141414] hover:text-[#df5b43]">{title}</Link> : <span className="font-black text-[#141414]">{title}</span>}
                           <span className="text-sm font-semibold text-[#7a7165]">{eventCopy(item)}</span>
                         </div>
                         <div className="mt-1 text-xs text-[#9b9182]">{item.created_at ? new Date(item.created_at).toLocaleString() : ""}</div>
-                        {item.metadata?.note ? <p className="mt-3 rounded-2xl bg-[#f5eadb] px-4 py-3 text-sm leading-6 text-[#5f584d]">{item.metadata.note}</p> : null}
+                        {item.metadata?.title ? <div className="mt-3 text-lg font-black leading-tight">{item.metadata.title}</div> : null}
+                        {item.metadata?.description ? <p className="mt-1 line-clamp-2 text-sm leading-6 text-[#6d665b]">{item.metadata.description}</p> : null}
+                        {item.metadata?.note || item.metadata?.preview ? <p className="mt-3 rounded-2xl bg-[#f5eadb] px-4 py-3 text-sm leading-6 text-[#5f584d]">{item.metadata.note || item.metadata.preview}</p> : null}
+                        {item.metadata?.photo_url ? <img src={item.metadata.photo_url} alt="" className="mt-3 h-36 w-full rounded-2xl object-cover" /> : null}
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button type="button" onClick={() => toggleCheer(itemId)} className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-black transition ${cheered ? "border-red-300 bg-red-50 text-red-700" : "border-black/10 bg-[#fffaf1] text-[#6d665b] hover:bg-white"}`}>
                             <Heart className={`h-3.5 w-3.5 ${cheered ? "fill-red-500 text-red-500" : ""}`} />
                             {cheered ? "Cheered" : "Cheer"}
                           </button>
-                          <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-black/10 bg-[#fffaf1] px-3 text-xs font-black text-[#8a8174]">
-                            <Sparkles className="h-3.5 w-3.5" />
-                            Public
-                          </span>
+                          <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-black/10 bg-[#fffaf1] px-3 text-xs font-black text-[#8a8174]"><EventIcon type={item.event_type} />Public</span>
+                          {route ? <Link to={route} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[#141414] px-3 text-xs font-black text-white">Open <ArrowRight className="h-3.5 w-3.5" /></Link> : null}
                         </div>
                       </div>
                     </div>
@@ -160,42 +153,25 @@ export default function ActivityFeed() {
 
         <aside className="space-y-4 lg:sticky lg:top-[88px] lg:self-start">
           <section className="rounded-[32px] border border-black/10 bg-[#fffaf1] p-5 shadow-[0_20px_50px_rgba(34,25,11,0.10)]">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <div className="text-xl font-black tracking-[-0.04em]">People to follow</div>
-                <div className="mt-1 text-sm text-[#7a7165]">Profiles with useful pizza taste.</div>
-              </div>
-              <UserPlus className="h-5 w-5 text-[#df5b43]" />
-            </div>
+            <div className="mb-4 flex items-center justify-between"><div><div className="text-xl font-black tracking-[-0.04em]">People to follow</div><div className="mt-1 text-sm text-[#7a7165]">Profiles with useful pizza taste.</div></div><UserPlus className="h-5 w-5 text-[#df5b43]" /></div>
             <div className="grid gap-3">
               {discovery.people.slice(0, 5).map((person) => (
                 <Link key={person.id} to={`/profile/${person.id}`} className="flex items-center gap-3 rounded-[22px] border border-black/10 bg-white/65 p-3 transition hover:bg-white">
                   <Avatar profile={person} />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-black">{getPublicUsername(person, "Pizza friend")}</div>
-                    <div className="truncate text-xs font-semibold text-[#8a8174]">{person.pizza_style || person.favorite_slice || person.city || "Pizza explorer"}</div>
-                  </div>
+                  <div className="min-w-0 flex-1"><div className="truncate font-black">{getPublicUsername(person, "Pizza friend")}</div><div className="truncate text-xs font-semibold text-[#8a8174]">{person.pizza_style || person.favorite_slice || person.city || "Pizza explorer"}</div></div>
                   <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-black text-white">{person.is_following ? "Following" : "View"}</span>
                 </Link>
               ))}
               {!discovery.people.length ? <div className="rounded-[22px] border border-dashed border-black/12 p-5 text-sm text-[#7a7165]">Profiles will appear here as people join and review spots.</div> : null}
             </div>
           </section>
-
           <section className="rounded-[32px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_20px_50px_rgba(34,25,11,0.13)]">
-            <div className="mb-4 flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-[#efbf3a]" />
-              <div className="text-xl font-black tracking-[-0.04em]">Recommended now</div>
-            </div>
+            <div className="mb-4 flex items-center gap-2"><Trophy className="h-5 w-5 text-[#efbf3a]" /><div className="text-xl font-black tracking-[-0.04em]">Recommended now</div></div>
             <div className="grid gap-3">
               {discovery.spots.slice(0, 4).map((spot) => (
                 <div key={spot.id} className="rounded-[22px] border border-white/10 bg-white/[0.06] p-4">
-                  <div className="font-black">{spot.name}</div>
-                  <div className="mt-1 line-clamp-2 text-xs text-white/52">{spot.address}</div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-[#efbf3a] px-3 py-1 text-xs font-black text-[#141414]">{formatPrice(spot.slice_price)}</span>
-                    {spot.average_rating ? <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70">{Number(spot.average_rating).toFixed(1)} rated</span> : null}
-                  </div>
+                  <div className="font-black">{spot.name}</div><div className="mt-1 line-clamp-2 text-xs text-white/52">{spot.address}</div>
+                  <div className="mt-3 flex flex-wrap gap-2"><span className="rounded-full bg-[#efbf3a] px-3 py-1 text-xs font-black text-[#141414]">{formatPrice(spot.slice_price)}</span>{spot.average_rating ? <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70">{Number(spot.average_rating).toFixed(1)} rated</span> : null}</div>
                 </div>
               ))}
               {!discovery.spots.length ? <div className="rounded-[22px] border border-dashed border-white/12 p-5 text-sm text-white/55">Recommendations will improve as people rate and review spots.</div> : null}

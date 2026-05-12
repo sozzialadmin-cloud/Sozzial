@@ -11,8 +11,8 @@ const slides = [
     title: 'Create plans and groups.',
     text: 'Publish places, save plans, join groups and keep the social layer organized from one account.',
     icon: Users,
-    tone: 'from-[#173322] via-[#255334] to-[#3f744c]',
-    accent: 'text-[#f4f0d7]',
+    tone: 'from-[#0f3d27] via-[#1f7a42] to-[#52b36a]',
+    accent: 'text-[#eaffd7]',
     summary: 'Account + groups',
   },
   {
@@ -109,7 +109,7 @@ export default function Landing() {
 
   return (
     <div className="relative h-dvh overflow-hidden bg-[#f5f0e7] text-[#111111]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(240,191,57,0.28),transparent_34%),linear-gradient(180deg,#fff8ea_0%,#f4ecdf_58%,#efe3d1_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(47,143,70,0.24),transparent_34%),linear-gradient(180deg,#f4fff0_0%,#fff4e7_55%,#efe3d1_100%)]" />
       {floatingSlices.slice(0, 2).map((className, i) => (
         <motion.div
           key={className}
@@ -244,20 +244,20 @@ export default function Landing() {
           <Button
             type="button"
             onClick={handleInstall}
-            className="h-12 w-full rounded-[17px] border-0 bg-[#111111] px-5 text-[15px] font-black text-white shadow-[0_18px_36px_rgba(17,17,17,0.18)] hover:bg-[#252525] min-[390px]:h-14"
+            className="h-12 w-full rounded-[17px] border-0 bg-[#2f8f46] px-5 text-[15px] font-black text-white shadow-[0_18px_36px_rgba(47,143,70,0.22)] hover:bg-[#26763a] min-[390px]:h-14"
           >
             {installState === 'installed' || isStandalone ? <Smartphone className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
             {installState === 'installing' ? 'Opening install...' : installState === 'installed' || isStandalone ? 'App installed' : 'Download the app'}
           </Button>
           <div className="grid grid-cols-2 gap-2.5">
             <Link to={createPageUrl('Home')}>
-              <Button className="h-12 w-full rounded-[17px] border-0 bg-[#f0bf39] px-4 text-[15px] font-black text-[#111111] shadow-[0_18px_36px_rgba(240,191,57,0.22)] hover:bg-[#d9a826] min-[390px]:h-14">
+              <Button className="h-12 w-full rounded-[17px] border-0 bg-[#df5b43] px-4 text-[15px] font-black text-white shadow-[0_18px_36px_rgba(223,91,67,0.22)] hover:bg-[#c84b35] min-[390px]:h-14">
                 Map
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Link to="/auth">
-              <Button variant="outline" className="h-12 w-full rounded-[17px] border-black/10 bg-[#fffaf1] px-4 text-[15px] font-semibold text-[#141414] hover:bg-white min-[390px]:h-14">
+              <Button variant="outline" className="h-12 w-full rounded-[17px] border-black/10 bg-[#141414] px-4 text-[15px] font-semibold text-white hover:bg-[#252525] min-[390px]:h-14">
                 Account
               </Button>
             </Link>

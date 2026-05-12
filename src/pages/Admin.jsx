@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -47,6 +47,7 @@ const TABS = [
   { id: 'users', label: 'Users', icon: UserCog },
   { id: 'messages', label: 'Chat', icon: MessageSquare },
   { id: 'photos', label: 'Photos', icon: ImageIcon },
+  { id: 'comments', label: 'Comments', icon: MessageSquare },
   { id: 'recipes', label: 'Recipes', icon: ChefHat },
   { id: 'operations', label: 'Operations', icon: Database },
   { id: 'settings', label: 'Settings', icon: Settings2 },
@@ -339,7 +340,7 @@ function useAdminData(enabled) {
         members: membersRes.data,
         messages: messagesRes.data,
         ratings: ratingsRes.data,
-        comments: commentsRes.data,
+        comments: [...commentsRes.data.map((row) => ({ ...row, content_type: 'spot_comment', moderation_table: 'spot_comments' })), ...recipeCommentsRes.data.map((row) => ({ ...row, content_type: 'recipe_comment', moderation_table: 'home_recipe_comments' }))],
         photos: photosRes.data,
         recipes: recipesRes.data,
         reports: reportsRes.data,
@@ -568,6 +569,8 @@ export default function Admin() {
       const linkedSpot = report.entity_type === 'spot' ? spotMap.get(report.entity_id) : null;
       items.push({
         id: `report-${report.id}`,
+        source: 'report',
+        reportId: report.id,
         type: report.entity_type || 'report',
         severity: 'danger',
         label: `User report: ${String(report.reason || 'report').replace(/_/g, ' ')}`,
@@ -831,9 +834,20 @@ export default function Admin() {
     onSuccess: async () => { toast.success('Recipe moderation updated'); await invalidateAll(); },
     onError: (error) => toast.error(error?.message || 'Recipe action failed'),
   });
+  const commentMutation = useMutation({
+    mutationFn: ({ table, id, payload }) => updateRow(table, id, payload),
+    onSuccess: async () => { toast.success('Comment moderation updated'); await invalidateAll(); },
+    onError: (error) => toast.error(error?.message || 'Comment action failed'),
+  });
+  const reportMutation = useMutation({
+    mutationFn: ({ id, payload }) => updateRow('reports', id, payload),
+    onSuccess: async () => { toast.success('Report updated'); await invalidateAll(); },
+    onError: (error) => toast.error(error?.message || 'Report action failed'),
+  });
   const deleteMutation = useMutation({
     mutationFn: ({ table, id }) => deleteRow(table, id),
-    onSuccess: invalidateAll,
+    onSuccess: async () => { toast.success('Deleted'); await invalidateAll(); },
+    onError: (error) => toast.error(error?.message || 'Delete failed'),
   });
 
   const moderationPayload = React.useCallback((status) => ({
@@ -1249,12 +1263,12 @@ export default function Admin() {
                           <div className="text-base font-black text-[#111111]">{plan.title}</div>
                           <StatusPill tone={plan.status === 'active' ? 'success' : plan.status === 'cancelled' ? 'danger' : 'warn'}>{plan.status}</StatusPill>
                           {plan.isSuspicious ? <StatusPill tone="danger">sospechoso</StatusPill> : null}
-                          {plan.seatsOver ? <StatusPill tone="danger">sobre cupo</StatusPill> : null}
+                          {plan.seatsOver ? <StatusPill tone="danger">over capacity</StatusPill> : null}
                         </div>
                         <div className="mt-2 text-sm text-[#6d665b]">{linkedSpot?.name || 'No spot'} - {plan.plan_date} - {plan.plan_time}</div>
                         <div className="mt-2 text-sm text-[#6d665b] line-clamp-2">{plan.quick_note || 'No description'}</div>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <StatusPill tone="neutral">{plan.joinedCount}/{plan.max_people || 0} miembros</StatusPill>
+                          <StatusPill tone="neutral">{plan.joinedCount}/{plan.max_people || 0} members</StatusPill>
                           {plan.reportCount ? <StatusPill tone="danger">{plan.reportCount} flags</StatusPill> : null}
                           <StatusPill tone={plan.hasValidSpot ? 'success' : 'warn'}>{plan.hasValidSpot ? 'spot ok' : 'invalid spot'}</StatusPill>
                         </div>
@@ -1278,14 +1292,14 @@ export default function Admin() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <DetailMetric label="Linked spot" value={spotMap.get(selectedPlan.spot_id)?.name || 'No spot'} tone={selectedPlan.hasValidSpot ? 'success' : 'warn'} />
                       <DetailMetric label="Date and time" value={`${selectedPlan.plan_date || '-'} - ${selectedPlan.plan_time || '-'}`} />
-                      <DetailMetric label="Miembros" value={`${selectedPlan.joinedCount}/${selectedPlan.max_people || 0}`} tone={selectedPlan.seatsOver ? 'danger' : 'neutral'} />
+                      <DetailMetric label="Members" value={`${selectedPlan.joinedCount}/${selectedPlan.max_people || 0}`} tone={selectedPlan.seatsOver ? 'danger' : 'neutral'} />
                       <DetailMetric label="Flags" value={selectedPlan.reportCount || 0} tone={selectedPlan.reportCount ? 'danger' : 'neutral'} />
                     </div>
 
                   <div className="grid gap-5 xl:grid-cols-[1fr,1fr]">
                     <div className="space-y-5">
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Miembros</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Members</div>
                         <div className="mt-3 space-y-2">
                           {members.filter((row) => row.plan_id === selectedPlan.id).map((row) => {
                             const person = userMap.get(row.user_id);
@@ -1339,7 +1353,7 @@ export default function Admin() {
                         <div className="mt-3 grid gap-2 text-sm text-[#5d574d]">
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Plan without valid spot</span><StatusPill tone={selectedPlan.hasValidSpot ? 'success' : 'danger'}>{selectedPlan.hasValidSpot ? 'no' : 'si'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Fecha pasada pero sigue activo</span><StatusPill tone={selectedPlan.isPast && selectedPlan.status === 'active' ? 'danger' : 'success'}>{selectedPlan.isPast && selectedPlan.status === 'active' ? 'si' : 'no'}</StatusPill></div>
-                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Mas miembros que plazas</span><StatusPill tone={selectedPlan.seatsOver ? 'danger' : 'success'}>{selectedPlan.seatsOver ? 'si' : 'no'}</StatusPill></div>
+                          <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Mas members que plazas</span><StatusPill tone={selectedPlan.seatsOver ? 'danger' : 'success'}>{selectedPlan.seatsOver ? 'si' : 'no'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Creador baneado / advertido</span><StatusPill tone={(userRows.find((row) => row.id === selectedPlan.created_by)?.state || 'active') !== 'active' ? 'warn' : 'success'}>{userRows.find((row) => row.id === selectedPlan.created_by)?.state || 'active'}</StatusPill></div>
                           <div className="flex items-center justify-between rounded-2xl border border-black/8 px-3 py-2"><span>Texto spam o abuso</span><StatusPill tone={selectedPlan.isSuspicious ? 'danger' : 'success'}>{selectedPlan.isSuspicious ? 'si' : 'no'}</StatusPill></div>
                         </div>
@@ -1408,7 +1422,7 @@ export default function Admin() {
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <StatusPill tone={item.severity === 'danger' ? 'danger' : 'warn'}>{item.severity === 'danger' ? 'alta' : 'media'}</StatusPill>
+                          <StatusPill tone={item.severity === 'danger' ? 'danger' : 'warn'}>{item.severity === 'danger' ? 'high' : 'medium'}</StatusPill>
                           <StatusPill tone="neutral">{item.type}</StatusPill>
                           <div className="text-base font-black text-[#111111]">{item.label}</div>
                         </div>
@@ -1417,10 +1431,9 @@ export default function Admin() {
                         <div className="mt-2 text-xs text-[#8a8174]">Date: {formatDateTime(item.createdAt)} - Status: open</div>
                       </div>
                       <div className="flex flex-wrap gap-2 lg:justify-end">
-                        <AdminActionButton variant="neutral" onClick={() => goTo(item.type === 'spot' ? 'spots' : item.type === 'plan' ? 'plans' : item.type === 'user' ? 'users' : 'messages')}>Ver</AdminActionButton>
-                        <AdminActionButton variant="dark">Descartar</AdminActionButton>
-                        <AdminActionButton variant="warn">Hide contenido</AdminActionButton>
-                        <AdminActionButton variant="danger">Avisar / sancionar</AdminActionButton>
+                        <AdminActionButton variant="neutral" onClick={() => goTo(item.type === 'spot' ? 'spots' : item.type === 'plan' ? 'plans' : item.type === 'user' ? 'users' : 'messages')}>Open target</AdminActionButton>
+                        {item.source === 'report' ? <AdminActionButton variant="warn" onClick={() => reportMutation.mutate({ id: item.reportId, payload: { status: 'reviewing', resolved_by: profile?.id || user?.id || null, resolved_at: new Date().toISOString() } })}>Reviewing</AdminActionButton> : null}
+                        {item.source === 'report' ? <AdminActionButton variant="success" onClick={() => reportMutation.mutate({ id: item.reportId, payload: { status: 'resolved', resolved_by: profile?.id || user?.id || null, resolved_at: new Date().toISOString() } })}>Resolve</AdminActionButton> : null}
                       </div>
                     </div>
                   </div>
@@ -1454,7 +1467,7 @@ export default function Admin() {
                           <div className="mt-3 flex flex-wrap gap-2">
                             <StatusPill tone="neutral">{person.spotsCount} spots</StatusPill>
                             <StatusPill tone="neutral">{person.plansCount} plans</StatusPill>
-                            <StatusPill tone="neutral">{person.groupsJoined} grupos</StatusPill>
+                            <StatusPill tone="neutral">{person.groupsJoined} groups</StatusPill>
                             {person.reportsCount ? <StatusPill tone="danger">{person.reportsCount} flags</StatusPill> : null}
                           </div>
                         </div>
@@ -1493,16 +1506,16 @@ export default function Admin() {
                   <div className="grid gap-5 xl:grid-cols-[1fr,1fr]">
                     <div className="space-y-5">
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Actividad reciente</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Recent activity</div>
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Alta: {formatDateTime(selectedUser.created_at)}</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Ultima actualizacion: {formatDateTime(selectedUser.updated_at)}</div>
-                          <div className="rounded-2xl border border-black/8 px-3 py-2">Mensajes recientes: {userMessageCountMap.get(selectedUser.id) || 0}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Signup: {formatDateTime(selectedUser.created_at)}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Last update: {formatDateTime(selectedUser.updated_at)}</div>
+                          <div className="rounded-2xl border border-black/8 px-3 py-2">Recent messages: {userMessageCountMap.get(selectedUser.id) || 0}</div>
                         </div>
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Contenido del usuario</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">User content</div>
                         <div className="mt-3 space-y-3">
                           {spots.filter((row) => row.created_by === selectedUser.id).slice(0, 3).map((row) => (
                             <div key={row.id} className="rounded-2xl border border-black/8 px-3 py-3 text-sm">
@@ -1522,23 +1535,23 @@ export default function Admin() {
 
                     <div className="space-y-5">
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Acciones admin</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Admin actions</div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           {selectedUser.role !== 'admin' ? (
-                            <AdminActionButton variant="warn" onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { role: 'admin' } })}><Shield className="mr-2 h-4 w-4" />Cambiar rol</AdminActionButton>
+                            <AdminActionButton variant="warn" onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { role: 'admin' } })}><Shield className="mr-2 h-4 w-4" />Promote role</AdminActionButton>
                           ) : (
-                            <AdminActionButton variant="dark" disabled={selectedUser.id === profile?.id} onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { role: 'user' } })}><Shield className="mr-2 h-4 w-4" />Quitar admin</AdminActionButton>
+                            <AdminActionButton variant="dark" disabled={selectedUser.id === profile?.id} onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { role: 'user' } })}><Shield className="mr-2 h-4 w-4" />Remove admin</AdminActionButton>
                           )}
-                          <AdminActionButton variant="warn"><AlertTriangle className="mr-2 h-4 w-4" />Advertir</AdminActionButton>
-                          <AdminActionButton variant="dark"><Ban className="mr-2 h-4 w-4" />Suspender</AdminActionButton>
-                          <AdminActionButton variant="danger"><Ban className="mr-2 h-4 w-4" />Banear</AdminActionButton>
-                          <AdminActionButton variant="neutral">Hide contenido</AdminActionButton>
-                          <AdminActionButton variant="neutral">Ver todo su contenido</AdminActionButton>
+                          <AdminActionButton variant="warn"><AlertTriangle className="mr-2 h-4 w-4" />Warn</AdminActionButton>
+                          <AdminActionButton variant="dark"><Ban className="mr-2 h-4 w-4" />Suspend</AdminActionButton>
+                          <AdminActionButton variant="danger"><Ban className="mr-2 h-4 w-4" />Ban</AdminActionButton>
+                          <AdminActionButton variant="neutral">Hide content</AdminActionButton>
+                          <AdminActionButton variant="neutral">View all content</AdminActionButton>
                         </div>
                       </div>
 
                       <div className="rounded-[24px] border border-black/8 bg-white p-4">
-                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Seguridad</div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Safety</div>
                         <div className="mt-3 space-y-2 text-sm text-[#5d574d]">
                           <div className="rounded-2xl border border-black/8 px-3 py-2">High-impact actions should ask for extra confirmation.</div>
                           <div className="rounded-2xl border border-black/8 px-3 py-2">Keep change logs and traceability for admin actions.</div>
@@ -1562,7 +1575,7 @@ export default function Admin() {
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <StatusPill tone={isSuspiciousText(row.content) ? 'danger' : 'neutral'}>{isSuspiciousText(row.content) ? 'reportado' : 'normal'}</StatusPill>
+                          <StatusPill tone={isSuspiciousText(row.content) ? 'danger' : 'neutral'}>{isSuspiciousText(row.content) ? 'flagged' : 'normal'}</StatusPill>
                           <div className="text-base font-black text-[#111111]">{planMap.get(row.plan_id)?.title || 'Plan'}</div>
                         </div>
                         <div className="mt-2 text-sm text-[#6d665b]">{getPublicUsername(userMap.get(row.user_id), 'User')} - {formatDateTime(row.created_at)}</div>
@@ -1581,6 +1594,34 @@ export default function Admin() {
           </Shell>
         ) : null}
 
+
+        {!isLoading && activeTab === 'comments' ? (
+          <Shell title="Comments moderation" subtitle="Review public notes, hide low-quality comments and jump to the related spot.">
+            {comments.length ? (
+              <div className="grid gap-3">
+                {comments.filter((row) => includesSearch(row.content, row.status, spotMap.get(row.spot_id)?.name, recipes.find((recipe) => recipe.id === row.recipe_id)?.title, userMap.get(row.user_id)?.email)).slice(0, 140).map((row) => (
+                  <div key={row.id} className="rounded-[24px] border border-black/8 bg-white p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <StatusPill tone={row.status === 'approved' ? 'success' : row.status === 'hidden' ? 'dark' : 'warn'}>{row.status || 'pending'}</StatusPill>
+                          <div className="font-black text-[#111111]">{row.content_type === 'recipe_comment' ? recipes.find((recipe) => recipe.id === row.recipe_id)?.title || 'Recipe not found' : spotMap.get(row.spot_id)?.name || 'Spot not found'}</div>
+                        </div>
+                        <div className="mt-2 text-sm text-[#6d665b]">{getPublicUsername(userMap.get(row.user_id), 'User')} - {formatDateTime(row.created_at)}</div>
+                        <div className="mt-3 rounded-2xl border border-black/8 bg-[#fffaf1] px-3 py-3 text-sm leading-7 text-[#111111]">{row.content}</div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 lg:justify-end">
+                        <AdminActionButton variant="success" onClick={() => commentMutation.mutate({ table: row.moderation_table, id: row.id, payload: moderationPayload('approved') })}>Approve</AdminActionButton>
+                        <AdminActionButton variant="warn" onClick={() => commentMutation.mutate({ table: row.moderation_table, id: row.id, payload: moderationPayload('hidden') })}>Hide</AdminActionButton>
+                        <AdminActionButton variant="danger" onClick={() => deleteMutation.mutate({ table: row.moderation_table, id: row.id })}>Delete</AdminActionButton>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : <EmptyState icon={MessageSquare} title="No comments yet" text="When users publish public notes, they will appear here for moderation." />}
+          </Shell>
+        ) : null}
         {!isLoading && activeTab === 'photos' ? (
           <Shell title="Photos / media" subtitle="Pending, broken, orphaned and photos linked to problematic spots.">
             {photos.length ? (

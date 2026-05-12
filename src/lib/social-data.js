@@ -150,19 +150,66 @@ export async function fetchWeeklyRankings() {
 
 export async function fetchActivityFeed() {
   if (!isSupabaseConfigured || !supabase) return readLocal(LOCAL_ACTIVITY);
-  const { data, error } = await supabase
-    .from("activity_events")
-    .select("id,user_id,event_type,entity_type,entity_id,metadata,created_at")
-    .order("created_at", { ascending: false })
-    .limit(60);
-  if (error) return readLocal(LOCAL_ACTIVITY);
-  const rows = data || [];
-  const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))];
+
+  const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString();
+  const [eventsRes, recipesRes, followsRes] = await Promise.all([
+    supabase
+      .from("activity_events")
+      .select("id,user_id,event_type,entity_type,entity_id,metadata,created_at")
+      .order("created_at", { ascending: false })
+      .limit(80),
+    supabase
+      .from("home_recipes")
+      .select("id,user_id,title,description,photo_url,likes_count,created_at,status")
+      .eq("status", "published")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(30),
+    supabase
+      .from("profile_follows")
+      .select("follower_id,following_id,created_at")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(30),
+  ]);
+
+  const events = eventsRes.error ? [] : eventsRes.data || [];
+  const recipeEvents = recipesRes.error ? [] : (recipesRes.data || []).map((recipe) => ({
+    id: `recipe-${recipe.id}`,
+    user_id: recipe.user_id,
+    event_type: "recipe_posted",
+    entity_type: "recipe",
+    entity_id: recipe.id,
+    metadata: { title: recipe.title, description: recipe.description, photo_url: recipe.photo_url, likes_count: recipe.likes_count },
+    created_at: recipe.created_at,
+  }));
+  const followEvents = followsRes.error ? [] : (followsRes.data || []).map((follow) => ({
+    id: `follow-${follow.follower_id}-${follow.following_id}-${follow.created_at}`,
+    user_id: follow.follower_id,
+    event_type: "profile_followed",
+    entity_type: "profile",
+    entity_id: follow.following_id,
+    metadata: { following_id: follow.following_id },
+    created_at: follow.created_at,
+  }));
+
+  const rows = [...events, ...recipeEvents, ...followEvents]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 80);
+
+  const userIds = [...new Set([
+    ...rows.map((row) => row.user_id).filter(Boolean),
+    ...rows.map((row) => row.metadata?.following_id).filter(Boolean),
+  ])];
   const { data: profiles } = userIds.length
     ? await supabase.from("profiles").select("id,username,avatar_url,bio,city,neighborhood,favorite_slice,pizza_style,reputation_score").in("id", userIds)
     : { data: [] };
   const profileMap = new Map((profiles || []).map((profile) => [profile.id, profile]));
-  return rows.map((row) => ({ ...row, profile: profileMap.get(row.user_id) || null }));
+  return rows.map((row) => ({
+    ...row,
+    profile: profileMap.get(row.user_id) || null,
+    target_profile: row.metadata?.following_id ? profileMap.get(row.metadata.following_id) || null : null,
+  }));
 }
 
 export async function fetchSocialDiscovery(viewerId) {
@@ -387,4 +434,67 @@ export async function setProfileFollow({ viewerId, profileId, follow }) {
   const { error } = await supabase.from("profile_follows").delete().eq("follower_id", viewerId).eq("following_id", profileId);
   if (error) throw error;
   return { following: false };
+}
+
+const LOCAL_RECIPE_COMMENTS = "sozzial_local_recipe_comments";
+const LOCAL_REPORTS = "sozzial_local_reports";
+
+export async function fetchRecipeComments(recipeId) {
+  if (!recipeId) return [];
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from("home_recipe_comments")
+      .select("id,recipe_id,user_id,content,status,created_at,profiles(id,username,avatar_url)")
+      .eq("recipe_id", recipeId)
+      .neq("status", "hidden")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (!error) return data || [];
+  }
+  return readLocal(LOCAL_RECIPE_COMMENTS).filter((row) => row.recipe_id === recipeId && row.status !== "hidden");
+}
+
+export async function createRecipeComment({ userId, recipeId, content }) {
+  const clean = String(content || "").trim();
+  if (!userId) throw new Error("Log in to comment.");
+  if (!recipeId || clean.length < 2) throw new Error("Write a short comment first.");
+  const payload = { recipe_id: recipeId, user_id: userId, content: clean.slice(0, 700), status: "approved" };
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase.from("home_recipe_comments").insert(payload).select().single();
+    if (!error) {
+      await supabase.from("activity_events").insert({
+        user_id: userId,
+        event_type: "comment_added",
+        entity_type: "recipe",
+        entity_id: recipeId,
+        metadata: { preview: payload.content.slice(0, 90) },
+      });
+      return data;
+    }
+    if (!String(error.message || "").includes("home_recipe_comments")) throw error;
+  }
+  const row = { id: window.crypto?.randomUUID?.() || String(Date.now()), ...payload, created_at: new Date().toISOString() };
+  writeLocal(LOCAL_RECIPE_COMMENTS, [row, ...readLocal(LOCAL_RECIPE_COMMENTS)]);
+  return row;
+}
+
+export async function createReport({ reporterId, entityType, entityId, reason, details }) {
+  if (!reporterId) throw new Error("Log in to report content.");
+  if (!entityType || !entityId || !reason) throw new Error("Choose a report reason.");
+  const payload = {
+    reporter_id: reporterId,
+    entity_type: entityType,
+    entity_id: entityId,
+    reason,
+    details: String(details || "").trim() || null,
+    status: "open",
+  };
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase.from("reports").insert(payload).select().single();
+    if (!error) return data;
+    if (!String(error.message || "").includes("reports")) throw error;
+  }
+  const row = { id: window.crypto?.randomUUID?.() || String(Date.now()), ...payload, created_at: new Date().toISOString() };
+  writeLocal(LOCAL_REPORTS, [row, ...readLocal(LOCAL_REPORTS)]);
+  return row;
 }

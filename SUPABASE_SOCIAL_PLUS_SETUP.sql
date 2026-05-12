@@ -240,3 +240,39 @@ drop trigger if exists home_recipe_votes_sync_delete on public.home_recipe_votes
 create trigger home_recipe_votes_sync_delete
 after delete on public.home_recipe_votes
 for each row execute function public.sync_home_recipe_likes();
+
+-- Recipe comments: community questions/tips below home recipes.
+create table if not exists public.home_recipe_comments (
+  id uuid primary key default gen_random_uuid(),
+  recipe_id uuid references public.home_recipes(id) on delete cascade,
+  user_id uuid references public.profiles(id) on delete cascade,
+  content text not null,
+  status text not null default 'approved' check (status in ('pending','approved','hidden','rejected')),
+  reviewed_by uuid references public.profiles(id),
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.home_recipe_comments enable row level security;
+
+create index if not exists home_recipe_comments_recipe_idx on public.home_recipe_comments(recipe_id, created_at desc);
+create index if not exists home_recipe_comments_status_idx on public.home_recipe_comments(status, created_at desc);
+create index if not exists reports_status_idx on public.reports(status, created_at desc);
+create index if not exists reports_entity_idx on public.reports(entity_type, entity_id);
+
+drop policy if exists "Anyone can read visible recipe comments" on public.home_recipe_comments;
+create policy "Anyone can read visible recipe comments"
+  on public.home_recipe_comments for select
+  using (status <> 'hidden');
+
+drop policy if exists "Users can add recipe comments" on public.home_recipe_comments;
+create policy "Users can add recipe comments"
+  on public.home_recipe_comments for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Admins can moderate recipe comments" on public.home_recipe_comments;
+create policy "Admins can moderate recipe comments"
+  on public.home_recipe_comments for update
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
