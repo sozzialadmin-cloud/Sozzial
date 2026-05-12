@@ -28,6 +28,7 @@ export default function Home() {
   const [loginPrompt, setLoginPrompt] = useState(false);
   const [mapStyle] = useState("dark");
   const [userLocation, setUserLocation] = useState(null);
+  const [searchTarget, setSearchTarget] = useState(null);
   const [savedPlaceIds, setSavedPlaceIds] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
@@ -115,6 +116,30 @@ export default function Home() {
     }
   };
 
+
+  const handleSearchArea = async (query) => {
+    const localMatch = enrichedPlaces.find((place) => {
+      const haystack = [place.name, place.address, place.neighborhood, place.borough, place.best_known_slice].filter(Boolean).join(" ").toLowerCase();
+      return query.toLowerCase().split(/[\s,]+/).filter(Boolean).every((term) => haystack.includes(term));
+    });
+    if (localMatch?.latitude && localMatch?.longitude) {
+      setSearchTarget({ lat: localMatch.latitude, lng: localMatch.longitude, zoom: 15 });
+      setPreviewPlace(localMatch);
+      return;
+    }
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+      const [result] = await response.json();
+      if (result?.lat && result?.lon) {
+        setSearchTarget({ lat: Number(result.lat), lng: Number(result.lon), zoom: 13 });
+        setListOpen(false);
+      } else {
+        toast({ title: "Area not found", description: "Try a street, neighborhood or city name.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Search unavailable", description: "Check the area name or try again.", variant: "destructive" });
+    }
+  };
   const currentMapStyle = MAP_STYLES.find((style) => style.id === mapStyle) || MAP_STYLES[0];
   const showMapNotice = !isSupabaseConfigured || enrichedPlaces.length === 0 || filteredPlaces.length === 0;
 
@@ -165,6 +190,7 @@ export default function Home() {
             filters={filters}
             onFiltersChange={setFilters}
             resultCount={filteredPlaces.length}
+            onSearchArea={handleSearchArea}
             onLocateMe={() => {
               if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(

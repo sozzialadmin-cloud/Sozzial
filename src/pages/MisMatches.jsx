@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ExternalLink, Info, MapPin, MessageCircle, Pizza, Send, X } from "lucide-react";
@@ -212,7 +212,7 @@ export default function MisMatches() {
   const history = useMemo(() => groups.filter((item) => new Date(item.fecha_hora) < now), [groups]);
   const allVisible = useMemo(() => [...upcoming, ...history], [upcoming, history]);
   const visible = tab === "upcoming" ? upcoming : history;
-  const selected = visible.find((item) => item.id === selectedId) || allVisible.find((item) => item.id === selectedId) || visible[0] || null;
+  const selected = visible.find((item) => item.id === selectedId) || allVisible.find((item) => item.id === selectedId) || null;
   const usersById = useMemo(() => new Map(allVisible.flatMap((g) => [g.host, ...(g.participants || [])]).filter(Boolean).map((p) => [p.id, p])), [allVisible]);
 
   useEffect(() => {
@@ -372,7 +372,7 @@ export default function MisMatches() {
               </div>
             </section>
           ) : (
-            <div className="hidden items-center justify-center bg-[#0b0b0b] text-stone-500 lg:flex">Select a group</div>
+            <div className="hidden items-center justify-center bg-[#0b0b0b] px-6 text-center text-stone-500 lg:flex">Select a group to open the chat.</div>
           )}
         </div>
       </div>

@@ -120,6 +120,7 @@ export default function Profile() {
   const [activeSection, setActiveSection] = useState('recipes');
   const [showRecipeComposer, setShowRecipeComposer] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [favoriteSpotQuery, setFavoriteSpotQuery] = useState('');
   const [recipeForm, setRecipeForm] = useState({ title: '', description: '', doughStyle: '', difficulty: 'Easy', bakeTime: '', photoUrl: '', ingredients: '', preparationSteps: '', ovenTemp: '', servings: '', tags: [] });
   const [form, setForm] = useState({
     username: '',
@@ -222,7 +223,7 @@ export default function Profile() {
         dietary_notes: form.dietary_notes.trim() || null,
         instagram_url: form.instagram_url.trim() || null,
         website_url: form.website_url.trim() || null,
-        profile_visibility: form.profile_visibility || 'public',
+        profile_visibility: 'public',
         updated_at: new Date().toISOString(),
       };
       const { error } = await supabase.from('profiles').update(payload).eq('id', user.id);
@@ -588,7 +589,7 @@ export default function Profile() {
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xl font-black">Profile details</div>
-                  <div className="mt-1 text-xs text-stone-500">Photo, bio, favorite slice and public visibility.</div>
+                  <div className="mt-1 text-xs text-stone-500">Photo, bio, favorite slice and social details.</div>
                 </div>
                 <Link to={`/profile/${user.id}`} className="inline-flex h-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-xs font-black text-white hover:bg-white/[0.07]">
                   <UserRound className="mr-2 h-4 w-4" />
@@ -620,19 +621,39 @@ export default function Profile() {
                   <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Dietary notes</Label>
                   <Input value={form.dietary_notes} onChange={(e) => setForm((prev) => ({ ...prev, dietary_notes: e.target.value }))} placeholder="Vegetarian, halal, gluten-free..." className="border-white/10 bg-white/[0.04] text-white" />
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Favorite spot</Label>
-                  <select value={form.favorite_spot_id} onChange={(e) => setForm((prev) => ({ ...prev, favorite_spot_id: e.target.value }))} className="h-10 w-full rounded-md border border-white/10 bg-[#171717] px-3 text-sm text-white">
-                    <option value="">Choose a spot</option>
-                    {(bundle?.spots || []).map((spot) => <option key={spot.id} value={spot.id}>{spot.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Profile visibility</Label>
-                  <select value={form.profile_visibility} onChange={(e) => setForm((prev) => ({ ...prev, profile_visibility: e.target.value }))} className="h-10 w-full rounded-md border border-white/10 bg-[#171717] px-3 text-sm text-white">
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                  </select>
+                  <div className="rounded-[18px] border border-white/10 bg-white/[0.04] p-2">
+                    <Input
+                      value={favoriteSpotQuery}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const matched = (bundle?.spots || []).find((spot) => {
+                          const label = `${spot.name} ${spot.address || ''}`.toLowerCase();
+                          return spot.name?.toLowerCase() === value.toLowerCase() || label === value.toLowerCase();
+                        });
+                        setFavoriteSpotQuery(value);
+                        setForm((prev) => ({ ...prev, favorite_spot_id: matched?.id || '' }));
+                      }}
+                      placeholder="Search your favorite pizza spot"
+                      className="border-white/10 bg-[#171717] text-white"
+                    />
+                    <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                      {favoriteSpotOptions.map((spot) => (
+                        <button
+                          key={spot.id}
+                          type="button"
+                          onClick={() => {
+                            setFavoriteSpotQuery(spot.name);
+                            setForm((prev) => ({ ...prev, favorite_spot_id: spot.id }));
+                          }}
+                          className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-black transition ${form.favorite_spot_id === spot.id ? 'border-[#efbf3a] bg-[#efbf3a] text-[#141414]' : 'border-white/10 bg-black/20 text-stone-300 hover:bg-white/10'}`}
+                        >
+                          {spot.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <div className="sm:col-span-2">
                   <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-stone-500">Bio</Label>

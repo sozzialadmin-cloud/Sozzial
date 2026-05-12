@@ -63,7 +63,7 @@ export default function PlaceListPanel({
               <div className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-black/10 sm:hidden" />
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-base font-black text-[#111111]">Comparar spots</p>
+                  <p className="text-base font-black text-[#111111]">Compare spots</p>
                   <p className="mt-1 text-xs text-[#605747]">Price, value and active plans without leaving the map.</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -79,10 +79,10 @@ export default function PlaceListPanel({
                 </div>
               </div>
               <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                <SortChip active={sortMode === "value"} onClick={() => onSortModeChange?.("value")}>Valor</SortChip>
-                <SortChip active={sortMode === "price"} onClick={() => onSortModeChange?.("price")}>Mas baratos</SortChip>
+                <SortChip active={sortMode === "value"} onClick={() => onSortModeChange?.("value")}>Best value</SortChip>
+                <SortChip active={sortMode === "price"} onClick={() => onSortModeChange?.("price")}>Lowest price</SortChip>
                 <SortChip active={sortMode === "rating"} onClick={() => onSortModeChange?.("rating")}>Top rated</SortChip>
-                <SortChip active={sortMode === "hangouts"} onClick={() => onSortModeChange?.("hangouts")}>Plans</SortChip>
+                <SortChip active={sortMode === "hangouts"} onClick={() => onSortModeChange?.("hangouts")}>Active plans</SortChip>
               </div>
             </div>
 

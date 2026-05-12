@@ -64,6 +64,14 @@ function FlyToPlace({ place }) {
   return null;
 }
 
+
+function FlyToSearchTarget({ target }) {
+  const map = useMap();
+  useEffect(() => {
+    if (target?.lat && target?.lng) map.flyTo([target.lat, target.lng], target.zoom || 14, { duration: 0.75 });
+  }, [target, map]);
+  return null;
+}
 function FlyToUser({ location }) {
   const map = useMap();
   useEffect(() => {
@@ -105,6 +113,7 @@ export default function PizzaMap({
   controlsHidden = false,
   mapStyleUrl,
   userLocation,
+  searchTarget,
 }) {
   const [tileUrl, setTileUrl] = useState(mapStyleUrl || FALLBACK_TILE_URL);
 
@@ -139,6 +148,7 @@ export default function PizzaMap({
       <MapEvents onBoundsChange={onBoundsChange} onMapMove={onMapMove} />
       <MapInitializer onMapReady={onMapReady} />
       {selectedPlace && <FlyToPlace place={selectedPlace} />}
+      {searchTarget && <FlyToSearchTarget target={searchTarget} />}
       {userLocation && (
         <>
           <FlyToUser location={userLocation} />

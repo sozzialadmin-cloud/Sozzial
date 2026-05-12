@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Camera, FileText, Pizza, Star, Tag, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { ZINDEX } from "@/lib/zindex";
@@ -9,14 +9,6 @@ const PRICE_BANDS = [
   { value: "premium", label: "Premium", desc: "Above $5", color: "bg-[#df5b43]" },
 ];
 
-const SORT_OPTIONS = [
-  { value: "price_low", label: "Lowest price" },
-  { value: "price_high", label: "Highest price" },
-  { value: "rating", label: "Top rated" },
-  { value: "reviews", label: "Most reviews" },
-  { value: "active_plans", label: "Most active plans" },
-  { value: "name", label: "A to Z" },
-];
 
 const RATING_OPTIONS = [0, 3.5, 4, 4.5];
 
@@ -51,7 +43,6 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
     filters.withActivePlans ? 1 : 0,
     filters.withBestSlice ? 1 : 0,
     filters.withNotes ? 1 : 0,
-    filters.sortBy ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   const clearAll = () => {
@@ -63,7 +54,6 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
       withActivePlans: false,
       withBestSlice: false,
       withNotes: false,
-      sortBy: "price_low",
     });
   };
 
@@ -122,17 +112,6 @@ export default function FilterPanel({ filters, onFiltersChange, resultCount, onC
                 icon={Star}
               >
                 {value === 0 ? "Any" : `${value}+`}
-              </FilterChip>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e8578]">Sort by</p>
-          <div className="flex flex-wrap gap-1.5">
-            {SORT_OPTIONS.map((s) => (
-              <FilterChip key={s.value} active={filters.sortBy === s.value} onClick={() => updateFilter("sortBy", s.value)}>
-                {s.label}
               </FilterChip>
             ))}
           </div>

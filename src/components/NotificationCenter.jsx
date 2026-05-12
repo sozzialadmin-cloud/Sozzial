@@ -67,7 +67,7 @@ async function fetchNotifications(user) {
         title: planMap.get(message.plan_id) || 'New group message',
         description: message.content,
         created_at: message.created_at,
-        href: '/mismatches',
+        href: `/mismatches?focus=${message.plan_id}`,
       }));
     }
   }
@@ -82,7 +82,7 @@ async function fetchNotifications(user) {
         title: 'New member joined',
         description: `${planMap.get(member.plan_id) || 'Your plan'} has a new member.`,
         created_at: member.created_at,
-        href: '/mismatches',
+        href: `/mismatches?focus=${member.plan_id}`,
       }));
     }
   }
@@ -179,7 +179,7 @@ export default function NotificationCenter({ user }) {
       {unreadCount > 0 && <span className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">{unreadCount > 9 ? '9+' : unreadCount}</span>}
     </button>
     <AnimatePresence>{open && <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/10 backdrop-blur-[1px]" style={{ zIndex: ZINDEX.NOTIFICATION_BACKDROP }} onClick={() => setOpen(false)} />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/20 backdrop-blur-[2px]" style={{ zIndex: ZINDEX.NOTIFICATION_BACKDROP }} onClick={() => setOpen(false)} />
       <motion.div initial={{ opacity: 0, y: -12, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.97 }} transition={{ type: "spring", stiffness: 420, damping: 34 }} className="fixed left-4 right-4 top-[96px] max-h-[75vh] overflow-hidden rounded-[26px] border border-white/10 bg-[#101010] shadow-[0_28px_80px_rgba(0,0,0,0.38)] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80" style={{ zIndex: ZINDEX.NOTIFICATION_POPUP }}>
         <div className="border-b border-white/10 p-4">
           <div className="flex items-center justify-between gap-3">

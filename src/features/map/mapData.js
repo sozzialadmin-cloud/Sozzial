@@ -52,14 +52,24 @@ export function countPlansBySpot(activePlans) {
 export function applySpotFilters(places, filters) {
   let result = [...(places || [])];
   if (filters.search) {
-    const q = filters.search.toLowerCase();
-    result = result.filter(
-      (place) =>
-        place.name?.toLowerCase().includes(q) ||
-        place.address?.toLowerCase().includes(q) ||
-        place.best_known_slice?.toLowerCase().includes(q) ||
-        place.quick_note?.toLowerCase().includes(q),
-    );
+    const terms = String(filters.search)
+      .toLowerCase()
+      .split(/[\s,]+/)
+      .map((term) => term.trim())
+      .filter(Boolean);
+    result = result.filter((place) => {
+      const haystack = [
+        place.name,
+        place.address,
+        place.neighborhood,
+        place.borough,
+        place.city,
+        place.best_known_slice,
+        place.quick_note,
+        place.description,
+      ].filter(Boolean).join(" ").toLowerCase();
+      return terms.every((term) => haystack.includes(term));
+    });
   }
   if (filters.priceBands?.length) {
     result = result.filter((place) => {

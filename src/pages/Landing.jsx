@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Download, Flame, Map, Pizza, Plus, Smartphone, Sparkles, Users, X } from 'lucide-react';
+import { ArrowRight, Coffee, Download, Flame, Map, Pizza, Plus, Smartphone, Sparkles, Users, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 
 const slides = [
   {
-    eyebrow: 'Public map',
-    title: 'Great slices, faster.',
-    text: 'Open the map, compare price, rating and best slice, and find the spots worth your time.',
-    icon: Map,
-    tone: 'from-[#111111] via-[#181818] to-[#2b2b28]',
-    accent: 'text-[#f3be35]',
-    summary: 'Price + map',
+    eyebrow: 'Your account',
+    title: 'Create plans and groups.',
+    text: 'Publish places, save plans, join groups and keep the social layer organized from one account.',
+    icon: Users,
+    tone: 'from-[#173322] via-[#255334] to-[#3f744c]',
+    accent: 'text-[#f4f0d7]',
+    summary: 'Account + groups',
   },
   {
     eyebrow: 'Discover plans',
@@ -25,13 +25,13 @@ const slides = [
     summary: 'Social swipe',
   },
   {
-    eyebrow: 'Your account',
-    title: 'Create plans and groups.',
-    text: 'Publish places, save plans, join groups and keep the social layer organized from one account.',
-    icon: Users,
-    tone: 'from-[#173322] via-[#255334] to-[#3f744c]',
-    accent: 'text-[#f4f0d7]',
-    summary: 'Account + groups',
+    eyebrow: 'Public map',
+    title: 'Great slices, faster.',
+    text: 'Open the map, compare price, rating and best slice, and find the spots worth your time.',
+    icon: Map,
+    tone: 'from-[#111111] via-[#181818] to-[#2b2b28]',
+    accent: 'text-[#f3be35]',
+    summary: 'Price + map',
   },
 ];
 
@@ -262,6 +262,10 @@ export default function Landing() {
               </Button>
             </Link>
           </div>
+          <a href="https://www.buymeacoffee.com/" target="_blank" rel="noreferrer" className="group flex h-12 w-full items-center justify-center gap-2 rounded-[17px] border border-black/10 bg-[#fffaf1]/92 text-[15px] font-black text-[#3b2f23] shadow-[0_16px_34px_rgba(65,42,18,0.10)] transition hover:-translate-y-0.5 hover:bg-white min-[390px]:h-13">
+            <Coffee className="h-5 w-5 text-[#2f8f46] transition group-hover:rotate-[-6deg]" />
+            Invite us for a coffee
+          </a>
         </motion.div>
       </div>
 

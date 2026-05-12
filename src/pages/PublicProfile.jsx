@@ -29,10 +29,6 @@ async function fetchPublicProfile(userId, viewerId) {
 
   if (profileRes.error) throw profileRes.error;
   const profile = profileRes.data || null;
-  if (profile?.profile_visibility === 'private') {
-    return { profile: null, privateProfile: true, favoriteSpot: null, createdSpots: [], plans: [], ratings: [], comments: [], recipes: [] };
-  }
-
   const resolvedId = profile?.id || userId;
   const [plansRes, ratingsRes, commentsRes, recipes] = profile
     ? await Promise.all([
@@ -134,7 +130,6 @@ export default function PublicProfile() {
   });
 
   const profile = data?.profile;
-  const isPrivate = data?.privateProfile;
   const displayName = getPublicUsername(profile, 'Pizza friend');
   const handle = displayName.toLowerCase().replace(/\s+/g, '_');
   const recipes = data?.recipes || [];
@@ -182,7 +177,7 @@ export default function PublicProfile() {
         {isLoading ? <div className="rounded-[28px] bg-white/80 p-8 text-center text-[#756b5f] shadow-xl">Loading profile...</div> : null}
         {!isLoading && !profile ? (
           <div className="rounded-[28px] bg-white/80 p-8 text-center text-[#756b5f] shadow-xl">
-            {isPrivate ? 'This profile is private.' : 'Profile not found.'}
+            Profile not found.
           </div>
         ) : null}
 
