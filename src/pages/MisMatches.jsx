@@ -9,6 +9,21 @@ import { createPageUrl } from "@/utils";
 import { getPublicUsername, getAvatarLetter } from "@/lib/display-name";
 
 const avatar = (name) => name?.slice(0, 1)?.toUpperCase() || "?";
+const GROUP_READ_KEY = "sozzial_group_read_state";
+
+function readGroupState() {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(window.localStorage.getItem(GROUP_READ_KEY) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+function writeGroupState(next) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(GROUP_READ_KEY, JSON.stringify(next));
+}
 
 function fmtDate(date, time) {
   if (!date) return "";
@@ -165,11 +180,11 @@ function MessageRow({ message, currentUserId, usersById }) {
   );
 }
 
-function GroupListItem({ group, active, onSelect }) {
+function GroupListItem({ group, active, unreadCount = 0, onSelect }) {
   return (
     <button
       onClick={onSelect}
-      className={`w-full rounded-[22px] border px-3 py-3 text-left transition ${active ? "border-red-500/25 bg-red-500/[0.08]" : "border-white/6 bg-transparent hover:bg-white/[0.03]"}`}
+      className={`w-full rounded-[22px] border px-3 py-3 text-left transition ${unreadCount ? "border-[#efbf3a]/35 bg-[#efbf3a]/10" : active ? "border-white/12 bg-white/[0.04]" : "border-white/6 bg-transparent hover:bg-white/[0.03]"}`}
     >
       <div className="flex items-start gap-3">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#efbf3a] to-[#df5b43] text-sm font-black text-white">{avatar(getPublicUsername(group.host))}</div>
@@ -213,6 +228,24 @@ export default function MisMatches() {
   const allVisible = useMemo(() => [...upcoming, ...history], [upcoming, history]);
   const visible = tab === "upcoming" ? upcoming : history;
   const selected = visible.find((item) => item.id === selectedId) || allVisible.find((item) => item.id === selectedId) || null;
+  const [readState, setReadState] = useState(() => readGroupState());
+  const unreadByGroup = useMemo(() => {
+    const map = new Map();
+    allVisible.forEach((group) => {
+      const lastRead = readState[group.id] ? new Date(readState[group.id]).getTime() : 0;
+      const count = (group.messageList || []).filter((message) => message.user_id !== user?.id && new Date(message.created_at).getTime() > lastRead).length;
+      map.set(group.id, count);
+    });
+    return map;
+  }, [allVisible, readState, user?.id]);
+  const markGroupRead = React.useCallback((group) => {
+    const last = group?.lastMessage?.created_at || new Date().toISOString();
+    setReadState((current) => {
+      const next = { ...current, [group.id]: last };
+      writeGroupState(next);
+      return next;
+    });
+  }, []);
   const usersById = useMemo(() => new Map(allVisible.flatMap((g) => [g.host, ...(g.participants || [])]).filter(Boolean).map((p) => [p.id, p])), [allVisible]);
 
   useEffect(() => {
@@ -239,15 +272,16 @@ export default function MisMatches() {
       }, { replace: true });
       return;
     }
-    if (!selectedId || !allVisible.some((item) => item.id === selectedId)) {
-      const fallback = visible[0] || allVisible[0];
-      if (fallback) setSelectedId(fallback.id);
+    if (selectedId && !allVisible.some((item) => item.id === selectedId)) {
+      setSelectedId(null);
+      setMobileChatOpen(false);
     }
   }, [selectedId, visible, allVisible, requestedFocus, setSearchParams, now]);
 
   useEffect(() => {
+    if (selected) markGroupRead(selected);
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [selected?.messageList?.length, selected?.id]);
+  }, [selected?.messageList?.length, selected?.id, markGroupRead]);
 
   const sendMutation = useMutation({
     mutationFn: async (text) => {
@@ -315,7 +349,7 @@ export default function MisMatches() {
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2 space-y-2">
               {visible.map((hangout) => (
-                <GroupListItem key={hangout.id} group={hangout} active={selected?.id === hangout.id} onSelect={() => { setSelectedId(hangout.id); setMobileChatOpen(true); }} />
+                <GroupListItem key={hangout.id} group={hangout} unreadCount={unreadByGroup.get(hangout.id) || 0} active={selected?.id === hangout.id} onSelect={() => { setSelectedId(hangout.id); markGroupRead(hangout); setMobileChatOpen(true); }} />
               ))}
             </div>
           </aside>
@@ -362,7 +396,7 @@ export default function MisMatches() {
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                    placeholder="Escribe un mensaje..."
+                    placeholder="Write a message..."
                     className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-stone-500"
                   />
                   <button onClick={handleSend} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-red-600 text-white disabled:opacity-50" disabled={!messageText.trim() || sendMutation.isPending}>

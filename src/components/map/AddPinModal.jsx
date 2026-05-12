@@ -63,7 +63,15 @@ function MapPicker({ value, onChange }) {
   const position = useMemo(() => [value.lat, value.lng], [value.lat, value.lng]);
 
   function MapEvents() {
-    useMapEvents({ click: (event) => onChange({ lat: event.latlng.lat, lng: event.latlng.lng }) });
+    useMapEvents({
+      click: async (event) => {
+        const lat = event.latlng.lat;
+        const lng = event.latlng.lng;
+        onChange({ lat, lng, address: "Finding street..." });
+        const address = await reverseGeocode(lat, lng);
+        onChange({ lat, lng, address });
+      },
+    });
     return null;
   }
 
@@ -77,7 +85,7 @@ function MapPicker({ value, onChange }) {
           <MapEvents />
         </MapContainer>
       </div>
-      <p className="text-xs leading-5 text-stone-500">Tap the map only if the pin needs a small adjustment.</p>
+      <p className="text-xs leading-5 text-stone-500">Tap the map freely. Sozzial will move the pin and fill the street automatically.</p>
     </div>
   );
 }
@@ -406,7 +414,10 @@ export default function AddPinModal({ open, onClose, user }) {
                     <MapPin className="h-3.5 w-3.5" />
                     Pin position
                   </div>
-                  <MapPicker value={form} onChange={(coords) => setForm((current) => ({ ...current, ...coords }))} />
+                  <MapPicker value={form} onChange={(coords) => {
+                    setForm((current) => ({ ...current, ...coords }));
+                    if (coords.address) setLocationQuery(coords.address);
+                  }} />
                 </section>
 
                 <section className="rounded-[26px] border border-white/10 bg-white/[0.03] p-4">

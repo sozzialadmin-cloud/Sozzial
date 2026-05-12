@@ -11,7 +11,7 @@ export const publicNavItems = [
 ];
 
 export const privateNavItems = [
-  { label: 'Passport', page: 'Passport', icon: Trophy },
+  { label: 'Badges', page: 'Passport', icon: Trophy },
   { label: 'Add plan', page: 'CrearQuedada', icon: PlusCircle, accent: true },
   { label: 'Groups', page: 'MisMatches', icon: Users },
   { label: 'Profile', page: 'Profile', icon: User },
