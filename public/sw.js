@@ -1,5 +1,5 @@
-const CACHE_NAME = "sozzial-shell-v1";
-const APP_SHELL = ["/", "/manifest.json", "/sozzial-icon.svg", "/favicon.ico"];
+const CACHE_NAME = "sozzial-shell-v3";
+const APP_SHELL = ["/", "/manifest.json", "/mobile-icon.svg", "/favicon.svg", "/logo.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));

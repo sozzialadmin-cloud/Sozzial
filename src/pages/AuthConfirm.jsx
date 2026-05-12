@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Loader2, Map, Pizza, XCircle } from 'lucide-react';
+import { CheckCircle2, Loader2, Map, XCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 function getHashParams() {
@@ -11,6 +11,7 @@ function getHashParams() {
 function friendlyMessage(raw) {
   if (!raw) return 'We could not confirm your email. Request a new link and try again.';
   const text = String(raw);
+  if (text.toLowerCase().includes('database error saving new user')) return 'Your email was accepted, but Supabase could not create the profile. Run SUPABASE_FIX_AUTH_AND_RECIPES.sql once in SQL Editor, then sign in again.';
   if (text.includes('expired') || text.includes('otp_expired')) return 'This link has expired. Request a new one from the sign-in screen.';
   if (text.includes('invalid')) return 'This link is invalid or has already been used. Request a new one and try again.';
   if (text.includes('stole it') || text.includes('released because another request stole it')) {
@@ -110,8 +111,8 @@ export default function AuthConfirm() {
   return (
     <div className="grid min-h-screen place-items-center bg-[#f4efe6] px-6 text-[#141414]">
       <div className="w-full max-w-md rounded-[34px] border border-black/8 bg-[#fffaf2] p-6 shadow-[0_24px_60px_rgba(39,29,14,0.12)]">
-        <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#efbf3a] text-[#141414] shadow-[0_18px_38px_rgba(239,191,58,0.24)]"><Pizza className="h-7 w-7" /></div>
-        <h1 className="text-3xl font-black tracking-tight">Sozzial</h1>
+        <img src="/logo.svg" alt="Sozzial" className="mb-5 h-16 w-auto max-w-[210px] object-contain" />
+        <h1 className="sr-only">Sozzial</h1>
         <p className="mt-2 text-[#6d665b]">Email confirmation</p>
 
         <div className="mt-8 rounded-[28px] border border-black/8 bg-white p-6 text-center">

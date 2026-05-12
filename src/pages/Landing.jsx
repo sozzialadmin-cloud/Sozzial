@@ -7,13 +7,13 @@ import { createPageUrl } from '@/utils';
 
 const slides = [
   {
-    eyebrow: 'Your account',
-    title: 'Create plans and groups.',
-    text: 'Publish places, save plans, join groups and keep the social layer organized from one account.',
-    icon: Users,
+    eyebrow: 'Public map',
+    title: 'Great slices, faster.',
+    text: 'Open the map, compare price, rating and best slice, and find the spots worth your time.',
+    icon: Map,
     tone: 'bg-[#2f8f46]',
     accent: 'text-[#eaffd7]',
-    summary: 'Account + groups',
+    summary: 'Price + map',
   },
   {
     eyebrow: 'Discover plans',
@@ -25,13 +25,13 @@ const slides = [
     summary: 'Social swipe',
   },
   {
-    eyebrow: 'Public map',
-    title: 'Great slices, faster.',
-    text: 'Open the map, compare price, rating and best slice, and find the spots worth your time.',
-    icon: Map,
+    eyebrow: 'Your account',
+    title: 'Create plans and groups.',
+    text: 'Publish places, save plans, join groups and keep the social layer organized from one account.',
+    icon: Users,
     tone: 'bg-[#1a1a1a]',
     accent: 'text-[#f3be35]',
-    summary: 'Price + map',
+    summary: 'Account + groups',
   },
 ];
 

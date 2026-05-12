@@ -286,6 +286,11 @@
       transform: translateY(0) scale(1);
     }
   }
+  @keyframes loading-bar {
+    0% { transform: translateX(-120%); }
+    50% { transform: translateX(70%); }
+    100% { transform: translateX(220%); }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .page-transition {

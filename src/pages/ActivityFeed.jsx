@@ -45,7 +45,7 @@ function EventIcon({ type }) {
 
 function Avatar({ profile }) {
   return (
-    <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#efbf3a] to-[#df5b43] text-base font-black text-[#141414]">
+    <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-2xl sm:h-12 sm:w-12 bg-gradient-to-br from-[#efbf3a] to-[#df5b43] text-base font-black text-[#141414]">
       {profile?.avatar_url?.startsWith?.("http") ? <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" /> : getAvatarLetter(profile, "?")}
     </div>
   );
@@ -88,17 +88,17 @@ export default function ActivityFeed() {
   };
 
   return (
-    <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] bg-[#f4efe6] px-3 py-4 text-[#141414] sm:px-5 sm:py-6">
-      <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[1fr,360px]">
-        <main>
-          <div className="mb-5 overflow-hidden rounded-[32px] border border-black/10 bg-[#141414] p-5 text-white shadow-[0_24px_70px_rgba(34,25,11,0.16)]">
+    <div className="min-h-[calc(100dvh-var(--header-height)-5.5rem)] overflow-x-hidden bg-[#f4efe6] px-2 py-3 text-[#141414] sm:px-5 sm:py-6">
+      <div className="mx-auto grid max-w-6xl min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr),360px]">
+        <main className="min-w-0">
+          <div className="mb-4 overflow-hidden rounded-[26px] border border-black/10 bg-[#141414] p-4 text-white shadow-[0_24px_70px_rgba(34,25,11,0.16)] sm:rounded-[32px] sm:p-5">
             <div className="inline-flex rounded-full border border-[#2f8f46]/30 bg-[#2f8f46]/18 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#bdf3c8]">Live pizza network</div>
-            <h1 className="mt-3 text-[clamp(1.7rem,7vw,3rem)] font-black leading-none tracking-[-0.07em]">A feed that feels alive.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/62">Recipes, follows, comments, check-ins and plans in one readable stream, with clear actions on every card.</p>
-            <div className="mt-4 grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.uniqueUsers}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">people</div></div>
-              <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.recipes}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">recipes</div></div>
-              <div className="rounded-2xl border border-white/10 bg-white/8 p-3"><div className="text-2xl font-black">{feedStats.social}</div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-white/45">social</div></div>
+            <h1 className="mt-3 text-[clamp(1.55rem,6.5vw,3rem)] font-black leading-[0.98] tracking-tight">A feed that feels alive.</h1>
+            <p className="mt-3 max-w-2xl text-[13px] leading-6 text-white/62 sm:text-sm sm:leading-7">Recipes, follows, comments, check-ins and plans in one readable stream, with clear actions on every card.</p>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="rounded-2xl border border-white/10 bg-white/8 p-2.5 sm:p-3"><div className="text-xl font-black sm:text-2xl">{feedStats.uniqueUsers}</div><div className="text-[9px] font-black uppercase tracking-[0.12em] text-white/45 sm:text-[10px] sm:tracking-[0.14em]">people</div></div>
+              <div className="rounded-2xl border border-white/10 bg-white/8 p-2.5 sm:p-3"><div className="text-xl font-black sm:text-2xl">{feedStats.recipes}</div><div className="text-[9px] font-black uppercase tracking-[0.12em] text-white/45 sm:text-[10px] sm:tracking-[0.14em]">recipes</div></div>
+              <div className="rounded-2xl border border-white/10 bg-white/8 p-2.5 sm:p-3"><div className="text-xl font-black sm:text-2xl">{feedStats.social}</div><div className="text-[9px] font-black uppercase tracking-[0.12em] text-white/45 sm:text-[10px] sm:tracking-[0.14em]">social</div></div>
             </div>
           </div>
 
@@ -110,7 +110,7 @@ export default function ActivityFeed() {
             ))}
           </div>
 
-          <section className="rounded-[32px] border border-black/10 bg-[#fffaf1] p-3 shadow-[0_24px_60px_rgba(34,25,11,0.10)] sm:p-5">
+          <section className="rounded-[24px] border border-black/10 bg-[#fffaf1] p-2.5 shadow-[0_24px_60px_rgba(34,25,11,0.10)] sm:rounded-[32px] sm:p-5">
             {isLoading ? <div className="p-8 text-center text-sm text-[#7a7165]">Loading activity...</div> : null}
             <div className="stagger-in grid gap-3">
               {filteredItems.map((item) => {
@@ -120,7 +120,7 @@ export default function ActivityFeed() {
                 const cheered = cheeredIds.has(itemId);
                 const route = eventRoute(item);
                 return (
-                  <div key={itemId} className="rounded-[22px] border border-black/10 bg-white/78 p-3.5 shadow-[0_12px_28px_rgba(34,25,11,0.06)]">
+                  <div key={itemId} className="rounded-[20px] border border-black/10 bg-white/78 p-3 sm:rounded-[22px] sm:p-3.5 shadow-[0_12px_28px_rgba(34,25,11,0.06)]">
                     <div className="flex gap-3">
                       <Avatar profile={profile} />
                       <div className="min-w-0 flex-1">
@@ -132,7 +132,7 @@ export default function ActivityFeed() {
                         {item.metadata?.title ? <div className="mt-3 text-lg font-black leading-tight">{item.metadata.title}</div> : null}
                         {item.metadata?.description ? <p className="mt-1 line-clamp-2 text-sm leading-6 text-[#6d665b]">{item.metadata.description}</p> : null}
                         {item.metadata?.note || item.metadata?.preview ? <p className="mt-3 rounded-2xl bg-[#f5eadb] px-4 py-3 text-sm leading-6 text-[#5f584d]">{item.metadata.note || item.metadata.preview}</p> : null}
-                        {item.metadata?.photo_url ? <img src={item.metadata.photo_url} alt="" className="mt-3 h-36 w-full rounded-2xl object-cover" /> : null}
+                        {item.metadata?.photo_url ? <img src={item.metadata.photo_url} alt="" className="mt-3 h-28 w-full rounded-2xl object-cover sm:h-36" /> : null}
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button type="button" onClick={() => toggleCheer(itemId)} className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-black transition ${cheered ? "border-red-300 bg-red-50 text-red-700" : "border-black/10 bg-[#fffaf1] text-[#6d665b] hover:bg-white"}`}>
                             <Heart className={`h-3.5 w-3.5 ${cheered ? "fill-red-500 text-red-500" : ""}`} />
@@ -151,7 +151,7 @@ export default function ActivityFeed() {
           </section>
         </main>
 
-        <aside className="space-y-4 lg:sticky lg:top-[88px] lg:self-start">
+        <aside className="hidden space-y-4 lg:sticky lg:top-[88px] lg:block lg:self-start">
           <section className="rounded-[32px] border border-black/10 bg-[#fffaf1] p-5 shadow-[0_20px_50px_rgba(34,25,11,0.10)]">
             <div className="mb-4 flex items-center justify-between"><div><div className="text-xl font-black tracking-[-0.04em]">People to follow</div><div className="mt-1 text-sm text-[#7a7165]">Profiles with useful pizza taste.</div></div><UserPlus className="h-5 w-5 text-[#df5b43]" /></div>
             <div className="grid gap-3">
