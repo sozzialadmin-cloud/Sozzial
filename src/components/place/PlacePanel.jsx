@@ -14,7 +14,7 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { createPageUrl } from "@/utils";
 import { getPublicUsername } from "@/lib/display-name";
 import { submitSpotReport } from "@/lib/user-actions";
-import { toast } from "@/components/ui/use-toast";
+import { toast as sonnerToast } from "sonner";
 
 function InfoCard({ label, value, icon: Icon, accent = "text-stone-400", children }) {
   return (
@@ -42,6 +42,7 @@ async function fetchComments(spotId) {
     .from("spot_comments")
     .select("id,content,status,created_at,user_id")
     .eq("spot_id", spotId)
+    .eq("status", "approved")
     .order("created_at", { ascending: false });
   if (error) throw error;
   const rows = data || [];
@@ -59,6 +60,7 @@ async function fetchPhotos(spotId) {
     .from("spot_photos")
     .select("id,photo_url,status,created_at,user_id")
     .eq("spot_id", spotId)
+    .eq("status", "approved")
     .order("created_at", { ascending: false });
   if (error) throw error;
   const rows = data || [];
@@ -269,16 +271,9 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
       });
       setReportOpen(false);
       setReportDetails("");
-      toast({
-        title: "Report received",
-        description: result.persisted ? "The admin team can review it now." : "It was saved locally until the reports table is connected.",
-      });
+      sonnerToast.success("Report received", { description: result.persisted ? "The admin team can review it now." : "It was saved locally until the reports table is connected." });
     } catch (error) {
-      toast({
-        title: "Could not send report",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-      });
+      sonnerToast.error("Could not send report", { description: error.message || "Please try again." });
     } finally {
       setReportBusy(false);
     }
@@ -291,10 +286,10 @@ export default function PlacePanel({ place, onClose, user, saved = false, onTogg
         await navigator.share({ title: place.name, text: `Check out ${place.name} on Sozzial`, url });
       } else {
         await navigator.clipboard.writeText(url);
-        toast({ title: "Link copied", description: "Share this spot with a friend." });
+        sonnerToast.success("Link copied", { description: "Share this spot with a friend." });
       }
     } catch {
-      toast({ title: "Share cancelled", description: "No problem, the spot stays here." });
+      sonnerToast.success("Share cancelled", { description: "No problem, the spot stays here." });
     }
   };
 

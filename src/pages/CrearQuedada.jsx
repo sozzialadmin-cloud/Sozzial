@@ -186,6 +186,7 @@ export default function CrearQuedada() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["my-groups-supabase", user.id] }),
         queryClient.invalidateQueries({ queryKey: ["create-plan-spots-supabase"] }),
+        queryClient.invalidateQueries({ queryKey: ["discover-plans"] }),
         queryClient.invalidateQueries({ queryKey: ["discover-plans-supabase"] }),
       ]);
       setCreatedId(createdPlan.id);

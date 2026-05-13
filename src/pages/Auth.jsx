@@ -321,7 +321,7 @@ export default function AuthPage() {
               </div>
 
               {(formError || (authError?.type !== 'config_missing' && authError?.message)) ? (
-                <div className="rounded-2xl border border-[#efc5bc] bg-[#fff0ea] p-3 text-sm text-[#b54834]">{formError || friendlyPageError(authError.message)}</div>
+                <div className="rounded-2xl border border-[#efc5bc] bg-[#fff0ea] p-3 text-sm text-[#b54834]">{formError || friendlyPageError(authError)}</div>
               ) : null}
               {successMessage ? (
                 <div className="rounded-2xl border border-[#d7e6d1] bg-[#eef7ec] p-3 text-sm text-[#216b33]">{successMessage}</div>

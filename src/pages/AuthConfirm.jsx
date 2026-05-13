@@ -80,7 +80,7 @@ export default function AuthConfirm() {
       } catch (error) {
         const msg = friendlyMessage(error?.message || error);
 
-        if (msg.includes('Vamos a comprobar')) {
+        if (msg.includes('We will check') || msg.includes('already processed')) {
           try {
             const retry = await supabase.auth.getSession();
             if (retry?.data?.session?.user) {

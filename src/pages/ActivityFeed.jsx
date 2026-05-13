@@ -6,6 +6,7 @@ import { fetchActivityFeed, fetchSocialDiscovery } from "@/lib/social-data";
 import { getAvatarLetter, getPublicUsername } from "@/lib/display-name";
 import { useAuth } from "@/lib/AuthContext";
 import { formatPrice } from "@/lib/place-helpers";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 const filters = [
   { id: "all", label: "All" },
@@ -63,6 +64,7 @@ export default function ActivityFeed() {
   const { data: discovery = { people: [], spots: [] } } = useQuery({
     queryKey: ["social-discovery", user?.id],
     queryFn: () => fetchSocialDiscovery(user?.id),
+    enabled: Boolean(isSupabaseConfigured && supabase),
     refetchInterval: 45000,
   });
 

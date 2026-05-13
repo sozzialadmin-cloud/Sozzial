@@ -61,6 +61,7 @@ export default function Passport() {
   const { data: bundle = { checkins: [], comments: [], plans: [], uniqueSpots: 0 }, isLoading } = useQuery({
     queryKey: ["passport-bundle", user?.id],
     queryFn: () => fetchPassportBundle(user?.id),
+    enabled: Boolean(user?.id),
   });
 
   const selectedSpot = useMemo(() => spots.find((spot) => spot.id === spotId), [spots, spotId]);

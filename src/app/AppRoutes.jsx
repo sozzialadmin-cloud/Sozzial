@@ -36,6 +36,7 @@ function ProtectedRoute({ children }) {
 function AdminRoute({ children }) {
   const { role, isLoadingAuth, isProfileReady, isAuthenticated } = useAuth();
   if (isLoadingAuth || (isAuthenticated && !isProfileReady)) return <LoadingScreen />;
+  if (!isAuthenticated) return <Navigate to="/auth?next=%2Fadmin" replace />;
   if (role !== 'admin') return <Navigate to="/home" replace />;
   return children;
 }

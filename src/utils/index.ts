@@ -1,4 +1,4 @@
-﻿export const explicitRoutes: Record<string, string> = {
+export const explicitRoutes: Record<string, string> = {
   Landing: '/landing',
   Home: '/home',
   Descubrir: '/descubrir',
@@ -9,7 +9,6 @@
   SettingsPage: '/settings',
   NotificationsSettings: '/settings/notifications',
   LanguageSettings: '/settings/language',
-  PrivacySettings: '/settings/privacy',
   AccountSettings: '/settings/account',
 };
 

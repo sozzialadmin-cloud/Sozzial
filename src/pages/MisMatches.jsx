@@ -218,13 +218,19 @@ export default function MisMatches() {
     queryKey: ["my-groups-supabase", user?.id],
     enabled: Boolean(user?.id && isSupabaseConfigured && supabase),
     queryFn: () => fetchGroups(user.id),
-    refetchInterval: 4000,
+    refetchInterval: 30000,
   });
 
   const requestedFocus = searchParams.get("focus");
-  const now = new Date();
-  const upcoming = useMemo(() => groups.filter((item) => new Date(item.fecha_hora) >= now), [groups]);
-  const history = useMemo(() => groups.filter((item) => new Date(item.fecha_hora) < now), [groups]);
+  const [timeBucket, setTimeBucket] = useState(() => Date.now());
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const interval = window.setInterval(() => setTimeBucket(Date.now()), 60000);
+    return () => window.clearInterval(interval);
+  }, []);
+  const now = useMemo(() => new Date(timeBucket), [timeBucket]);
+  const upcoming = useMemo(() => groups.filter((item) => new Date(item.fecha_hora) >= now), [groups, now]);
+  const history = useMemo(() => groups.filter((item) => new Date(item.fecha_hora) < now), [groups, now]);
   const allVisible = useMemo(() => [...upcoming, ...history], [upcoming, history]);
   const visible = tab === "upcoming" ? upcoming : history;
   const selected = visible.find((item) => item.id === selectedId) || allVisible.find((item) => item.id === selectedId) || null;

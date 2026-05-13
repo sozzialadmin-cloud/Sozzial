@@ -28,6 +28,7 @@ export async function fetchMapSpots() {
   const { data, error } = await supabase
     .from('spots')
     .select('id,name,address,lat,lng,slice_price,best_slice,quick_note,photo_url,status,created_by,average_rating,ratings_count')
+    .eq('status', 'approved')
     .order('created_at', { ascending: false });
   if (error) throw error;
   const rows = await Promise.all((data || []).map(async (row) => ({ ...row, photo_url: await resolveSpotPhoto(row.photo_url) })));
