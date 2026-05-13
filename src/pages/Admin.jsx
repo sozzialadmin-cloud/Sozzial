@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -315,6 +315,7 @@ function useAdminData(enabled) {
         commentsRes,
         photosRes,
         recipesRes,
+        recipeCommentsRes,
         reportsRes,
         dashboardStatsRes,
         attentionNowRes,
@@ -328,6 +329,7 @@ function useAdminData(enabled) {
         safeFetchRows('spot_comments', 'id,spot_id,user_id,content,status,created_at,updated_at,reviewed_by,reviewed_at', { orderBy: 'created_at' }),
         safeFetchRows('spot_photos', 'id,spot_id,user_id,photo_url,status,created_at,updated_at,reviewed_by,reviewed_at', { orderBy: 'created_at' }),
         safeFetchRows('home_recipes', 'id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,status,likes_count,created_at,updated_at', { orderBy: 'created_at' }),
+        safeFetchRows('home_recipe_comments', 'id,recipe_id,user_id,content,status,created_at,updated_at,reviewed_by,reviewed_at', { orderBy: 'created_at' }),
         safeFetchRows('reports', 'id,reporter_id,entity_type,entity_id,reason,details,status,admin_note,resolved_by,resolved_at,created_at', { orderBy: 'created_at' }),
         safeRpcRows('admin_get_dashboard_stats'),
         safeRpcRows('admin_get_attention_now'),
@@ -350,6 +352,7 @@ function useAdminData(enabled) {
           { table: 'spot_comments', available: !commentsRes.error, error: commentsRes.error?.message || null },
           { table: 'spot_photos', available: !photosRes.error, error: photosRes.error?.message || null },
           { table: 'home_recipes', available: !recipesRes.error, error: recipesRes.error?.message || null },
+          { table: 'home_recipe_comments', available: !recipeCommentsRes.error, error: recipeCommentsRes.error?.message || null },
           { table: 'reports', available: !reportsRes.error, error: reportsRes.error?.message || null },
         ],
       };

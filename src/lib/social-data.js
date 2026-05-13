@@ -273,6 +273,19 @@ export async function fetchSocialDiscovery(viewerId) {
 const LOCAL_RECIPES = "sozzial_local_home_recipes";
 const LOCAL_RECIPE_VOTES = "sozzial_local_recipe_votes";
 
+async function attachRecipeProfiles(recipes) {
+  const rows = Array.isArray(recipes) ? recipes : [];
+  if (!rows.length || !isSupabaseConfigured || !supabase) return rows;
+  const userIds = [...new Set(rows.map((recipe) => recipe.user_id).filter(Boolean))];
+  if (!userIds.length) return rows;
+  const { data } = await supabase
+    .from("profiles")
+    .select("id,username,avatar_url,bio,city")
+    .in("id", userIds);
+  const profileMap = new Map((data || []).map((profile) => [profile.id, profile]));
+  return rows.map((recipe) => ({ ...recipe, profiles: profileMap.get(recipe.user_id) || null }));
+}
+
 export async function fetchProfileRecipes(profileId, viewerId) {
   if (!profileId) return [];
 
@@ -291,7 +304,7 @@ export async function fetchProfileRecipes(profileId, viewerId) {
         ? await supabase.from("home_recipe_votes").select("recipe_id").eq("user_id", viewerId).in("recipe_id", ids)
         : { data: [] };
       const liked = new Set((votes.data || []).map((vote) => vote.recipe_id));
-      return (data || []).map((recipe) => ({ ...recipe, viewer_liked: liked.has(recipe.id) }));
+      return attachRecipeProfiles((data || []).map((recipe) => ({ ...recipe, viewer_liked: liked.has(recipe.id) })));
     }
   }
 
@@ -306,14 +319,14 @@ export async function fetchHomeRecipeById(recipeId, viewerId) {
   if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
       .from("home_recipes")
-      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,likes_count,status,created_at,updated_at,profiles(id,username,avatar_url,bio,city)")
+      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,likes_count,status,created_at,updated_at")
       .eq("id", recipeId)
       .maybeSingle();
     if (!error && data && data.status !== "removed") {
       const vote = viewerId
         ? await supabase.from("home_recipe_votes").select("recipe_id").eq("user_id", viewerId).eq("recipe_id", recipeId).maybeSingle()
         : { data: null };
-      return { ...data, viewer_liked: Boolean(vote.data) };
+      return (await attachRecipeProfiles([{ ...data, viewer_liked: Boolean(vote.data) }]))[0] || null;
     }
   }
 
@@ -325,7 +338,7 @@ export async function fetchRecipeRankings(viewerId) {
   if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
       .from("home_recipes")
-      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,likes_count,created_at,profiles(id,username,avatar_url)")
+      .select("id,user_id,title,description,dough_style,difficulty,bake_time,photo_url,ingredients,preparation_steps,oven_temp,servings,tags,likes_count,status,created_at,updated_at")
       .eq("status", "published")
       .order("likes_count", { ascending: false })
       .order("created_at", { ascending: false })
@@ -336,10 +349,10 @@ export async function fetchRecipeRankings(viewerId) {
         ? await supabase.from("home_recipe_votes").select("recipe_id").eq("user_id", viewerId).in("recipe_id", ids)
         : { data: [] };
       const liked = new Set((votes.data || []).map((vote) => vote.recipe_id));
-      return (data || []).map((recipe) => ({ ...recipe, viewer_liked: liked.has(recipe.id) }));
+      return attachRecipeProfiles((data || []).map((recipe) => ({ ...recipe, viewer_liked: liked.has(recipe.id) })));
     }
   }
-  return readLocal(LOCAL_RECIPES).sort((a, b) => Number(b.likes_count || 0) - Number(a.likes_count || 0)).slice(0, 20);
+  return readLocal(LOCAL_RECIPES).filter((recipe) => recipe.status !== "removed" && recipe.status !== "hidden").sort((a, b) => Number(b.likes_count || 0) - Number(a.likes_count || 0)).slice(0, 20);
 }
 
 export async function createHomeRecipe({ userId, title, description, doughStyle, difficulty, bakeTime, photoUrl, ingredients, preparationSteps, ovenTemp, servings, tags }) {
