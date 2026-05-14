@@ -11,6 +11,10 @@ export default function SearchFilters({
   onLocateMe,
   onSearchArea,
   resultCount = 0,
+  radiusMiles = 3,
+  radiusCenterLabel = '',
+  onRadiusChange,
+  onClearRadius,
 }) {
   const [expanded, setExpanded] = useState(false);
   const [searchText, setSearchText] = useState(filters.search || '');
@@ -24,9 +28,18 @@ export default function SearchFilters({
     return () => document.removeEventListener('mousedown', handler);
   }, [expanded]);
 
+  useEffect(() => {
+    setSearchText(filters.search || '');
+  }, [filters.search]);
+
   const handleSearch = (val) => {
     setSearchText(val);
-    onFiltersChange({ ...filters, search: val });
+  };
+
+  const clearSearch = () => {
+    setSearchText('');
+    onFiltersChange({ ...filters, search: '' });
+    onClearRadius?.();
   };
 
   const submitSearch = (event) => {
@@ -55,7 +68,7 @@ export default function SearchFilters({
               className="h-11 rounded-[18px] border-black/10 bg-white pl-10 pr-10 text-sm font-medium text-[#141414] placeholder:text-[#9c9385] shadow-none focus-visible:ring-[#efbf3a]"
             />
             {searchText && (
-              <button type="button" onClick={() => handleSearch('')} className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center text-[#8e8578] transition-colors hover:text-[#141414]">
+              <button type="button" onClick={clearSearch} className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center text-[#8e8578] transition-colors hover:text-[#141414]">
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -72,6 +85,22 @@ export default function SearchFilters({
             <Search className="h-4 w-4" />
           </button>
         </form>
+
+        {radiusCenterLabel ? (
+          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-[18px] border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-2 text-xs font-black text-[#3f3210]">
+            <span className="min-w-0 flex-1 truncate">Showing within</span>
+            <select
+              value={radiusMiles}
+              onChange={(event) => onRadiusChange?.(Number(event.target.value))}
+              className="h-8 rounded-full border border-black/10 bg-white px-2 text-xs font-black text-[#141414] outline-none"
+              aria-label="Search radius"
+            >
+              {[1, 2, 3, 5, 10, 15, 25].map((miles) => <option key={miles} value={miles}>{miles} mi</option>)}
+            </select>
+            <span className="max-w-[145px] truncate text-[#6f644f]">{radiusCenterLabel}</span>
+            <button type="button" onClick={onClearRadius} className="rounded-full bg-white px-2 py-1 text-[11px] text-[#141414]">Clear</button>
+          </div>
+        ) : null}
       </div>
 
       <AnimatePresence>

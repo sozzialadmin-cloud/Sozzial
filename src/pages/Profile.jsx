@@ -181,6 +181,15 @@ export default function Profile() {
     () => (bundle?.spots || []).find((spot) => spot.id === form.favorite_spot_id || spot.id === liveProfile.favorite_spot_id),
     [bundle?.spots, form.favorite_spot_id, liveProfile.favorite_spot_id],
   );
+  const favoriteSpotOptions = useMemo(() => {
+    const spots = bundle?.spots || [];
+    const query = favoriteSpotQuery.trim().toLowerCase();
+    const approved = spots.filter((spot) => !spot.status || spot.status === 'approved');
+    if (!query) return approved.slice(0, 12);
+    return approved
+      .filter((spot) => `${spot.name || ''} ${spot.address || ''} ${spot.best_slice || ''}`.toLowerCase().includes(query))
+      .slice(0, 12);
+  }, [bundle?.spots, favoriteSpotQuery]);
   const profileChecklist = useMemo(() => [
     { label: 'Add avatar', done: Boolean(liveProfile.avatar_url || user?.avatar_url) },
     { label: 'Write bio', done: Boolean(liveProfile.bio) },

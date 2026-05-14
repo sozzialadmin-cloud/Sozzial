@@ -15,6 +15,26 @@ import { MAP_STYLES } from "@/lib/constants";
 import { toast } from "@/components/ui/use-toast";
 import { readSavedSpotIds, toggleSavedSpot } from "@/lib/user-actions";
 import { applySpotFilters, countPlansBySpot, fetchActivePlanCounts, fetchMapSpots } from "@/features/map/mapData";
+const DEFAULT_RADIUS_MILES = 3;
+
+function distanceMiles(center, place) {
+  const lat1 = Number(center?.lat);
+  const lng1 = Number(center?.lng);
+  const lat2 = Number(place?.lat);
+  const lng2 = Number(place?.lng);
+  if (![lat1, lng1, lat2, lng2].every(Number.isFinite)) return Infinity;
+  const toRad = (value) => (value * Math.PI) / 180;
+  const earthMiles = 3958.8;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return earthMiles * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function shortAreaLabel(result, fallback) {
+  const label = result?.display_name || fallback;
+  return String(label || fallback).split(',').slice(0, 2).join(',').trim();
+}
 
 export default function Home() {
   const { user } = useAuth();
@@ -29,6 +49,8 @@ export default function Home() {
   const [mapStyle] = useState("dark");
   const [userLocation, setUserLocation] = useState(null);
   const [searchTarget, setSearchTarget] = useState(null);
+  const [radiusCenter, setRadiusCenter] = useState(null);
+  const [radiusMiles, setRadiusMiles] = useState(DEFAULT_RADIUS_MILES);
   const [savedPlaceIds, setSavedPlaceIds] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
@@ -74,7 +96,11 @@ export default function Home() {
     [places, hangoutsByPlace],
   );
 
-  const filteredPlaces = useMemo(() => applySpotFilters(enrichedPlaces, filters), [enrichedPlaces, filters]);
+  const filteredPlaces = useMemo(() => {
+    const base = applySpotFilters(enrichedPlaces, filters);
+    if (!radiusCenter || !radiusMiles) return base;
+    return base.filter((place) => distanceMiles(radiusCenter, { lat: place.latitude, lng: place.longitude }) <= Number(radiusMiles));
+  }, [enrichedPlaces, filters, radiusCenter, radiusMiles]);
 
   useEffect(() => {
     const spotId = searchParams.get("spot");
@@ -118,20 +144,31 @@ export default function Home() {
 
 
   const handleSearchArea = async (query) => {
+    const terms = query.toLowerCase().split(/[\s,]+/).filter(Boolean);
     const localMatch = enrichedPlaces.find((place) => {
-      const haystack = [place.name, place.address, place.neighborhood, place.borough, place.best_known_slice].filter(Boolean).join(" ").toLowerCase();
-      return query.toLowerCase().split(/[\s,]+/).filter(Boolean).every((term) => haystack.includes(term));
+      const haystack = [place.name, place.address, place.neighborhood, place.borough, place.best_known_slice, place.best_slice].filter(Boolean).join(" ").toLowerCase();
+      return terms.every((term) => haystack.includes(term));
     });
     if (localMatch?.latitude && localMatch?.longitude) {
-      setSearchTarget({ lat: localMatch.latitude, lng: localMatch.longitude, zoom: 15 });
+      const center = { lat: Number(localMatch.latitude), lng: Number(localMatch.longitude), label: localMatch.name || query };
+      setFilters((current) => ({ ...current, search: query }));
+      setRadiusCenter(center);
+      setRadiusMiles((current) => current || DEFAULT_RADIUS_MILES);
+      setSearchTarget({ ...center, zoom: 15 });
       setPreviewPlace(localMatch);
+      setListOpen(false);
       return;
     }
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=${encodeURIComponent(query)}`);
       const [result] = await response.json();
       if (result?.lat && result?.lon) {
-        setSearchTarget({ lat: Number(result.lat), lng: Number(result.lon), zoom: 13 });
+        const center = { lat: Number(result.lat), lng: Number(result.lon), label: shortAreaLabel(result, query) };
+        setFilters((current) => ({ ...current, search: '' }));
+        setRadiusCenter(center);
+        setRadiusMiles((current) => current || DEFAULT_RADIUS_MILES);
+        setSearchTarget({ ...center, zoom: 14 });
+        setPreviewPlace(null);
         setListOpen(false);
       } else {
         toast({ title: "Area not found", description: "Try a street, neighborhood or city name.", variant: "destructive" });
@@ -160,6 +197,9 @@ export default function Home() {
               controlsHidden={Boolean(selectedPlace)}
               mapStyleUrl={currentMapStyle.url}
               userLocation={userLocation}
+              searchTarget={searchTarget}
+              radiusCenter={radiusCenter}
+              radiusMiles={radiusMiles}
             />
             <div className="home-map-gradient" />
             <div className="home-map-topshade" />
@@ -191,12 +231,24 @@ export default function Home() {
             onFiltersChange={setFilters}
             resultCount={filteredPlaces.length}
             onSearchArea={handleSearchArea}
+            radiusMiles={radiusMiles}
+            radiusCenterLabel={radiusCenter?.label || ''}
+            onRadiusChange={setRadiusMiles}
+            onClearRadius={() => {
+              setRadiusCenter(null);
+              setSearchTarget(null);
+              setFilters((current) => ({ ...current, search: '' }));
+            }}
             onLocateMe={() => {
               if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                   (position) => {
                     const { latitude, longitude } = position.coords;
-                    setUserLocation({ lat: latitude, lng: longitude });
+                    const center = { lat: latitude, lng: longitude, label: 'your location' };
+                    setUserLocation(center);
+                    setRadiusCenter(center);
+                    setRadiusMiles((current) => current || DEFAULT_RADIUS_MILES);
+                    setSearchTarget({ ...center, zoom: 14 });
                     setListOpen(false);
                   },
                   () => {
@@ -217,7 +269,6 @@ export default function Home() {
               }
             }}
           />
-
           <button onClick={() => setListOpen((prev) => !prev)} className="home-map-count md:hidden">
             <List className="h-4 w-4" />
             <span>{filteredPlaces.length} spots</span>

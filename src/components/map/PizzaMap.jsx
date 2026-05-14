@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, CircleMarker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, CircleMarker, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -114,6 +114,8 @@ export default function PizzaMap({
   mapStyleUrl,
   userLocation,
   searchTarget,
+  radiusCenter,
+  radiusMiles,
 }) {
   const [tileUrl, setTileUrl] = useState(mapStyleUrl || FALLBACK_TILE_URL);
 
@@ -155,6 +157,13 @@ export default function PizzaMap({
           <CircleMarker center={[userLocation.lat, userLocation.lng]} radius={8} pathOptions={{ color: "#ffffff", weight: 3, fillColor: "#2f8f46", fillOpacity: 1 }} />
         </>
       )}
+      {radiusCenter && radiusMiles ? (
+        <Circle
+          center={[radiusCenter.lat, radiusCenter.lng]}
+          radius={Number(radiusMiles) * 1609.34}
+          pathOptions={{ color: "#efbf3a", weight: 2, fillColor: "#efbf3a", fillOpacity: 0.08, dashArray: "8 8" }}
+        />
+      ) : null}
       {validPlaces.map((place) => (
         <React.Fragment key={place.id}>
           <CircleMarker
