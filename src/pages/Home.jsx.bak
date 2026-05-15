@@ -16,7 +16,6 @@ import { toast } from "@/components/ui/use-toast";
 import { readSavedSpotIds, toggleSavedSpot } from "@/lib/user-actions";
 import { applySpotFilters, countPlansBySpot, fetchActivePlanCounts, fetchMapSpots } from "@/features/map/mapData";
 const DEFAULT_RADIUS_MILES = 3;
-const DEFAULT_RADIUS_CENTER = { lat: 40.7328, lng: -73.99, label: "New York" };
 
 function distanceMiles(center, place) {
   const lat1 = Number(center?.lat);
@@ -50,7 +49,7 @@ export default function Home() {
   const [mapStyle] = useState("dark");
   const [userLocation, setUserLocation] = useState(null);
   const [searchTarget, setSearchTarget] = useState(null);
-  const [radiusCenter, setRadiusCenter] = useState(DEFAULT_RADIUS_CENTER);
+  const [radiusCenter, setRadiusCenter] = useState(null);
   const [radiusMiles, setRadiusMiles] = useState(DEFAULT_RADIUS_MILES);
   const [savedPlaceIds, setSavedPlaceIds] = useState([]);
   const [filters, setFilters] = useState({
@@ -236,8 +235,7 @@ export default function Home() {
             radiusCenterLabel={radiusCenter?.label || ''}
             onRadiusChange={setRadiusMiles}
             onClearRadius={() => {
-              setRadiusCenter(DEFAULT_RADIUS_CENTER);
-              setRadiusMiles(DEFAULT_RADIUS_MILES);
+              setRadiusCenter(null);
               setSearchTarget(null);
               setFilters((current) => ({ ...current, search: '' }));
             }}
@@ -254,14 +252,20 @@ export default function Home() {
                     setListOpen(false);
                   },
                   () => {
-                    setRadiusCenter(DEFAULT_RADIUS_CENTER);
-                    setRadiusMiles(DEFAULT_RADIUS_MILES);
+                    toast({
+                      title: "Location unavailable",
+                      description: "Allow location access or search the map manually.",
+                      variant: "destructive",
+                    });
                   },
                   { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 },
                 );
               } else {
-                setRadiusCenter(DEFAULT_RADIUS_CENTER);
-                setRadiusMiles(DEFAULT_RADIUS_MILES);
+                toast({
+                  title: "Location unsupported",
+                  description: "Your browser does not support geolocation.",
+                  variant: "destructive",
+                });
               }
             }}
           />
