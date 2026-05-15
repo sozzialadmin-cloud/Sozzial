@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Compass, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Compass, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { AnimatePresence } from 'framer-motion';
 import { ZINDEX } from '@/lib/zindex';
@@ -17,7 +17,6 @@ export default function SearchFilters({
   onClearRadius,
 }) {
   const [expanded, setExpanded] = useState(false);
-  const [radiusOpen, setRadiusOpen] = useState(false);
   const [searchText, setSearchText] = useState(filters.search || '');
   const panelRef = useRef(null);
 
@@ -41,7 +40,6 @@ export default function SearchFilters({
     setSearchText('');
     onFiltersChange({ ...filters, search: '' });
     onClearRadius?.();
-    setRadiusOpen(false);
   };
 
   const submitSearch = (event) => {
@@ -89,32 +87,18 @@ export default function SearchFilters({
         </form>
 
         {radiusCenterLabel ? (
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => setRadiusOpen((value) => !value)}
-              className="mx-auto -mb-4 flex h-8 max-w-[240px] items-center gap-2 rounded-b-2xl border border-t-0 border-[#efbf3a]/25 bg-[#fffaf2]/95 px-3 text-[11px] font-black text-[#3f3210] shadow-[0_12px_24px_rgba(39,29,14,0.16)] backdrop-blur-xl"
-              aria-label="Toggle radius controls"
+          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-[18px] border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-2 text-xs font-black text-[#3f3210]">
+            <span className="min-w-0 flex-1 truncate">Showing within</span>
+            <select
+              value={radiusMiles}
+              onChange={(event) => onRadiusChange?.(Number(event.target.value))}
+              className="h-8 rounded-full border border-black/10 bg-white px-2 text-xs font-black text-[#141414] outline-none"
+              aria-label="Search radius"
             >
-              <span className="min-w-0 truncate">Within {radiusMiles} mi · {radiusCenterLabel}</span>
-              <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition-transform ${radiusOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {radiusOpen ? (
-              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-[18px] border border-[#efbf3a]/20 bg-[#efbf3a]/10 px-3 py-2 text-xs font-black text-[#3f3210]">
-                <span className="min-w-0 flex-1 truncate">Showing within</span>
-                <select
-                  value={radiusMiles}
-                  onChange={(event) => onRadiusChange?.(Number(event.target.value))}
-                  className="h-8 rounded-full border border-black/10 bg-white px-2 text-xs font-black text-[#141414] outline-none"
-                  aria-label="Search radius"
-                >
-                  {[1, 2, 3, 5, 10, 15, 25].map((miles) => <option key={miles} value={miles}>{miles} mi</option>)}
-                </select>
-                <span className="max-w-[145px] truncate text-[#6f644f]">{radiusCenterLabel}</span>
-                <button type="button" onClick={onClearRadius} className="rounded-full bg-white px-2 py-1 text-[11px] text-[#141414]">Clear</button>
-              </div>
-            ) : null}
+              {[1, 2, 3, 5, 10, 15, 25].map((miles) => <option key={miles} value={miles}>{miles} mi</option>)}
+            </select>
+            <span className="max-w-[145px] truncate text-[#6f644f]">{radiusCenterLabel}</span>
+            <button type="button" onClick={onClearRadius} className="rounded-full bg-white px-2 py-1 text-[11px] text-[#141414]">Clear</button>
           </div>
         ) : null}
       </div>
