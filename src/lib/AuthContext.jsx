@@ -109,7 +109,7 @@ async function fetchProfileByUserId(userId, fallbackUser = null) {
   }
 
   if (!data) {
-    return fallbackUser ? getFallbackProfile(fallbackUser) : null;
+    return null;
   }
 
   return normalizeResolvedProfile(data, fallbackUser);
@@ -209,9 +209,10 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const resolved = await fetchProfileByUserId(nextSessionUser.id, nextSessionUser);
-        if (!mountedRef.current) return resolved;
-        applyResolvedUser(nextSessionUser, resolved);
-        return resolved;
+        const safeResolved = resolved || await ensureProfileForUser(nextSessionUser);
+        if (!mountedRef.current) return safeResolved;
+        applyResolvedUser(nextSessionUser, safeResolved);
+        return safeResolved;
       } finally {
         profileRequestRef.current = null;
       }
