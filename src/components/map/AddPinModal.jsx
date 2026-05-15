@@ -40,6 +40,19 @@ const initialForm = {
   lng: -74.006,
 };
 
+
+function validateImageFile(file) {
+  if (!file) return;
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!allowedTypes.includes(String(file.type || '').toLowerCase()) || !['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+    throw new Error('Use a JPG, PNG or WEBP image.');
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('Image is too large. Max size is 5 MB.');
+  }
+}
+
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -113,6 +126,7 @@ async function reverseGeocode(lat, lng) {
 
 async function uploadSpotPhoto(file, userId) {
   if (!isSupabaseConfigured || !supabase) throw new Error("Photo storage is not configured yet.");
+  validateImageFile(file);
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
   const fileName = `${Date.now()}.${ext}`;
   const filePath = `${userId}/${fileName}`;
@@ -261,6 +275,7 @@ export default function AddPinModal({ open, onClose, user }) {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
+      validateImageFile(file);
       const dataUrl = await readFileAsDataUrl(file);
       setPhotoName(file.name);
       setPhotoFile(file);

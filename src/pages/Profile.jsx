@@ -67,6 +67,18 @@ function ActivityItem({ title, meta, children }) {
 }
 
 
+
+function validateImageFile(file, maxMb = 5) {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!allowedTypes.includes(String(file.type || '').toLowerCase()) || !['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+    throw new Error('Use a JPG, PNG or WEBP image.');
+  }
+  if (file.size > maxMb * 1024 * 1024) {
+    throw new Error(`Image is too large. Max size is ${maxMb} MB.`);
+  }
+}
+
 function RecipeCard({ recipe, rank, onVote, voting }) {
   const hasDetails = Boolean(recipe.ingredients || recipe.preparation_steps || recipe.oven_temp || recipe.servings);
   return (
@@ -331,7 +343,8 @@ export default function Profile() {
     setUploading(true);
     try {
       if (!isSupabaseConfigured || !supabase) throw new Error('Photo upload is not connected yet.');
-      const ext = file.name.split('.').pop() || 'jpg';
+      validateImageFile(file, 5);
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
       const filePath = `${user.id}/avatar-${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true, cacheControl: '3600' });
       if (uploadError) throw uploadError;

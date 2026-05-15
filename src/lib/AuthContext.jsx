@@ -19,6 +19,7 @@ function getFallbackProfile(user) {
       'User',
     avatar_url: user?.user_metadata?.avatar_url || '',
     role: 'user',
+    account_status: 'active',
   };
 }
 
@@ -47,10 +48,14 @@ function friendlyAuthError(error) {
 
 function cleanUsername(value, fallback = 'User') {
   const base = String(value || fallback || 'User')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .replace(/^@+/, '')
     .replace(/\s+/g, '_')
     .replace(/[^a-zA-Z0-9._-]/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^[._-]+|[._-]+$/g, '')
     .slice(0, 24);
   return base.length >= 2 ? base : `usuario_${Math.floor(1000 + Math.random() * 9000)}`;
 }
@@ -82,6 +87,7 @@ function mapSessionUser(sessionUser, resolvedProfile = null) {
     full_name: safeProfile.username,
     username: safeProfile.username,
     role: safeProfile.role || 'user',
+    account_status: safeProfile.account_status || 'active',
     avatar_url: safeProfile.avatar_url || '',
   };
 }
@@ -93,7 +99,7 @@ async function fetchProfileByUserId(userId, fallbackUser = null) {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('id,email,username,avatar_url,role')
+    .select('id,email,username,avatar_url,role,account_status,suspended_until')
     .eq('id', userId)
     .maybeSingle();
 
@@ -124,18 +130,19 @@ async function ensureProfileForUser(sessionUser, cleanName = '') {
       username,
       avatar_url: sessionUser.user_metadata?.avatar_url || '',
       role: 'user',
+      account_status: 'active',
     };
     const payloadWithTimestamp = { ...payload, updated_at: new Date().toISOString() };
     const { data, error } = await supabase
       .from('profiles')
       .upsert(payloadWithTimestamp, { onConflict: 'id' })
-      .select('id,email,username,avatar_url,role')
+      .select('id,email,username,avatar_url,role,account_status,suspended_until')
       .maybeSingle();
     if (error?.message?.toLowerCase?.().includes('updated_at')) {
       const retry = await supabase
         .from('profiles')
         .upsert(payload, { onConflict: 'id' })
-        .select('id,email,username,avatar_url,role')
+        .select('id,email,username,avatar_url,role,account_status,suspended_until')
         .maybeSingle();
       if (retry.error) throw retry.error;
       return normalizeResolvedProfile(retry.data || payload, sessionUser);
@@ -375,6 +382,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    if (!supabase) throw new Error('Supabase no esta configurado.');
+    const { error } = await supabase.rpc('request_account_deletion');
+    if (error) throw new Error(error.message || 'Could not request account deletion.');
+    await logout();
+    return true;
+  };
+
   const navigateToLogin = () => {
     if (typeof window !== 'undefined') {
       window.location.href = '/auth';
@@ -406,7 +421,8 @@ export const AuthProvider = ({ children }) => {
       user,
       profile,
       role: profile?.role || user?.role || 'user',
-      isAdmin: (profile?.role || user?.role) === 'admin',
+      accountStatus: profile?.account_status || user?.account_status || 'active',
+      isAdmin: (profile?.role || user?.role) === 'admin' && ['active', 'warned'].includes(profile?.account_status || user?.account_status || 'active'),
       refreshProfile,
       isAuthenticated,
       isLoadingAuth,
@@ -415,6 +431,7 @@ export const AuthProvider = ({ children }) => {
       authError,
       appPublicSettings,
       logout,
+      deleteAccount,
       navigateToLogin,
       checkAppState,
       signIn,

@@ -88,7 +88,9 @@ const USER_FILTERS = [
   { id: 'new', label: 'New' },
   { id: 'reported', label: 'Reported' },
   { id: 'warned', label: 'Warned' },
+  { id: 'suspended', label: 'Suspended' },
   { id: 'banned', label: 'Banned' },
+  { id: 'deleted', label: 'Deleted' },
   { id: 'inactive', label: 'Inactive' },
 ];
 
@@ -298,6 +300,11 @@ async function deleteRow(table, id) {
 async function updateRow(table, id, payload) {
   const { error } = await supabase.from(table).update(payload).eq('id', id);
   if (error) throw error;
+}
+
+function confirmAdminAction(message) {
+  if (typeof window === 'undefined') return true;
+  return window.confirm(message);
 }
 
 function useAdminData(enabled) {
@@ -568,7 +575,7 @@ export default function Admin() {
     const items = [];
 
     reports.filter((report) => report.status === 'open' || report.status === 'reviewing').forEach((report) => {
-      const linkedUser = report.entity_type === 'profile' ? userMap.get(report.entity_id) : null;
+      const linkedUser = ['profile', 'user'].includes(report.entity_type) ? userMap.get(report.entity_id) : null;
       const linkedSpot = report.entity_type === 'spot' ? spotMap.get(report.entity_id) : null;
       items.push({
         id: `report-${report.id}`,
@@ -762,13 +769,14 @@ export default function Admin() {
 
   const userRows = React.useMemo(() => {
     let rows = users.map((person) => {
-      const signals = openReports.filter((item) => item.type === 'user' && item.entityId === person.id).length;
+      const signals = openReports.filter((item) => ['profile', 'user'].includes(item.type) && item.entityId === person.id).length;
       const totalActivity = (userSpotCountMap.get(person.id) || 0) + (userPlanCountMap.get(person.id) || 0) + (userMessageCountMap.get(person.id) || 0);
       const roleLabel = person.role || 'user';
-      let state = 'active';
-      if (signals >= 3) state = 'banned';
-      else if (signals > 0) state = 'warned';
-      else if (totalActivity === 0) state = 'inactive';
+      const suspendedUntil = person.suspended_until ? new Date(person.suspended_until).getTime() : null;
+      let state = person.account_status || 'active';
+      if (state === 'suspended' && suspendedUntil && suspendedUntil <= Date.now()) state = 'active';
+      if (state === 'active' && signals > 0) state = 'warned';
+      if (state === 'active' && totalActivity === 0) state = 'inactive';
       return {
         ...person,
         spotsCount: userSpotCountMap.get(person.id) || 0,
@@ -786,10 +794,12 @@ export default function Admin() {
     if (userFilter === 'new') rows = rows.filter((row) => (toTs(row.created_at) || 0) >= weekStart);
     if (userFilter === 'reported') rows = rows.filter((row) => row.reportsCount > 0);
     if (userFilter === 'warned') rows = rows.filter((row) => row.state === 'warned');
+    if (userFilter === 'suspended') rows = rows.filter((row) => row.state === 'suspended');
     if (userFilter === 'banned') rows = rows.filter((row) => row.state === 'banned');
+    if (userFilter === 'deleted') rows = rows.filter((row) => row.state === 'deleted');
     if (userFilter === 'inactive') rows = rows.filter((row) => row.state === 'inactive');
 
-    rows = rows.filter((row) => includesSearch(row.email, row.username, row.role, row.state));
+    rows = rows.filter((row) => includesSearch(row.email, row.username, row.role, row.account_status, row.state));
     return rows;
   }, [users, openReports, userSpotCountMap, userPlanCountMap, userMessageCountMap, userJoinedCountMap, userFilter, includesSearch, weekStart]);
 
@@ -821,7 +831,8 @@ export default function Admin() {
   });
   const userMutation = useMutation({
     mutationFn: ({ id, payload }) => updateRow('profiles', id, payload),
-    onSuccess: invalidateAll,
+    onSuccess: async () => { toast.success('User safety updated'); await invalidateAll(); },
+    onError: (error) => toast.error(error?.message || 'User action failed'),
   });
   const messageMutation = useMutation({
     mutationFn: ({ id, payload }) => updateRow('messages', id, payload),
@@ -1464,7 +1475,7 @@ export default function Admin() {
                           <div className="flex flex-wrap items-center gap-2">
                             <div className="truncate text-base font-black text-[#111111]">{getPublicUsername(person)}</div>
                             <StatusPill tone={person.role === 'admin' ? 'dark' : 'neutral'}>{person.roleLabel}</StatusPill>
-                            <StatusPill tone={person.state === 'banned' ? 'danger' : person.state === 'warned' ? 'warn' : 'success'}>{person.state}</StatusPill>
+                            <StatusPill tone={person.state === 'banned' || person.state === 'suspended' || person.state === 'deleted' ? 'danger' : person.state === 'warned' ? 'warn' : 'success'}>{person.state}</StatusPill>
                           </div>
                           <div className="mt-2 truncate text-sm text-[#6d665b]">{person.email}</div>
                           <div className="mt-3 flex flex-wrap gap-2">
@@ -1493,7 +1504,7 @@ export default function Admin() {
                           <div className="mt-1 text-sm text-[#6d665b]">{selectedUser.email}</div>
                           <div className="mt-2 flex flex-wrap gap-2">
                             <StatusPill tone={selectedUser.role === 'admin' ? 'dark' : 'neutral'}>{selectedUser.roleLabel}</StatusPill>
-                            <StatusPill tone={selectedUser.state === 'banned' ? 'danger' : selectedUser.state === 'warned' ? 'warn' : 'success'}>{selectedUser.state}</StatusPill>
+                            <StatusPill tone={selectedUser.state === 'banned' || selectedUser.state === 'suspended' || selectedUser.state === 'deleted' ? 'danger' : selectedUser.state === 'warned' ? 'warn' : 'neutral'}>{selectedUser.state}</StatusPill>
                           </div>
                         </div>
                       </div>
@@ -1541,15 +1552,40 @@ export default function Admin() {
                         <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8a8174]">Admin actions</div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           {selectedUser.role !== 'admin' ? (
-                            <AdminActionButton variant="warn" onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { role: 'admin' } })}><Shield className="mr-2 h-4 w-4" />Promote role</AdminActionButton>
+                            <AdminActionButton
+                              variant="warn"
+                              onClick={() => confirmAdminAction(`Promote ${selectedUser.username || selectedUser.email || 'this user'} to admin?`) && userMutation.mutate({ id: selectedUser.id, payload: { role: 'admin', moderation_note: 'Promoted from admin panel', updated_at: new Date().toISOString() } })}
+                            ><Shield className="mr-2 h-4 w-4" />Promote role</AdminActionButton>
                           ) : (
-                            <AdminActionButton variant="dark" disabled={selectedUser.id === profile?.id} onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { role: 'user' } })}><Shield className="mr-2 h-4 w-4" />Remove admin</AdminActionButton>
+                            <AdminActionButton
+                              variant="dark"
+                              disabled={selectedUser.id === profile?.id}
+                              onClick={() => confirmAdminAction(`Remove admin permissions from ${selectedUser.username || selectedUser.email || 'this user'}?`) && userMutation.mutate({ id: selectedUser.id, payload: { role: 'user', moderation_note: 'Admin role removed from admin panel', updated_at: new Date().toISOString() } })}
+                            ><Shield className="mr-2 h-4 w-4" />Remove admin</AdminActionButton>
                           )}
-                          <AdminActionButton variant="warn"><AlertTriangle className="mr-2 h-4 w-4" />Warn</AdminActionButton>
-                          <AdminActionButton variant="dark"><Ban className="mr-2 h-4 w-4" />Suspend</AdminActionButton>
-                          <AdminActionButton variant="danger"><Ban className="mr-2 h-4 w-4" />Ban</AdminActionButton>
-                          <AdminActionButton variant="neutral">Hide content</AdminActionButton>
-                          <AdminActionButton variant="neutral">View all content</AdminActionButton>
+                          <AdminActionButton
+                            variant="warn"
+                            onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { account_status: 'warned', warning_count: Number(selectedUser.warning_count || 0) + 1, moderation_note: 'Warned from admin panel', updated_at: new Date().toISOString() } })}
+                          ><AlertTriangle className="mr-2 h-4 w-4" />Warn</AdminActionButton>
+                          <AdminActionButton
+                            variant="dark"
+                            disabled={selectedUser.id === profile?.id}
+                            onClick={() => confirmAdminAction(`Suspend ${selectedUser.username || selectedUser.email || 'this user'} for 7 days?`) && userMutation.mutate({ id: selectedUser.id, payload: { account_status: 'suspended', suspended_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), moderation_note: 'Suspended for 7 days from admin panel', updated_at: new Date().toISOString() } })}
+                          ><Ban className="mr-2 h-4 w-4" />Suspend</AdminActionButton>
+                          <AdminActionButton
+                            variant="danger"
+                            disabled={selectedUser.id === profile?.id}
+                            onClick={() => confirmAdminAction(`Ban ${selectedUser.username || selectedUser.email || 'this user'}? This blocks posting and interactions.`) && userMutation.mutate({ id: selectedUser.id, payload: { account_status: 'banned', suspended_until: null, moderation_note: 'Banned from admin panel', updated_at: new Date().toISOString() } })}
+                          ><Ban className="mr-2 h-4 w-4" />Ban</AdminActionButton>
+                          <AdminActionButton
+                            variant="success"
+                            onClick={() => userMutation.mutate({ id: selectedUser.id, payload: { account_status: 'active', suspended_until: null, moderation_note: 'Restored from admin panel', updated_at: new Date().toISOString() } })}
+                          >Restore account</AdminActionButton>
+                          <AdminActionButton
+                            variant="neutral"
+                            onClick={() => confirmAdminAction(`Hide all spots from ${selectedUser.username || selectedUser.email || 'this user'}?`) && spots.filter((row) => row.created_by === selectedUser.id).forEach((row) => spotMutation.mutate({ id: row.id, payload: { status: 'hidden', reviewed_by: profile?.id || user?.id || null, reviewed_at: new Date().toISOString(), updated_at: new Date().toISOString() } }))}
+                          >Hide content</AdminActionButton>
+                          <AdminActionButton variant="neutral" onClick={() => goTo('spots', { spotFilter: 'all' })}>View all content</AdminActionButton>
                         </div>
                       </div>
 

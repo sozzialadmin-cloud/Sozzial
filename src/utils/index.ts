@@ -10,6 +10,11 @@ export const explicitRoutes: Record<string, string> = {
   NotificationsSettings: '/settings/notifications',
   LanguageSettings: '/settings/language',
   AccountSettings: '/settings/account',
+  Privacy: '/privacy',
+  Terms: '/terms',
+  Cookies: '/cookies',
+  Safety: '/safety',
+  DeleteAccount: '/delete-account',
 };
 
 export function createPageUrl(pageName: string) {

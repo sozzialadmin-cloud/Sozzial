@@ -1,12 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Bell, Globe, UserCog } from 'lucide-react';
+import { ArrowLeft, Bell, Cookie, FileText, Globe, Lock, ShieldCheck, Trash2, UserCog } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 
 const settings = [
   { icon: Bell, title: 'Notifications', desc: 'Only messages and new joins in your plans.', page: 'NotificationsSettings' },
   { icon: Globe, title: 'Language', desc: 'Keep the public app in English.', page: 'LanguageSettings' },
-  { icon: UserCog, title: 'Account', desc: 'Remember-me and session basics.', page: 'AccountSettings' },
+  { icon: UserCog, title: 'Account', desc: 'Remember-me, security and deletion.', page: 'AccountSettings' },
+  { icon: Lock, title: 'Privacy Policy', desc: 'How data, location, photos and profiles are handled.', page: 'Privacy' },
+  { icon: FileText, title: 'Terms of Service', desc: 'Rules for using Sozzial responsibly.', page: 'Terms' },
+  { icon: Cookie, title: 'Cookie Policy', desc: 'Login sessions, local storage and device preferences.', page: 'Cookies' },
+  { icon: ShieldCheck, title: 'Safety Guidelines', desc: 'Meetup safety, reports and moderation basics.', page: 'Safety' },
+  { icon: Trash2, title: 'Delete Account', desc: 'How deletion requests are handled.', page: 'DeleteAccount' },
 ];
 
 export default function SettingsPage() {

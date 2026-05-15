@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
@@ -7,7 +7,19 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { getPublicUsername } from "@/lib/display-name";
 
+function validateImageFile(file) {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!allowedTypes.includes(String(file.type || '').toLowerCase()) || !['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+    throw new Error('Use a JPG, PNG or WEBP image.');
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('Image is too large. Max size is 5 MB.');
+  }
+}
+
 async function uploadSpotPhoto(file, userId) {
+  validateImageFile(file);
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const fileName = `${Date.now()}.${ext}`;
   const filePath = `${userId}/${fileName}`;

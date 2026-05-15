@@ -14,6 +14,11 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const NotificationsSettings = lazy(() => import('./pages/NotificationsSettings'));
 const LanguageSettings = lazy(() => import('./pages/LanguageSettings'));
 const AccountSettings = lazy(() => import('./pages/AccountSettings'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Cookies = lazy(() => import('./pages/Cookies'));
+const Safety = lazy(() => import('./pages/Safety'));
+const DeleteAccount = lazy(() => import('./pages/DeleteAccount'));
 
 export const PAGES = {
   Landing,
@@ -29,6 +34,11 @@ export const PAGES = {
   NotificationsSettings,
   LanguageSettings,
   AccountSettings,
+  Privacy,
+  Terms,
+  Cookies,
+  Safety,
+  DeleteAccount,
 };
 
 export const pagesConfig = {
